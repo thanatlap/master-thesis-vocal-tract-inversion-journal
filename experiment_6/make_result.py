@@ -189,7 +189,7 @@ def log_format_plot(log, formant_dir, save_csv_dir, label_name_path):
 	utils.export_format_csv(label_name, formant_dir ,sel_point = sel_point)
 
 # Add to main log file
-def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name):
+def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name, stop_at):
 
 	os.makedirs('result', exist_ok=True)
 	log_file = join('..',cf.LOG_SHEET)
@@ -217,6 +217,7 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, train
 				'EarlyStopPatience': cf.EARLY_STOP_PATIENCE,
 				'Batch size':cf.BATCH_SIZE,
 				'Epochs': cf.EPOCHS,
+				'EarlyStop At':stop_at,
 				'Learning rate': cf.LEARNING_RATE,
 				'Train feature shape':str(X_train.shape),
 				'Label shape':str(y_train.shape),
@@ -257,7 +258,7 @@ def log_experiment_csv_eval(experiment_num, result, r2):
 		print('Need to create main log in training file first!')
 
 def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, 
-	result, r2, history, model, training_y_pred, training_result, training_r2, total_time, model_name):
+	result, r2, history, model, training_y_pred, training_result, training_r2, total_time, model_name, early):
 
 	# create log directory
 	log_dir = join('result','training_'+str(experiment_num))
@@ -266,7 +267,13 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	log_csv_dir = join(log_dir,'csv')
 	os.makedirs(log_csv_dir,exist_ok=True)
 	# log experiment to csv file
-	log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name)
+
+	if cf.EARLY_STOP_PATIENCE:
+		stop_at = early.stopped_epoch + 1
+	else:
+		stop_at = np.NaN
+
+	log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name,stop_at)
 
 	log = utils.get_log()
 	log.write('========================================================\n')

@@ -88,7 +88,9 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 		
 		callback_list = [checkpoint, early]
 	else:
+		early = None
 		callback_list = [checkpoint]
+
 	history = model.fit(features,labels,
 		batch_size=batch_size,
 		epochs=epochs,
@@ -109,7 +111,7 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 	model.save(join('model',model_name))
 	shutil.rmtree(join('model','checkpoint'))
 
-	return history, total_time
+	return history, total_time, early
 
 def testing(features, labels, model):
 	'''
@@ -132,14 +134,14 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 		# initialize/load model
 		model = get_model(model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
 		# training
-		history, total_time = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
+		history, total_time, early = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
 		# evaluating
 		y_pred, result, r2 = testing(X_test, y_test, model)
 		# evaluate on training set
 		training_y_pred, training_result, training_r2 = testing(X_train, y_train, model)
 		# log experiment	
 		res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, result, r2, history, model, 
-			training_y_pred, training_result, training_r2, total_time, model_name)
+			training_y_pred, training_result, training_r2, total_time, model_name, early)
 		print('Result experiment number: #%s'%experiment_num)
 		print('Result RMSE: %.4f'%(result[1]))
 		print('Result R2: %.4f\n'%(r2))
@@ -176,14 +178,14 @@ def main():
 	# 	experiment_num=105, model_name='nn_fbc_6')
 	# training_fn(nn.nn_fbc_11, X_train, X_val, X_test, y_train, y_val, y_test, 
 	# 	experiment_num=106, model_name='nn_fbc_11')
-	training_fn(nn.nn_fbc_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=107, model_name='nn_fbc_12')
-	training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=108, model_name='nn_bilstm_22')
-	training_fn(nn.nn_bilstm_23, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=109, model_name='nn_bilstm_23')
+	# training_fn(nn.nn_fbc_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=107, model_name='nn_fbc_12')
+	# training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=108, model_name='nn_bilstm_22')
+	# training_fn(nn.nn_bilstm_23, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=109, model_name='nn_bilstm_23')
 	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=110, model_name='nn_fc')
+		experiment_num=111, model_name='nn_fc_test_code')
 
 if __name__ == '__main__':
 	main()
