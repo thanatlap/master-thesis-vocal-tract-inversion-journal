@@ -5,7 +5,7 @@ DI_SYLLABLE = False
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_2/prep_data'
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
-DATASET_DIR = '../data/m_dataset_3_u_L/prep_data'
+DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
 
 #---------------------------------
 TEST_SIZE = 0.05

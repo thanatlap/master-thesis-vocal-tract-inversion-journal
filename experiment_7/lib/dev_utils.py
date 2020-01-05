@@ -51,7 +51,7 @@ def standardized_labels(params, is_train, is_disyllable):
 			raise ValueError('File %s doest exist'%vars_dir)
 	# normalize each feature by its mean and plus small value to 
 	# prevent value of zero
-	params = (params - mean + 1e-8)/std
+	params = (params - mean)/std
 	
 	return params
 
@@ -63,7 +63,7 @@ def destandardized_label(params, is_disyllable):
 		mean_std = np.load(filepath).tolist()
 		mean = mean_std[0]
 		std = mean_std[1]
-	params = (params*std)+mean-1e-8
+	params = (params*std)+mean
 
 def delete_WC_param(params):
 	return np.delete(params, 8, axis=1)

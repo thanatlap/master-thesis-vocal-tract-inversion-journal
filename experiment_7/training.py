@@ -155,66 +155,9 @@ def main():
 
 	# -- MONOSYLLABLE MODEL
 
-	# cf.LOSS_FN = [nn.rmse]
-	
-	# training_fn(nn.nn_bilstm, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=97, model_name='nn_bilstm')
-	# training_fn(nn.nn_lstm, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=98, model_name='nn_lstm')
-	# training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=99, model_name='nn_bilstm_12')
-	# training_fn(nn.nn_bilstm_15, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=100, model_name='nn_bilstm_15')
-	# training_fn(nn.nn_fc_bilstm_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=101, model_name='nn_fc_bilstm_fc_drop')
-	# training_fn(nn.nn_fc_bilstm_fc_2_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=102, model_name='nn_fc_bilstm_fc_2_drop')
-	# training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=103, model_name='nn_fc_bilstm_cn_fc_drop')
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=104, model_name='nn_fbc_5')
-	# training_fn(nn.nn_fbc_6, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=105, model_name='nn_fbc_6')
-	# training_fn(nn.nn_fbc_11, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=106, model_name='nn_fbc_11')
-	# training_fn(nn.nn_fbc_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=107, model_name='nn_fbc_12')
-	# training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=108, model_name='nn_bilstm_22')
-	# training_fn(nn.nn_bilstm_23, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=109, model_name='nn_bilstm_23')
-
-	# cf.LOSS_FN = [nn.custom_loss]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		# experiment_num=112, model_name='nn_fbc_5_cusLoss')
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=113, model_name='nn_fbc_5_cusLoss')
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=114, model_name='nn_fbc_5_cusLoss')
-
-	# cf.LOSS_FN = [nn.custom_loss2]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=115, model_name='nn_fbc_5_cusLoss')
-
-	cf.LOSS_FN = [nn.custom_loss2]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=116, model_name='nn_fbc_5_cusLoss')
-
-	cf.LOSS_FN = [nn.custom_loss3]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=117, model_name='nn_fbc_5_cusLoss')
-
-	cf.LOSS_FN = [nn.custom_loss4]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=118, model_name='nn_fbc_5_cusLoss')
-
-	cf.LOSS_FN = [nn.custom_loss5]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=119, model_name='nn_fbc_5_cusLoss')
-
 	cf.LOSS_FN = [nn.custom_loss6]
 	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=120, model_name='nn_fbc_5_cusLoss')
+		experiment_num=124, model_name='nn_fbc_5_cusLoss')
 
 if __name__ == '__main__':
 	main()

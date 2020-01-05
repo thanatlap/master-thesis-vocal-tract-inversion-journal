@@ -199,7 +199,7 @@ def standardize_mfcc(features, is_train, is_disyllable):
 	# normalize each feature by its mean and plus small value to 
 	# prevent value of zero
 	# features -= (np.mean(features, axis=0) + 1e-8)
-	features = (features - (mean + 1e-8))/std
+	features = (features - mean)/std
 	
 	return features 
 
@@ -224,7 +224,7 @@ def standardized_labels(params, mode, is_disyllable):
 			raise ValueError('File %s doest exist'%vars_dir)
 	# normalize each feature by its mean and plus small value to 
 	# prevent value of zero
-	params = (params - mean + 1e-8)/std
+	params = (params - mean)/std
 	
 	return params
 
@@ -361,7 +361,7 @@ def main(args):
 	log.write('Output_path: %s\n'%str(args.output_path))
 	log.write('Augment_Frac: %s\n'%str(args.augment_frac))
 	log.write('Sample_Rate: %s\n'%str(args.sample_rate))
-	log.write('Test_size (in %): %s\n'%str(args.test_size))
+	log.write('Test size (in percent): %s\n'%str(args.test_size))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Data preprocessing")
