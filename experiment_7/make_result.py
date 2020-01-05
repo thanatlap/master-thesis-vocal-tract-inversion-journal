@@ -359,8 +359,8 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('\n')
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Inverse-transform Label\n')
-	t_actual_label = utils.label_transform(actual_label, invert=True)
-	t_y_pred = utils.label_transform(y_pred, invert=True)
+	t_actual_label = utils.label_transform_standardized(actual_label, None, cf.DI_SYLLABLE, invert=True)
+	t_y_pred = utils.label_transform_standardized(y_pred, None, cf.DI_SYLLABLE, invert=True)
 	#RMSE of each vowel after descaling
 	log_rmse_distribution(log, 
 		t_actual_label, 

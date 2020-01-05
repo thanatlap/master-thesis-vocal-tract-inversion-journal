@@ -27,7 +27,7 @@ def prep_data():
 	dataset = np.load(join(cf.EVALSET_DIR,cf.PREP_EVAL_FOLDER,'eval_dataset.npz'))
 	features =dataset['features']
 	labels= dataset['labels']
-	# delete WC from label because the model doesnt train to predict this
+
 	labels = utils.delete_params(labels)
 
 	if cf.CNN:
@@ -75,7 +75,7 @@ def main():
 	print('Result R2: %.4f'%(r2))
 	# invert param back to predefined speaker scale
 	print('[INFO] transform label')
-	params = utils.label_transform(y_pred, invert=True)
+	params = utils.label_transform_standardized(y_pred, None, cf.DI_SYLLABLE, invert=True)
 	# convert label into a sound if the model is D-AAI, the label is merge into disyllabic vowel
 	# syllable name is not given because it already convert to disyllable since the prep_eval_set.py
 	params = gen.convert_to_disyllabic_parameter(params) if cf.DI_SYLLABLE else params

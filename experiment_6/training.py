@@ -221,9 +221,9 @@ def main():
 	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
 	# 	experiment_num=121, model_name='nn_fbc_5_cusLoss')
 
-	cf.LOSS_FN = [nn.custom_loss6]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=122, model_name='nn_fbc_5_cusLoss')
+	# cf.LOSS_FN = [nn.custom_loss6]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=122, model_name='nn_fbc_5_cusLoss')
 
 	cf.EARLY_STOP_PATIENCE = 20
 	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 

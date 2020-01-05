@@ -70,7 +70,7 @@ def main(args):
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
 		syllable_name = np.array([item for pair in syllable_name for item in pair]) if is_disyllable else syllable_name
 	# invert param back to predefined speaker scale
-	params = utils.label_transform(y_pred, invert=True)
+	params = utils.label_transform_standardized(y_pred, None, cf.DI_SYLLABLE, invert=True)
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	

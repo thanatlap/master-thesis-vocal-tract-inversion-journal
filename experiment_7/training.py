@@ -34,7 +34,6 @@ def prep_data():
 	print(X_train.shape)
 	print(y_train.shape)
 
-	# preprocess subset by deleted WC param (because it alway 0)
 	y_train = utils.delete_params(y_train)
 	y_val = utils.delete_params(y_val)
 	y_test = utils.delete_params(y_test)

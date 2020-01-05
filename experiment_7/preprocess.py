@@ -177,7 +177,7 @@ def transform_delta(mfcc):
 	'''
 	return np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=1)
 
-def normalized_mfcc(features, is_train, is_disyllable):
+def standardize_mfcc(features, is_train, is_disyllable):
 
 	vars_dir = 'vars'
 	filename = 'mean_std_di.npy' if is_disyllable else 'mean_std_mono.npy' 
@@ -197,9 +197,45 @@ def normalized_mfcc(features, is_train, is_disyllable):
 			raise ValueError('File %s doest exist'%vars_dir)
 	# normalize each feature by its mean and plus small value to 
 	# prevent value of zero
-	features -= (np.mean(features, axis=0) + 1e-8)
+	# features -= (np.mean(features, axis=0) + 1e-8)
+	features = (features - (mean + 1e-8))/std
 	
 	return features 
+
+def standardized_labels(params, mode, is_disyllable):
+
+	vars_dir = 'vars'
+	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
+	filepath = join(vars_dir, filename)
+	os.makedirs(vars_dir, exist_ok=True)
+	
+	# find mean of each feature in each timestep
+	if mode == 'training':
+		mean = np.mean(params, axis=0)
+		std = np.std(params, axis=0)
+		np.save(filepath,np.array([mean, std]))
+	else:
+		if os.path.isfile(filepath):
+			mean_std = np.load(filepath).tolist()
+			mean = mean_std[0]
+			std = mean_std[1]
+		else:
+			raise ValueError('File %s doest exist'%vars_dir)
+	# normalize each feature by its mean and plus small value to 
+	# prevent value of zero
+	params = (params - mean + 1e-8)/std
+	
+	return params
+
+def destandardized_label(params, is_disyllable):
+	vars_dir = 'vars'
+	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
+	filepath = join(vars_dir, filename)
+	if os.path.isfile(filepath):
+		mean_std = np.load(filepath).tolist()
+		mean = mean_std[0]
+		std = mean_std[1]
+	params = (params*std)+mean-1e-8
 
 def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train):
 	if is_disyllable:
@@ -216,7 +252,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 	features = transform_delta(features)
 	# Normalize MFCCs 
 	print('[INFO] Normalization in each timestep')
-	features = normalized_mfcc(features, is_train, is_disyllable)
+	features = standardize_mfcc(features, is_train, is_disyllable)
 	# swap dimension to (data, timestamp, features)
 	print('[INFO] Swap axis to (data, timestamp, features)')
 	features = np.swapaxes(features ,1,2)
@@ -248,7 +284,7 @@ def main(args):
 	# if not predict data, the label is given and need to be scaled
 	if args.mode != 'predict':
 		print('[INFO] Adjusting labels')
-		labels = scale_speaker_syllable(labels, args.data_path, mode=args.mode)
+		labels = standardized_labels(labels, args.mode, disyllable)
 	# split data into train, test, validate subset if mode = 'training', else, evaluate and test
 	if args.mode == 'training':
 		print('[INFO] Split audio data into different subset')
