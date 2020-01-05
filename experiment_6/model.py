@@ -5,7 +5,14 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Activation, BatchNormalization 
 
 def rmse(y_true, y_pred):
-    return K.sqrt(K.mean(K.square(y_pred - y_true)))
+	return K.sqrt(K.mean(K.square(y_pred - y_true)))
+
+def custom_loss(y_true, y_pred):
+	SS_res =  K.sum(K.square( y_true-y_pred ))
+	SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
+	R2 = ( 1 - SS_res/(SS_tot + K.epsilon()) )
+	mse = tf.keras.losses.MSE(y_true,y_pred)
+	return (1-R2)*mse + mse
 
 def nn_fc(input_shape_1,input_shape_2):
 

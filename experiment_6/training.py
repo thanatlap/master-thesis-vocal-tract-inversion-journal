@@ -184,8 +184,11 @@ def main():
 	# 	experiment_num=108, model_name='nn_bilstm_22')
 	# training_fn(nn.nn_bilstm_23, X_train, X_val, X_test, y_train, y_val, y_test, 
 	# 	experiment_num=109, model_name='nn_bilstm_23')
-	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=111, model_name='nn_fc_test_code')
+
+	cf.LOSS_FN = [nn.custom_loss]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=112, model_name='nn_fbc_5_cusLoss')
+
 
 if __name__ == '__main__':
 	main()

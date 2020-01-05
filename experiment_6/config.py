@@ -49,8 +49,8 @@ PREP_EVAL_FOLDER = 'prep_data_3m'
 # EVAL_EXP_NUM = 9
 
 EVALSET_DIR = '../data/m_eval'
-MODEL_FILE = 'nn_fbc_6_20200103_1825.h5'
-EVAL_EXP_NUM = 67
+MODEL_FILE = '104_nn_fbc_5_20200104_1406.h5'
+EVAL_EXP_NUM = 104
 
 #----------------------------------
 # Praat config
