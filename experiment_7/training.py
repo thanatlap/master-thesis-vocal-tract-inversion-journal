@@ -34,10 +34,6 @@ def prep_data():
 	print(X_train.shape)
 	print(y_train.shape)
 
-	y_train = utils.delete_params(y_train)
-	y_val = utils.delete_params(y_val)
-	y_test = utils.delete_params(y_test)
-
 	if cf.CNN:
 		X_train = utils.cnn_reshape(X_train)
 		X_val = utils.cnn_reshape(X_val)

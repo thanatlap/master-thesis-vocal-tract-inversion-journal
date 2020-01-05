@@ -95,13 +95,16 @@ def log_stat_distribution(log,actual, pred, log_dir, subset):
 def log_each_param(log, measure_by_param, is_scale, measure_name):
 	for idx, each_param_name in enumerate(utils.param_name):
 		# if index is WC, print 'not predict'
-		if idx in [8,15,16,21,22,23]:
+		if idx in [2,7,8,15,16,21,22,23]:
 			log.write('PARAMETER NOT PREDICT\n')
 		else:
 			if is_scale and (idx > 16):
 				# the transform param doesnt have WC, thus, the label index is three step behind.
-				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-3]))
+				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-5]))
 			elif is_scale and (idx > 8):
+				# the transform param doesnt have WC, thus, the label index is one step behind.
+				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-3]))
+			elif is_scale and (idx > 2):
 				# the transform param doesnt have WC, thus, the label index is one step behind.
 				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-1]))
 			else:
@@ -111,6 +114,8 @@ def log_each_param(log, measure_by_param, is_scale, measure_name):
 def get_np_label_name_for_log(is_scale):
 	label_name = utils.param_name.tolist()
 	if is_scale:
+		label_name.remove("JX")
+		label_name.remove("VO")
 		label_name.remove("WC")
 		label_name.remove("TRX")
 		label_name.remove("TRY")

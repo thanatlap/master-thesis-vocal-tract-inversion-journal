@@ -63,7 +63,7 @@ def destandardized_label(params, is_disyllable):
 		mean_std = np.load(filepath).tolist()
 		mean = mean_std[0]
 		std = mean_std[1]
-	params = (params*std)+mean
+	return (params*std)+mean
 
 def delete_WC_param(params):
 	return np.delete(params, 8, axis=1)
@@ -103,7 +103,7 @@ def label_transform(labels, invert=False):
 	return descale_labels(add_params(labels)) if invert else delete_params(scale_labels(labels))
 
 def label_transform_standardized(labels, is_train, is_disyllable, invert=False):
-	return destandardized_label(add_params(labels), is_disyllable) if invert else delete_params(standardized_labels(labels, is_train, is_disyllable))
+	return add_params(destandardized_label(labels, is_disyllable))
 
 # define a function to plot the result from training step
 def show_result(history, save_file, history_tag = ['loss','val_loss','rmse','val_rmse'], metric_label='RMSE'): 

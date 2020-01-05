@@ -39,7 +39,7 @@ CNN = False
 # --------------------------------
 # Evaluation
 # --------------------------------
-PREP_EVAL_FOLDER = 'prep_data_3m'
+PREP_EVAL_FOLDER = 'prep_data_exp7'
 
 # EVALSET_DIR = '../data/d_eval'
 # MODEL_FILE = '19_d_bilstm_early10.h5'
@@ -49,8 +49,8 @@ PREP_EVAL_FOLDER = 'prep_data_3m'
 # EVAL_EXP_NUM = 9
 
 EVALSET_DIR = '../data/m_eval'
-MODEL_FILE = '114_nn_fbc_5_cusLoss_20200105_1425.h5'
-EVAL_EXP_NUM = 114
+MODEL_FILE = '124_nn_fbc_5_cusLoss_20200106_0007.h5'
+EVAL_EXP_NUM = 124
 
 #----------------------------------
 # Praat config

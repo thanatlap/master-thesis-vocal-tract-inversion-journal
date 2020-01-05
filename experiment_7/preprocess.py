@@ -25,6 +25,8 @@ import argparse
 from sklearn.model_selection import train_test_split
 from datetime import datetime
 
+import lib.dev_utils as utils
+
 
 def import_data(data_path, mode):
 	'''
@@ -203,46 +205,17 @@ def standardize_mfcc(features, is_train, is_disyllable):
 	
 	return features 
 
-def standardized_labels(params, mode, is_disyllable):
-
-	vars_dir = 'vars'
-	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
-	filepath = join(vars_dir, filename)
-	os.makedirs(vars_dir, exist_ok=True)
-	
-	# find mean of each feature in each timestep
-	if mode == 'training':
-		mean = np.mean(params, axis=0)
-		std = np.std(params, axis=0)
-		np.save(filepath,np.array([mean, std]))
-	else:
-		if os.path.isfile(filepath):
-			mean_std = np.load(filepath).tolist()
-			mean = mean_std[0]
-			std = mean_std[1]
-		else:
-			raise ValueError('File %s doest exist'%vars_dir)
-	# normalize each feature by its mean and plus small value to 
-	# prevent value of zero
-	params = (params - mean)/std
-	
-	return params
-
-def destandardized_label(params, is_disyllable):
-	vars_dir = 'vars'
-	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
-	filepath = join(vars_dir, filename)
-	if os.path.isfile(filepath):
-		mean_std = np.load(filepath).tolist()
-		mean = mean_std[0]
-		std = mean_std[1]
-	params = (params*std)+mean-1e-8
-
 def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train):
 	if is_disyllable:
 		# split audio data for disyllable, note that if mode=predict, labels is [].
 		print('[INFO] Spliting audio data for disyllabic')
 		features, labels = split_audio(features, labels, mode=mode)
+
+	print('[INFO] Remove label param having std < 0.05')
+	labels = utils.delete_params(labels)
+	print('[INFO] Standardized labels')
+	labels = utils.standardized_labels(labels, is_train, is_disyllable)
+
 	print('[INFO] Padding audio length')
 	features = zero_padding_audio(features, mode, is_disyllable, is_train)
 	# get mfcc
@@ -282,10 +255,7 @@ def main(args):
 	print('[INFO] Loading audio and labels data')
 	audio_data = load_audio(audio_paths, args.sample_rate)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
-	# if not predict data, the label is given and need to be scaled
-	if args.mode != 'predict':
-		print('[INFO] Adjusting labels')
-		labels = standardized_labels(labels, args.mode, disyllable)
+	
 	# split data into train, test, validate subset if mode = 'training', else, evaluate and test
 	if args.mode == 'training':
 		print('[INFO] Split audio data into different subset')
@@ -321,7 +291,7 @@ def main(args):
 			is_disyllable=disyllable, 
 			sample_rate=args.sample_rate,
 			is_train=False)
-
+		
 	# export data
 	print('[INFO] Exporting features and labels')
 
