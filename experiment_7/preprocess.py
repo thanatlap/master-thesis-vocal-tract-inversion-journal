@@ -23,6 +23,7 @@ import random
 import itertools
 import argparse
 from sklearn.model_selection import train_test_split
+from datetime import datetime
 
 
 def import_data(data_path, mode):
@@ -350,6 +351,17 @@ def main(args):
 	else:
 		np.save(arr=features, file=join(output_path,'features.npy'))
 	print('[INFO] Data preprocessing completed')
+
+	log = open(join(output_path,'description.txt'),"w")
+	log.write('Date %s\n'%str(datetime.now().strftime("%Y-%B-%d %H:%M")))
+	log.write('Mode: %s\n'%str(args.mode))
+	log.write('Data_path: %s\n'%str(args.data_path))
+	log.write('Syllable: %s\n'%str(args.syllable))
+	log.write('Used Augmentation: %s\n'%str(args.augment))
+	log.write('Output_path: %s\n'%str(args.output_path))
+	log.write('Augment_Frac: %s\n'%str(args.augment_frac))
+	log.write('Sample_Rate: %s\n'%str(args.sample_rate))
+	log.write('Test_size (in %): %s\n'%str(args.test_size))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Data preprocessing")
