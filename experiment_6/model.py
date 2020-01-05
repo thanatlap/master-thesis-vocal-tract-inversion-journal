@@ -54,6 +54,11 @@ def custom_loss6(y_true, y_pred):
 	adjustR2 = AdjustR2(y_true, y_pred)
 	return (1-adjustR2)*K.sqrt(mse) + K.sqrt(mse)
 
+def custom_loss7(y_true, y_pred):
+	mse = K.mean(K.square(y_pred - y_true), axis=-1)
+	adjustR2 = AdjustR2(y_true, y_pred)
+	return (1-adjustR2)*mse + K.sqrt(mse)
+
 
 def nn_fc(input_shape_1,input_shape_2):
 

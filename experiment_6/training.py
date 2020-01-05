@@ -66,7 +66,7 @@ def get_model(model_fn, input_shape):
 			model.load_weights(cf.LOAD_FROM_CHECKPOINT)
 		# inti optimizer and complied
 		opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
-		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse, nn.AdjustR2])
+		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
 	return model
 
 def training(features, labels, val_features, val_labels, model, batch_size = cf.BATCH_SIZE, epochs = cf.EPOCHS, model_name=None, experiment_num=None):
@@ -197,25 +197,37 @@ def main():
 	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
 	# 	experiment_num=115, model_name='nn_fbc_5_cusLoss')
 
-	cf.LOSS_FN = [nn.custom_loss2]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=116, model_name='nn_fbc_5_cusLoss')
+	# cf.LOSS_FN = [nn.custom_loss2]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=116, model_name='nn_fbc_5_cusLoss')
 
-	cf.LOSS_FN = [nn.custom_loss3]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=117, model_name='nn_fbc_5_cusLoss')
+	# cf.LOSS_FN = [nn.custom_loss3]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=117, model_name='nn_fbc_5_cusLoss')
 
-	cf.LOSS_FN = [nn.custom_loss4]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=118, model_name='nn_fbc_5_cusLoss')
+	# cf.LOSS_FN = [nn.custom_loss4]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=118, model_name='nn_fbc_5_cusLoss')
 
-	cf.LOSS_FN = [nn.custom_loss5]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=119, model_name='nn_fbc_5_cusLoss')
+	# cf.LOSS_FN = [nn.custom_loss5]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=119, model_name='nn_fbc_5_cusLoss')
+
+	# cf.LOSS_FN = [nn.custom_loss6]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=120, model_name='nn_fbc_5_cusLoss')
+
+	# cf.LOSS_FN = [nn.custom_loss7]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=121, model_name='nn_fbc_5_cusLoss')
 
 	cf.LOSS_FN = [nn.custom_loss6]
 	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=120, model_name='nn_fbc_5_cusLoss')
+		experiment_num=122, model_name='nn_fbc_5_cusLoss')
+
+	cf.EARLY_STOP_PATIENCE = 20
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=123, model_name='nn_fbc_5_cusLoss')
 
 if __name__ == '__main__':
 	main()

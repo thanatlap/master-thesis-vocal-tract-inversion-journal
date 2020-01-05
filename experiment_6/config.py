@@ -31,7 +31,7 @@ BATCH_SIZE = 64
 EPOCHS = 1000
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 10
+EARLY_STOP_PATIENCE = 15
 
 # Model Type
 CNN = False
@@ -49,8 +49,8 @@ PREP_EVAL_FOLDER = 'prep_data_3m'
 # EVAL_EXP_NUM = 9
 
 EVALSET_DIR = '../data/m_eval'
-MODEL_FILE = '114_nn_fbc_5_cusLoss_20200105_1425.h5'
-EVAL_EXP_NUM = 114
+MODEL_FILE = '121_nn_fbc_5_cusLoss_20200105_2059.h5'
+EVAL_EXP_NUM = 121
 
 #----------------------------------
 # Praat config

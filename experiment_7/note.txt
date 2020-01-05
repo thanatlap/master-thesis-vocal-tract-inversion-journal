@@ -1,7 +1,2 @@
-generate new monosyllabic data with less timeframe (sample_rate=8000)
-
-using m_dataset_3_u as dataset
-
-increase data size from m_dataset_3_u (named m_dataset_3_u_L)
-
-add: stop epoch number in make_result.py file
+continue from 6 (05 Jan 2020)
+- change from label normalization to standardization

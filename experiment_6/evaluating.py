@@ -55,6 +55,7 @@ def evaluating(features, labels):
 		'custom_loss4':nn.custom_loss4,
 		'custom_loss5':nn.custom_loss5,
 		'custom_loss6':nn.custom_loss6,
+		'custom_loss7':nn.custom_loss7,
 		})
 	model.summary()
 	#Evaluate and predict
