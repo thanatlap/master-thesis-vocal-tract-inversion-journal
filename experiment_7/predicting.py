@@ -30,7 +30,16 @@ def predict(features, model_file):
 	Load model and predict the vocaltract parameter from given audio
 	'''
 	#Load model for evaluated
-	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse})
+	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse, 
+		'R2': nn.R2,
+		'AdjustR2': nn.AdjustR2,
+		'custom_loss':nn.custom_loss, 
+		'custom_loss2':nn.custom_loss2,
+		'custom_loss3':nn.custom_loss3,
+		'custom_loss4':nn.custom_loss4,
+		'custom_loss5':nn.custom_loss5,
+		'custom_loss6':nn.custom_loss6,
+		})
 	model.summary()
 	y_pred = model.predict(features)
 	return y_pred

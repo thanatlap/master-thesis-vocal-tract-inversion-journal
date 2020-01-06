@@ -1,11 +1,13 @@
 # Description
-EXP_DESCRIPTION = 'MONOSYLLABIC WITH FEWER TIMEFRAME'
-DI_SYLLABLE = False
-# DI_SYLLABLE = True
+# EXP_DESCRIPTION = 'MONOSYLLABIC WITH FEWER TIMEFRAME'
+EXP_DESCRIPTION = 'DISYLLABIC WITH NEW METHOD (EXP7)'
+# DI_SYLLABLE = False
+DI_SYLLABLE = True
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_2/prep_data'
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
-DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
+# DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
+DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
 
 #---------------------------------
 TEST_SIZE = 0.05
@@ -31,7 +33,7 @@ BATCH_SIZE = 64
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 10
+EARLY_STOP_PATIENCE = 30 # should increase earlystop since it seen can be improve
 
 # Model Type
 CNN = False
@@ -49,8 +51,8 @@ PREP_EVAL_FOLDER = 'prep_data_exp7'
 # EVAL_EXP_NUM = 9
 
 EVALSET_DIR = '../data/m_eval'
-MODEL_FILE = '140_nn_fbc_5_cusLoss_20200106_1120.h5'
-EVAL_EXP_NUM = 140
+MODEL_FILE = '124_nn_fbc_5_20200106_1456.h5'
+EVAL_EXP_NUM = 124
 
 #----------------------------------
 # Praat config

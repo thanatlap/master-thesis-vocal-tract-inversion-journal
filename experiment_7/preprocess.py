@@ -211,10 +211,11 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		print('[INFO] Spliting audio data for disyllabic')
 		features, labels = split_audio(features, labels, mode=mode)
 
-	print('[INFO] Remove label param having std < 0.05')
-	labels = utils.delete_params(labels)
-	print('[INFO] Standardized labels')
-	labels = utils.standardized_labels(labels, is_train, is_disyllable)
+	if mode != 'predict':
+		print('[INFO] Remove label param having std < 0.05')
+		labels = utils.delete_params(labels)
+		print('[INFO] Standardized labels')
+		labels = utils.standardized_labels(labels, is_train, is_disyllable)
 
 	print('[INFO] Padding audio length')
 	features = zero_padding_audio(features, mode, is_disyllable, is_train)
