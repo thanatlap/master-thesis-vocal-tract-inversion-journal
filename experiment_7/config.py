@@ -29,7 +29,7 @@ OPT = 'AMSGrad' # for record only
 # Training
 BATCH_SIZE = 64
 EPOCHS = 1000
-MODEL_VERBOSE = 2
+MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = 10
 
@@ -49,8 +49,8 @@ PREP_EVAL_FOLDER = 'prep_data_exp7'
 # EVAL_EXP_NUM = 9
 
 EVALSET_DIR = '../data/m_eval'
-MODEL_FILE = '124_nn_fbc_5_cusLoss_20200106_0007.h5'
-EVAL_EXP_NUM = 124
+MODEL_FILE = '140_nn_fbc_5_cusLoss_20200106_1120.h5'
+EVAL_EXP_NUM = 140
 
 #----------------------------------
 # Praat config

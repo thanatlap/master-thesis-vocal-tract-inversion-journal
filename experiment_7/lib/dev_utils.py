@@ -206,6 +206,10 @@ def plot_scatter(actual,pred, save_dir):
 def compute_R2(actual,pred, multioutput='raw_values'):
 	return r2_score(actual,pred, multioutput=multioutput)
 
+def compute_AdjustR2(actual,pred, multioutput='raw_values'):
+	R2 = r2_score(actual,pred, multioutput=multioutput)
+	return 1-(1-R2)*(int(pred.shape[0])-1)/(int(pred.shape[0])-int(pred.shape[1])-1)
+
 
 # Calculate formant
 def get_formant(sound_sets, save_dir, praatEXE, label, is_disyllable = False):

@@ -61,7 +61,7 @@ def get_model(model_fn, input_shape):
 			model.load_weights(cf.LOAD_FROM_CHECKPOINT)
 		# inti optimizer and complied
 		opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
-		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse, nn.AdjustR2])
+		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
 	return model
 
 def training(features, labels, val_features, val_labels, model, batch_size = cf.BATCH_SIZE, epochs = cf.EPOCHS, model_name=None, experiment_num=None):
@@ -79,7 +79,7 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 		# Early stop
 		early = callbacks.EarlyStopping(monitor='val_loss', 
 			min_delta=0, patience=cf.EARLY_STOP_PATIENCE, 
-			verbose=1, mode='min', baseline=0.050, restore_best_weights=False)
+			verbose=1, mode='min', baseline=None, restore_best_weights=False)
 		
 		callback_list = [checkpoint, early]
 	else:
@@ -113,7 +113,7 @@ def testing(features, labels, model):
 	evaluate on test subset using rmse and R2
 	'''
 	y_pred, result = utils.evaluation_report(model,features,labels)
-	r2 = utils.compute_R2(labels,y_pred,multioutput='uniform_average')
+	r2 = utils.compute_AdjustR2(labels,y_pred,multioutput='uniform_average')
 	return y_pred, result, r2
 
 def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experiment_num=None, model_name=None):
@@ -153,7 +153,123 @@ def main():
 
 	cf.LOSS_FN = [nn.custom_loss6]
 	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=124, model_name='nn_fbc_5_cusLoss')
+		experiment_num=124, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss5]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=125, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss4]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=126, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss3]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=127, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss2]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=128, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=129, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = 'mse'
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=130, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=131, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = 'mse'
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=132, model_name='nn_fc')
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=133, model_name='nn_fc')
+
+	cf.LOSS_FN = [nn.custom_loss4]
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=134, model_name='nn_fc')
+
+
+	cf.EARLY_STOP_PATIENCE = 20
+
+	cf.LOSS_FN = [nn.custom_loss6]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=135, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss5]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=136, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss4]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=137, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss3]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=138, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss2]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=139, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.custom_loss]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=140, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = 'mse'
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=141, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=142, model_name='nn_fbc_5')
+
+	cf.LOSS_FN = 'mse'
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=143, model_name='nn_fc')
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=144, model_name='nn_fc')
+
+	cf.LOSS_FN = [nn.custom_loss4]
+	training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=145, model_name='nn_fc')
+
+	cf.EARLY_STOP_PATIENCE = 10
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=146, model_name='nn_fc_bilstm_cn_fc_drop')
+
+	cf.LOSS_FN = [nn.custom_loss6]
+	training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=147, model_name='nn_fc_bilstm_cn_fc_drop')
+
+	cf.LOSS_FN = [nn.custom_loss3]
+	training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=148, model_name='nn_fc_bilstm_cn_fc_drop')
+
+
+
+	cf.LOSS_FN = [nn.rmse]
+	training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=149, model_name='nn_bilstm_12')
+
+	cf.LOSS_FN = [nn.custom_loss6]
+	training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=150, model_name='nn_bilstm_12')
+
+	cf.LOSS_FN = [nn.custom_loss3]
+	training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+		experiment_num=151, model_name='nn_bilstm_12')
+
 
 if __name__ == '__main__':
 	main()
