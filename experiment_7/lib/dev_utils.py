@@ -250,6 +250,10 @@ def get_formant(sound_sets, save_dir, praatEXE, label, is_disyllable = False):
 		
 	return F1, F2, F3
 
+def padding_and_trimming(actual,pred):
+	audio_length = pred.shape[1]
+	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (0, max(0, audio_length - data.shape[0])), "constant") for data in actual])
+
 def calculate_relative_error(actual,pred):
 	a = np.absolute(np.subtract(actual,pred))
 	b = np.absolute(actual)

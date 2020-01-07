@@ -14,6 +14,7 @@ from tensorflow.keras import callbacks
 from time import time
 from datetime import datetime
 import shutil 
+import argparse
 
 import lib.dev_utils as utils
 import model as nn
@@ -144,9 +145,10 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 		print('experiment %f fail'%experiment_num)
 		print(e)
 
-def main():
+def main(args):
 
-	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	if args.exp in range(1,23):
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 	
 
 	# -- MONOSYLLABLE MODEL
@@ -175,106 +177,156 @@ def main():
 	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
 	# 	experiment_num=129, model_name='nn_fbc_5')
 
-	# cf.LOSS_FN = 'mse'
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=130, model_name='nn_fbc_5')
+	cf.EARLY_STOP_PATIENCE = 10
 
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=131, model_name='nn_fbc_5')
+	if args.exp == 1:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=130, model_name='nn_fbc_5')
 
-	# cf.LOSS_FN = 'mse'
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=132, model_name='nn_fc')
-
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=133, model_name='nn_fc')
-
-	# cf.LOSS_FN = [nn.custom_loss4]
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=134, model_name='nn_fc')
-
-
-	# cf.EARLY_STOP_PATIENCE = 20
-
-	# cf.LOSS_FN = [nn.custom_loss6]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=135, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.custom_loss5]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=136, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.custom_loss4]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=137, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.custom_loss3]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=138, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.custom_loss2]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=139, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.custom_loss]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=140, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = 'mse'
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=141, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=142, model_name='nn_fbc_5')
-
-	# cf.LOSS_FN = 'mse'
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=143, model_name='nn_fc')
-
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=144, model_name='nn_fc')
-
-	# cf.LOSS_FN = [nn.custom_loss4]
-	# training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=145, model_name='nn_fc')
-
-	# cf.EARLY_STOP_PATIENCE = 10
-
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=146, model_name='nn_fc_bilstm_cn_fc_drop')
-
-	# cf.LOSS_FN = [nn.custom_loss6]
-	# training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=147, model_name='nn_fc_bilstm_cn_fc_drop')
-
-	# cf.LOSS_FN = [nn.custom_loss3]
-	# training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=148, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 2:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=131, model_name='nn_fbc_5')
+	if args.exp == 3:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=132, model_name='nn_fc')
+	if args.exp == 4:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=133, model_name='nn_fc')
+	if args.exp == 5:
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=134, model_name='nn_fc')
 
 
+	cf.EARLY_STOP_PATIENCE = 20
+	if args.exp == 6:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=135, model_name='nn_fbc_5')
+	if args.exp == 7:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=136, model_name='nn_fbc_5')
+	if args.exp == 8:
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=137, model_name='nn_fbc_5')
+	if args.exp == 9:
+		cf.LOSS_FN = [nn.custom_loss3]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=138, model_name='nn_fbc_5')
+	if args.exp == 10:
+		cf.LOSS_FN = [nn.custom_loss2]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=139, model_name='nn_fbc_5')
+	if args.exp == 11:
+		cf.LOSS_FN = [nn.custom_loss]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=140, model_name='nn_fbc_5')
+	if args.exp == 12:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=141, model_name='nn_fbc_5')
+	if args.exp == 13:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=142, model_name='nn_fbc_5')
+	if args.exp == 14:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=143, model_name='nn_fc')
+	if args.exp == 15:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=144, model_name='nn_fc')
+	if args.exp == 16:
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=145, model_name='nn_fc')
+	if args.exp == 17:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=146, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 18:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=147, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 19:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=148, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 20:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=149, model_name='nn_bilstm_12')
+	if args.exp == 21:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=150, model_name='nn_bilstm_12')
+	if args.exp == 22:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=151, model_name='nn_bilstm_12')
 
-	# cf.LOSS_FN = [nn.rmse]
-	# training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=149, model_name='nn_bilstm_12')
-
-	# cf.LOSS_FN = [nn.custom_loss6]
-	# training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=150, model_name='nn_bilstm_12')
-
-	# cf.LOSS_FN = [nn.custom_loss3]
-	# training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
-	# 	experiment_num=151, model_name='nn_bilstm_12')
+	
 
 	# -- DISYLLABLE MODEL
-	cf.LOSS_FN = [nn.custom_loss6]
-	training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-		experiment_num=152, model_name='nn_fbc_5')
+	if args.exp in range(23,32):
+		cf.DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
+		cf.DI_SYLLABLE = True
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+
+	# cf.LOSS_FN = [nn.custom_loss6]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=152, model_name='nn_fbc_5')
+
+	# cf.LOSS_FN = [nn.custom_loss6]
+	# training_fn(nn.nn_fbc_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+	# 	experiment_num=153, model_name='nn_fbc_5')
+	if args.exp == 23:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=154, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 24:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=155, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 25:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_fc_bilstm_cn_fc_drop, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=156, model_name='nn_fc_bilstm_cn_fc_drop')
+	if args.exp == 26:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=157, model_name='nn_bilstm_12')
+	if args.exp == 27:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=158, model_name='nn_bilstm_12')
+	if args.exp == 28:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=159, model_name='nn_bilstm_12')
+	if args.exp == 29:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=160, model_name='nn_fc')
+	if args.exp == 30:
+		cf.LOSS_FN = [nn.custom_loss6]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=161, model_name='nn_fc')
+	if args.exp == 31:
+		cf.LOSS_FN = [nn.custom_loss5]
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=162, model_name='nn_fc')
 
 
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser("Exp Control")
+	parser.add_argument("exp", help="", type=int, default=0)
+	args = parser.parse_args()
+	main(args)

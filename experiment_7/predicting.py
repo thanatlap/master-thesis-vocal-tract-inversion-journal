@@ -12,7 +12,6 @@ import model as nn
 import lib.dev_utils as utils
 import make_result as res
 import lib.dev_gen as gen
-import config as cf
 
 def prep_data(data_dir, prep_folder, model_type):
 	'''
@@ -52,10 +51,7 @@ def main(args):
 	if args.syllable.lower() not in ['mono', 'di']:
 		raise ValueError('model type %s is not define, support only ["mono", "di"]')
 
-	if args.syllable == 'mono':
-		is_disyllable = False
-	else:
-		is_disyllable = True
+	is_disyllable = True if args.syllable.lower() == 'di' else False
 
 	# model_file
 	model_file = join('model',args.model_filename)
@@ -67,9 +63,9 @@ def main(args):
 	# predict 
 	y_pred = predict(features, model_file)
 	# create output path
-	if args.output_filename:
+	if args.exp_num:
 		# if output filename is specify
-		output_path = join('result','predict_%s'%args.output_filename)
+		output_path = join('result','predict_%s'%args.exp_num)
 	else:
 		# else, use default
 		output_path = join('result','predict')
@@ -79,7 +75,7 @@ def main(args):
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
 		syllable_name = np.array([item for pair in syllable_name for item in pair]) if is_disyllable else syllable_name
 	# invert param back to predefined speaker scale
-	params = utils.label_transform_standardized(y_pred, None, cf.DI_SYLLABLE, invert=True)
+	params = utils.label_transform_standardized(y_pred, None, is_disyllable, invert=True)
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	
@@ -88,9 +84,14 @@ def main(args):
 	# load sound for comparison
 	target_sound = np.array([join(args.data_dir, file) for file in np.load(join(args.data_dir, 'sound_set.npy'))])
 	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path, 'npy', 'testset.npz'))['sound_sets']])
+	
+	print(target_sound.shape)
+	print(estimated_sound.shape)
+
 	# log result
 	res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)
 	# visualize spectrogram and wave plot
+
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
 	utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
 	
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 	parser.add_argument("prep_folder", help="folder contain preprocess data", type=str)
 	parser.add_argument("model_filename", help="file of the model (hdf5)", type=str)
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	parser.add_argument("model_type", help="model type cnn or rnn ['cnn','rnn']", type=str)
-	parser.add_argument("--output_filename", help="a specific output filename for storing result", type=str, default=None)
+	parser.add_argument("--model_type", help="model type cnn or rnn ['cnn','rnn']", type=str, default='rnn')
+	parser.add_argument("--exp_num", help="a specific output filename for storing result", type=str, default=None)
 	args = parser.parse_args()
 	main(args)
