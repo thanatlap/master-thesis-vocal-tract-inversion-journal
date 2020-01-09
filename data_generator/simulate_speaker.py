@@ -12,6 +12,10 @@ import pandas as pd
 import os
 from os.path import join
 import config as cf
+from functools import partial
+
+np_load_old = partial(np.load)
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 # predefine param
 adult_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])

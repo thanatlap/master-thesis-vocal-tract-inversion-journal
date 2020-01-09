@@ -16,10 +16,12 @@ import multiprocessing as mp
 import config as cf
 import simulate_speaker as ss
 import random_param as rparm 
+from functools import partial
 
 param_high = ss.adult_high
 param_low = ss.adult_low
 param_neutral = ss.adult_neutral
+
 
 def initiate_VTL():
 	'''
