@@ -1066,3 +1066,275 @@ def nn_cbf_5(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(16, activation='linear'))
 	return model
+
+def nn_bcf_1(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
+
+def nn_bcf_2(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(1024, activation='elu'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
+
+def nn_bcf_3(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(1024, activation='elu'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
+
+def nn_bcf_4(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(1024, activation='elu'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
+
+
+def nn_bcf_5(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
+
+def nn_bcf_6(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(128, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_7(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_8(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_9(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_cn_1(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.MaxPool1D())
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.MaxPool1D())
+	model.add(layers.Conv1D(128, 3, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(128, 3, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_cn_2(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.Conv1D(32, 3, padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.MaxPool1D())
+	model.add(layers.Conv1D(64, 3, padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.Conv1D(64, 3, padding='same'))
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.MaxPool1D())
+	model.add(layers.Conv1D(128, 3, padding='same'))
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.Conv1D(128, 3, padding='same'))
+	model.add(layers.Flatten())
+	model.add(BatchNormalization())
+	model.add(Activation('elu'))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_10(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_11(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
+	model.add(layers.Flatten())
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model
+
+def nn_bcf_12(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Conv1D(32, 3, activation='elu', padding='same', input_shape=(input_shape_1,input_shape_2)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	model.summary()
+	return model

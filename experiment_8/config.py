@@ -6,8 +6,9 @@ DI_SYLLABLE = True
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_2/prep_data'
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
-DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
+# DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
 # DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
+DATASET_DIR = '../data/d_dataset_3_u_L/prep_data_exp8'
 
 #---------------------------------
 TEST_SIZE = 0.05
@@ -33,7 +34,7 @@ BATCH_SIZE = 64
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE =10 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE =5 # should increase earlystop since it seen can be improve
 
 # Model Type
 CNN = False

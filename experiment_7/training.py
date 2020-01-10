@@ -275,7 +275,7 @@ def main(args):
 	
 
 	# # -- DISYLLABLE MODEL
-	if args.exp in range(23,57):
+	if args.exp in range(23,80):
 		cf.DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
 		cf.DI_SYLLABLE = True
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
@@ -442,6 +442,73 @@ def main(args):
 		cf.LOSS_FN = [nn.rmse]
 		training_fn(nn.nn_cbf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=187, model_name='nn_cbf_5')
+
+	cf.EARLY_STOP_PATIENCE =5
+
+	if args.exp == 57:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=190, model_name='nn_bcf_1')
+
+	if args.exp == 58:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_2, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=191, model_name='nn_bcf_2')
+
+	if args.exp == 59:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_3, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=192, model_name='nn_bcf_3')
+
+	if args.exp == 60:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=193, model_name='nn_bcf_4')
+
+	if args.exp == 61:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_6, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=194, model_name='nn_bcf_6')
+
+	if args.exp == 62:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=195, model_name='nn_bcf_7')
+
+	if args.exp == 63:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_8, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=196, model_name='nn_bcf_8')
+
+	if args.exp == 64:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_9, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=197, model_name='nn_bcf_9')
+
+	if args.exp == 65:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_cn_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=198, model_name='nn_cn_1')
+
+	if args.exp == 66:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_cn_2, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=199, model_name='nn_cn_2')
+
+	if args.exp == 67:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_10, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=200, model_name='nn_bcf_10')
+
+	if args.exp == 68:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_11, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=201, model_name='nn_bcf_11')
+
+	if args.exp == 69:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bcf_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=202, model_name='nn_bcf_12')
 
 
 if __name__ == '__main__':

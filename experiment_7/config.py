@@ -29,11 +29,11 @@ LOSS_FN = 'mse'
 OPT = 'AMSGrad' # for record only
 
 # Training
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE =10 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE =5 # should increase earlystop since it seen can be improve
 
 # Model Type
 CNN = False
