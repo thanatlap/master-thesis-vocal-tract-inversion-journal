@@ -1,6 +1,7 @@
-python training.py 67
-python training.py 68
-python training.py 69
+python training.py 70
+python training.py 71
+python training.py 72
+
 
 
 

@@ -399,7 +399,7 @@ def main(args):
 		training_fn(nn.nn_cbf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=179, model_name='nn_cbf_4')
 
-	cf.EARLY_STOP_PATIENCE =10
+	# cf.EARLY_STOP_PATIENCE =10
 
 	if args.exp == 49:
 		cf.LOSS_FN = [nn.rmse]
@@ -421,7 +421,7 @@ def main(args):
 		training_fn(nn.nn_cbf_5, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=183, model_name='nn_cbf_5')
 
-	cf.EARLY_STOP_PATIENCE =5
+	# cf.EARLY_STOP_PATIENCE =5
 
 	if args.exp == 53:
 		cf.LOSS_FN = [nn.rmse]
@@ -443,7 +443,7 @@ def main(args):
 		training_fn(nn.nn_cbf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=187, model_name='nn_cbf_5')
 
-	cf.EARLY_STOP_PATIENCE =5
+	# cf.EARLY_STOP_PATIENCE =5
 
 	if args.exp == 57:
 		cf.LOSS_FN = 'mse'
@@ -509,6 +509,21 @@ def main(args):
 		cf.LOSS_FN = 'mse'
 		training_fn(nn.nn_bcf_12, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=202, model_name='nn_bcf_12')
+
+	if args.exp == 70:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=203, model_name='nn_bilstm_22')
+
+	if args.exp == 71:
+		cf.LOSS_FN = [nn.rmse]
+		training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=204, model_name='nn_bilstm_22')
+
+	if args.exp == 72:
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=205, model_name='nn_bilstm_22')
 
 
 if __name__ == '__main__':

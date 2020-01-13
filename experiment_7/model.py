@@ -1338,3 +1338,23 @@ def nn_bcf_12(input_shape_1,input_shape_2):
 	model.add(layers.Dense(16, activation='linear'))
 	model.summary()
 	return model
+
+def nn_bilstm_22(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(128)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(1024, activation='elu' ))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(16, activation='linear'))
+	return model
