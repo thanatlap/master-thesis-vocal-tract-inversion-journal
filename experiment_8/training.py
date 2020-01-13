@@ -158,13 +158,10 @@ def main(args):
 	
 
 	# # -- DISYLLABLE MODEL
-	if args.exp in range(23,63):
+	if args.exp in range(23,100):
 		cf.DATASET_DIR = '../data/d_dataset_3_u_L/prep_data_exp8'
 		cf.DI_SYLLABLE = True
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-
-
-	cf.EARLY_STOP_PATIENCE =5
 
 	if args.exp == 57:
 		cf.LOSS_FN = [nn.rmse]
@@ -197,6 +194,38 @@ def main(args):
 		cf.BATCH_SIZE = 128
 		training_fn(nn.nn_cbf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=193, model_name='nn_cbf_4')
+
+	if args.exp == 63:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_cbf_4, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=206, model_name='nn_cbf_5')
+
+	if args.exp == 64:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_cbf_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=207, model_name='nn_cbf_5')
+
+	if args.exp == 65:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=208, model_name='nn_bilstm_12')
+
+	if args.exp == 66:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=209, model_name='resnet_1')
+
+	if args.exp == 67:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.inception_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=210, model_name='inception_1')
+
+	if args.exp == 68:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.inception_2, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=211, model_name='inception_2')
+
+
 
 
 if __name__ == '__main__':

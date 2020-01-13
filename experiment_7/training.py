@@ -275,7 +275,7 @@ def main(args):
 	
 
 	# # -- DISYLLABLE MODEL
-	if args.exp in range(23,80):
+	if args.exp in range(23,200):
 		cf.DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
 		cf.DI_SYLLABLE = True
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
@@ -525,6 +525,60 @@ def main(args):
 		training_fn(nn.nn_bilstm_22, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=205, model_name='nn_bilstm_22')
 
+	if args.exp == 73:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=222, model_name='resnet_1')
+
+	if args.exp == 74:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.inception_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=223, model_name='inception_1')
+
+	if args.exp == 75:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_2, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=223, model_name='resnet_2')
+
+	if args.exp == 76:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_3, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=224, model_name='resnet_3')
+
+	if args.exp == 77:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_4, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=225, model_name='resnet_4')
+
+	if args.exp == 78:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=226, model_name='resnet_5')
+
+	if args.exp == 79:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_6, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=227, model_name='resnet_6')
+
+	if args.exp == 80:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=228, model_name='resnet_7')
+
+	if args.exp == 81:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_8, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=229, model_name='resnet_8')
+
+	if args.exp == 82:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_9, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=230, model_name='resnet_9')
+
+	if args.exp == 83:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.fb_1, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=231, model_name='fb_1')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")

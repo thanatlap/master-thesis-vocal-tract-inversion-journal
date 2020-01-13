@@ -1066,3 +1066,63 @@ def nn_cbf_5(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(16, activation='linear'))
 	return model
+
+def resnet_1(input_shape_1,input_shape_2):
+
+	inputs = keras.Input(shape=(input_shape_1,input_shape_2))
+	x = layers.Conv1D(64, 3, activation='elu', padding='same')(inputs)
+	x = layers.Conv1D(64, 3, activation='elu', padding='same')(x)
+	x = layers.concatenate([x, inputs])
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	outputs = layers.Dense(16, activation='linear')(x)
+	model = keras.Model(inputs=inputs, outputs=outputs)
+	model.summary()
+	return model
+
+def inception_1(input_shape_1,input_shape_2):
+
+	inputs = keras.Input(shape=(input_shape_1,input_shape_2))
+	x1 = layers.Conv1D(64, 3, activation='elu', padding='same')(inputs)
+	x1 = layers.Conv1D(64, 3, activation='elu', padding='same')(x1)
+	x2 = layers.Conv1D(32, 5, activation='elu', padding='same')(inputs)
+	x2 = layers.Conv1D(32, 5, activation='elu', padding='same')(x2)
+	x = layers.concatenate([x1,x2, inputs])
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	outputs = layers.Dense(16, activation='linear')(x)
+	model = keras.Model(inputs=inputs, outputs=outputs)
+	model.summary()
+	return model
+
+def inception_2(input_shape_1,input_shape_2):
+
+	inputs = keras.Input(shape=(input_shape_1,input_shape_2))
+	x1 = layers.Conv1D(64, 3, activation='elu', padding='same')(inputs)
+	x1 = layers.Conv1D(64, 3, activation='elu', padding='same')(x1)
+	x2 = layers.Conv1D(32, 5, activation='elu', padding='same')(inputs)
+	x2 = layers.Conv1D(32, 5, activation='elu', padding='same')(x2)
+	x = layers.concatenate([x1,x2, inputs])
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Bidirectional(layers.LSTM(128))(x)
+	x = layers.Dropout(rate=0.3)(x)
+	x = layers.Dense(1024, activation='elu')(x)
+	x = layers.Dropout(rate=0.3)(x)
+	outputs = layers.Dense(16, activation='linear')(x)
+	model = keras.Model(inputs=inputs, outputs=outputs)
+	model.summary()
+	return model
