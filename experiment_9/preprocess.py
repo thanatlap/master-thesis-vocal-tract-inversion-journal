@@ -410,7 +410,7 @@ def main(args):
 	else:
 		np.save(arr=features, file=join(output_path,'features.npy'))
 
-	log.open(join(output_path, 'label_mode.txt'),"w")
+	log = open(join(output_path, 'label_mode.txt'),"w")
 	log.write(args.label_normalize)
 	log.close()
 
