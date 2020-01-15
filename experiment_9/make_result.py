@@ -95,15 +95,15 @@ def log_stat_distribution(log,actual, pred, log_dir, subset):
 def log_each_param(log, measure_by_param, is_scale, measure_name):
 	for idx, each_param_name in enumerate(utils.param_name):
 		# if index is WC, print 'not predict'
-		if idx in [2,7,8,15,16,21,22,23]:
+		if idx in [2,8,15,16,21,22,23]:
 			log.write('PARAMETER NOT PREDICT\n')
 		else:
 			if is_scale and (idx > 16):
 				# the transform param doesnt have WC, thus, the label index is three step behind.
-				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-5]))
+				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-4]))
 			elif is_scale and (idx > 8):
 				# the transform param doesnt have WC, thus, the label index is one step behind.
-				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-3]))
+				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-2]))
 			elif is_scale and (idx > 2):
 				# the transform param doesnt have WC, thus, the label index is one step behind.
 				log.write('%s %s: %.3f\n'%(measure_name, each_param_name, measure_by_param[idx-1]))
@@ -115,7 +115,6 @@ def get_np_label_name_for_log(is_scale):
 	label_name = utils.param_name.tolist()
 	if is_scale:
 		label_name.remove("JX")
-		label_name.remove("VO")
 		label_name.remove("WC")
 		label_name.remove("TRX")
 		label_name.remove("TRY")
@@ -364,8 +363,10 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('\n')
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Inverse-transform Label\n')
-	t_actual_label = utils.label_transform_standardized(actual_label, None, cf.DI_SYLLABLE, invert=True)
-	t_y_pred = utils.label_transform_standardized(y_pred, None, cf.DI_SYLLABLE, invert=True)
+
+	t_actual_label = utils.transform_VO(utils.add_params((utils.destandardized_label(actual_label, cf.DI_SYLLABLE))))
+	t_y_pred = utils.transform_VO(utils.add_params((utils.destandardized_label(y_pred, cf.DI_SYLLABLE))))
+
 	#RMSE of each vowel after descaling
 	log_rmse_distribution(log, 
 		t_actual_label, 

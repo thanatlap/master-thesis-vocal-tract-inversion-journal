@@ -226,6 +226,37 @@ def standardize_mfcc(features, is_train, is_disyllable):
 	
 	return features 
 
+def delete_params(params):
+	'''
+	This function remove JX, WC, TRX, TRY, and MS1,2,3 paramter
+	'''
+	return np.delete(params, [2,8,15,16,21,22,23] , axis=1)
+
+def standardized_labels(params, is_train, is_disyllable):
+
+	vars_dir = 'vars'
+	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
+	filepath = join(vars_dir, filename)
+	os.makedirs(vars_dir, exist_ok=True)
+	
+	# find mean of each feature in each timestep
+	if is_train:
+		mean = np.mean(params, axis=0)
+		std = np.std(params, axis=0)
+		np.save(filepath,np.array([mean, std]))
+	else:
+		if os.path.isfile(filepath):
+			mean_std = np.load(filepath).tolist()
+			mean = mean_std[0]
+			std = mean_std[1]
+		else:
+			raise ValueError('File %s doest exist'%vars_dir)
+	# normalize each feature by its mean and plus small value to 
+	# prevent value of zero
+	params = (params - mean)/std
+	
+	return params
+
 def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, label_prep_mode, data_path=None):
 	
 	if is_disyllable:
@@ -235,10 +266,10 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 	if mode != 'predict':
 		print('[INFO] Remove label param having std < 0.05')
-		labels = utils.delete_params(labels)
+		labels = delete_params(labels)
 		if label_prep_mode == 1:
 			print('[INFO] Standardized labels')
-			labels = utils.standardized_labels(labels, is_train, is_disyllable)
+			labels = standardized_labels(labels, is_train, is_disyllable)
 		elif label_prep_mode == 2:
 			labels = scale_speaker_syllable(labels, data_path, mode)
 

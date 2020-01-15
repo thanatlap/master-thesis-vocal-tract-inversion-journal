@@ -30,31 +30,6 @@ def scale_labels(params):
 def descale_labels(scale_params):
 	return scale_params*(param_high - param_low) + param_low
 
-def standardized_labels(params, is_train, is_disyllable):
-
-	vars_dir = 'vars'
-	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
-	filepath = join(vars_dir, filename)
-	os.makedirs(vars_dir, exist_ok=True)
-	
-	# find mean of each feature in each timestep
-	if is_train:
-		mean = np.mean(params, axis=0)
-		std = np.std(params, axis=0)
-		np.save(filepath,np.array([mean, std]))
-	else:
-		if os.path.isfile(filepath):
-			mean_std = np.load(filepath).tolist()
-			mean = mean_std[0]
-			std = mean_std[1]
-		else:
-			raise ValueError('File %s doest exist'%vars_dir)
-	# normalize each feature by its mean and plus small value to 
-	# prevent value of zero
-	params = (params - mean)/std
-	
-	return params
-
 def destandardized_label(params, is_disyllable):
 	vars_dir = 'vars'
 	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 
@@ -65,28 +40,14 @@ def destandardized_label(params, is_disyllable):
 		std = mean_std[1]
 	return (params*std)+mean
 
-def delete_WC_param(params):
-	return np.delete(params, 8, axis=1)
-
-def add_WC_param(params):
-	return np.insert(params, 8, 0.0, axis=1) 
-
-def delete_params(params):
-	'''
-	This function remove JX, VO, WC, TRX, TRY, and MS1,2,3 paramter
-	'''
-	return np.delete(params, [2,7,8,15,16,21,22,23] , axis=1)
-
 def add_params(params):
 	'''
 	This function remove WC, TRX, TRY, and MS1,2,3 paramter
 	'''
 	# Add JX
 	params = np.insert(params, 2, 0.0, axis=1) 
-	# Add VO
-	params = np.insert(params, 7, -0.10, axis=1) 
 	# WC param
-	params = add_WC_param(params)
+	params = np.insert(params, 8, 0.0, axis=1) 
 	# TRX param
 	TRX = params[:,10]*0.9380 - 5.1100
 	params = np.insert(params, 15, TRX, axis=1) 
@@ -99,11 +60,13 @@ def add_params(params):
 	params = np.insert(params, 23, -0.05, axis=1) 
 	return params
 
-def label_transform(labels, invert=False):
-	return descale_labels(add_params(labels)) if invert else delete_params(scale_labels(labels))
-
-def label_transform_standardized(labels, is_train, is_disyllable, invert=False):
-	return add_params(destandardized_label(labels, is_disyllable))
+def transform_VO(labels):
+	'''
+	Use this function after addd param function
+	'''
+	for item in labels:
+		item[7:8] = [-1.0] if item[7] > -0.5 else [0.05]
+	return labels
 
 # define a function to plot the result from training step
 def show_result(history, save_file, history_tag = ['loss','val_loss','rmse','val_rmse'], metric_label='RMSE'): 
