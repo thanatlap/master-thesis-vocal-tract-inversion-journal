@@ -34,7 +34,7 @@ def initiate_VTL():
 		VTL = ctypes.cdll.LoadLibrary(cf.VTL_FILE)
 		version = ctypes.c_char_p(b'                                ')
 		VTL.vtlGetVersion(version)
-		print('VTL version (compile date): "%s"' % version.value.decode())
+		# print('VTL version (compile date): "%s"' % version.value.decode())
 	else:
 		raise ValueError('Path %s does not exist'%cf.VTL_FILE)
 	
@@ -54,7 +54,7 @@ def _rand_fn(from_idx, to_idx, predefine_params):
 	randomize vocaltract parameter based on randomly from min and max param (0.01 prob) 
 	and weight warping from predefined parameter (0.99 prob)
 	'''
-	if np.random.uniform(0, high=1, size=1)[0] < 0.01:
+	if np.random.uniform(0, high=1) < 0.005:
 		random_param = rparm.randomize_params(predefine_params, param_high, param_low, sampling_step=cf.SAMPLING_STEP)
 	else:
 		random_param = rparm.randomize_by_percent_change(predefine_params, from_idx, to_idx)
@@ -106,18 +106,21 @@ def check_dup_fn(random_param, entire_param_sets):
 	
 	return new_random_param, num_dup
 
-def generate_vocaltract_parameter(data_size, predefine_params, entire_param_sets):
+def generate_vocaltract_parameter(data_size, predefine_params, entire_param_sets, is_check_dup = False):
 	'''
 	generate vocaltract parameter by randomizing
 	'''
 	gen_param_sets = []
-	
-	while(data_size > 0):
-		random_param = [ random_fn(predefine_params) for i in range(data_size)]
-		random_param, num_dup = check_dup_fn(random_param, entire_param_sets)
-		data_size = num_dup
-		gen_param_sets.extend(random_param)
-		if num_dup > 0: print('Re-Generated %s data'%data_size)
+
+	if is_check_dup:
+		while(data_size > 0):
+			random_param = [ random_fn(predefine_params) for i in range(data_size)]
+			random_param, num_dup = check_dup_fn(random_param, entire_param_sets)
+			data_size = num_dup
+			gen_param_sets.extend(random_param)
+			if num_dup > 0: print('Re-Generated %s data'%data_size)
+	else:
+		gen_param_sets.extend([ random_fn(predefine_params) for i in range(data_size)])
 	
 	return gen_param_sets
 
@@ -128,7 +131,7 @@ def repeat_label_by_n_speaker(gen_param_sets, n_speaker):
 	'''
 	return [x for item in gen_param_sets for x in itertools.repeat(item, n_speaker)]
 
-def _scale_parameter(params, sid):
+def scale_parameter(params, sid):
 	'''
 	Scale speaker vocaltract parameter of a syllable to the 
 	scale of a new simulate speaker vocaltract parameter
@@ -147,7 +150,7 @@ def adjust_speaker_syllabel_parameter(gen_param_sets, speaker_sid):
 	get speaker sid and generate param set to scale the vocaltract parameter
 	to its simulated size
 	'''
-	return [_scale_parameter(params, speaker_sid[idx]) for idx, params in enumerate(gen_param_sets)]
+	return [scale_parameter(params, speaker_sid[idx]) for idx, params in enumerate(gen_param_sets)]
 	
 
 def get_speaker_sid(gen_param_sets, n_speaker):
@@ -156,7 +159,7 @@ def get_speaker_sid(gen_param_sets, n_speaker):
 	where the speaker is a simulated speaker in that id
 	example: create a list for speaker sid [0,1,2,3,...,6,0,1,2,3,...]
 	'''
-	return [n for item in gen_param_sets for n in range(n_speaker)]
+	return [ n%n_speaker for n in range(len(gen_param_sets))]
 
 
 def generate_speaker_file(gen_param_sets, speaker_sid, speaker_idx):
@@ -275,21 +278,21 @@ def load_audio_from_list(sound_sets, sample_rate, parent_dir=''):
 	audio_paths = [join(parent_dir, file) for file in sound_sets]
 	return [ librosa.load(file, sr=sample_rate)[0] for file in audio_paths ]
 
-def _is_silent(audio_data, threshold=0.8):
+def is_nonsilent(audio_data, threshold=0.8):
 	'''
 	Çheck if the sound is silent sound.
 	return a list of index of non silent audio sound. 
 	return in list format
 	'''
 	# if audio consist mostly non zero, indicating non silent sound
-	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data[1000:]) > threshold*data[1000:].shape[0])]
+	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > threshold*data.shape[0])]
 
 def filter_silent_sound(audio_data, sound_sets, gen_param_sets, speaker_sid):
 	'''
 	Main function to filter the silent sound.
 	This function return list index of of non_silent sound 
 	'''
-	idx_list = _is_silent(audio_data)
+	idx_list = is_nonsilent(audio_data)
 	# convert back to list for consistancy purpose
 	non_silent_sound_sets = np.array(sound_sets)[idx_list].tolist() 
 	non_silent_param_sets = np.array(gen_param_sets)[idx_list].tolist() 
@@ -352,10 +355,17 @@ def reset(*args):
 	'''
 	reset state if not continue
 	'''
-	print('Reset state')
 	try: 
 		for folder in args:
 			shutil.rmtree(folder)
+	except:
+		print('Folder Already Empty')
+
+def clean_folder():
+
+	try: 
+		for folder in ['speaker', 'ges', 'feedback', 'speaker_sim']:
+			shutil.rmtree(join(cf.DATASET_DIR, folder))
 	except:
 		print('Folder Already Empty')
 
@@ -365,9 +375,10 @@ def main():
 	'''
 	# reset state if not continue generating data.
 	if not cf.CONT:
+		print('[INFO] Reset state')
 		reset(cf.DATASET_DIR)
 	else:
-		print('Continue generating data')
+		print('[INFO] Continue generating data')
 
 	# simulated speaker vocaltract from given scale list.
 	for sid, scale in enumerate(cf.SPEAKER_N):
@@ -378,6 +389,7 @@ def main():
 	# load predefine parameter
 	predefine_params = load_file_csv(cf.PREDEFINE_PARAM_FILE)
 	counter = 1
+
 	while(counter <= cf.N_SPLIT):
 
 		print('\n\n------------------------------------------')
@@ -385,28 +397,28 @@ def main():
 		print('------------------------------------------\n\n')
 		
 		# load state if exist
+		print('[INFO] Loading program states')
 		speaker_idx, ges_idx, sound_idx, total_speaker_sid, entire_sound_sets, entire_param_sets, ns_sound_sets, ns_param_sets, ns_sid = load_state()
-		print('Load state completed')
+		
 		# main generator algorithm
-		gen_param_sets = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefine_params, entire_param_sets)
-		print('Successfully generate random parameters')
-		gen_param_sets = repeat_label_by_n_speaker(gen_param_sets, n_speaker=len(cf.SPEAKER_N))
-		print('Successfully repeat random parameters by n speaker')
+		print('[INFO] Generating random parameters')
+		gen_param_sets = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefine_params, entire_param_sets)	
+		print('[INFO] Generating list of speaker id')
 		speaker_sid = get_speaker_sid(gen_param_sets, n_speaker=len(cf.SPEAKER_N))
-		print('Successfully generated list of speaker id')
+		print('[INFO] Adjusting vocaltract parameters')
 		gen_param_sets = adjust_speaker_syllabel_parameter(gen_param_sets, speaker_sid)
-		print('Successfully adjust vocaltract parameters')
+		print('[INFO] Generating speaker file')
 		speaker_filenames, speaker_idx = generate_speaker_file(gen_param_sets, speaker_sid, speaker_idx)
-		print('Successfully generate speaker file')
+		print('[INFO] Generating ges file')
 		ges_filenames, ges_idx = generate_gesture_file(len(gen_param_sets), ges_idx)
-		print('Successfully generate ges file')
+		print('[INFO] Generating sound')
 		sound_sets, sound_idx = generate_sound(speaker_filenames, ges_filenames, sound_idx)
-		print('Successfully generate sound')
+		print('[INFO] Loading audio data')
 		audio_data = load_audio_from_list(sound_sets, sample_rate=cf.SOUND_SAMPLING_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
-		print('Successfully read audio data')
+		print('[INFO] Filtering silent audio')
 		non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count = filter_silent_sound(audio_data, sound_sets,gen_param_sets, speaker_sid)
-		print('Successfully filtering silent audio')
-
+		
+		print('[INFO] Saving state')
 		# store data in main list
 		entire_param_sets += gen_param_sets
 		total_speaker_sid += speaker_sid
@@ -433,6 +445,12 @@ def main():
 		counter += 1
 
 	# Successfully generate
+
+	if cf.CLEAN_FILE:
+		print('[INFO] Cleansing')
+		clean_folder()
+
+
 	print('Successfully generated audio data')
 	print('[Time: %.3fs]'%(time()-global_time))
 

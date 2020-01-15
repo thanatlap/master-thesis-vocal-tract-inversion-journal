@@ -3,7 +3,7 @@ DI_SYLLABLE = True
 CONT = False
 
 #Data generator control
-DATASIZE =4000 # this size will be multplied by n speaker
+DATASIZE =4000 
 N_SPLIT = 20
 
 #Config
@@ -37,3 +37,4 @@ GES_HEAD = TEMPLATE_DIR+'/ges_head.txt'
 
 #log
 DATA_LOG_FILE = DATASET_DIR+'/data_log.txt'
+CLEAN_FILE = True
