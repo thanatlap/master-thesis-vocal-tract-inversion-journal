@@ -9,4 +9,3 @@ Change Note
 	- The item is rarely duplicate.
 	- The duplicate item likely that it will have different speaker and gesture score which is ok.
 - ges simulation, add time constant for reaching first and second syllable
-- 

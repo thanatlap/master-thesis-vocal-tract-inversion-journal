@@ -188,15 +188,15 @@ def create_ges(ges_file, is_disyllable):
 	ges_head = open(cf.GES_HEAD,'r').read()
 
 	# max duration of the entire speech sound
-	max_duration = np.random.uniform(low=0.75, high=1.5) if is_disyllable else np.random.uniform(low=0.4, high=0.7)
+	max_duration = np.random.uniform(low=1.0, high=1.5) if is_disyllable else np.random.uniform(low=0.4, high=0.7)
 	
 	# if disyllable, the duration of fisrt and second syllabic are vary
 	a_duration = np.random.uniform(0.45*max_duration, high=0.55*max_duration) if is_disyllable else max_duration
 	b_duration = max_duration - a_duration if is_disyllable else None # b_duration is not used for monosyllable
 
 	# time constant (The VTL constrict value to 0.04, inspect from empirical study (manually play with program))
-	a_time_constant = np.random.uniform(0.015, high=0.04)
-	b_time_constant = np.random.uniform(0.015, high=0.04)
+	a_time_constant = np.random.uniform(0.015, high=0.02)
+	b_time_constant = np.random.uniform(0.015, high=0.03)
 
 	# f0 gesture duration
 	total_duration = max_duration
@@ -205,12 +205,11 @@ def create_ges(ges_file, is_disyllable):
 	duration.append(np.random.choice([0.01,0.05]))
 	total_duration -= duration[0]
 	# first f0 gesture duration is longer or until max
-	duration.append(np.random.uniform(low=0.45*total_duration, high=0.65total_duration))
+	duration.append(np.random.uniform(low=0.45*total_duration, high=0.65*total_duration))
+	total_duration -= duration[1]
 	# if max duration is less than 50ms then f0-gesture only have 2 phase, else, the rest
-	if total_duration - duration[1] < 0.05:
-		duration[1] += total_duration
-	else:
-		duration.append(total_duration)
+	duration.append(total_duration)
+		
 
 	total_duration -= duration[1]
 		
@@ -229,11 +228,11 @@ def create_ges(ges_file, is_disyllable):
 	f.write('<gesture_sequence type="f0-gestures" unit="st">\n')
 	for idx, d in enumerate(duration):
 		if idx == 0:
-			f0 = np.random.uniform(low=81, high=82)
+			f0 = np.random.uniform(low=80, high=81)
 		elif idx == 1:
-			f0 = np.random.uniform(low=82, high=83)
+			f0 = np.random.uniform(low=81, high=84)
 		else:
-			f0 = np.random.uniform(low=82, high=83)
+			f0 = f0
 		f.write('<gesture value="%.5f" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%(f0,d))
 	f.write('</gesture_sequence>\n')
 	f.write('<gesture_sequence type="lung-pressure-gestures" unit="dPa">\n')

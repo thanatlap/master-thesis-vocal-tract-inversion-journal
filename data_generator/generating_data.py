@@ -278,7 +278,7 @@ def load_audio_from_list(sound_sets, sample_rate, parent_dir=''):
 	audio_paths = [join(parent_dir, file) for file in sound_sets]
 	return [ librosa.load(file, sr=sample_rate)[0] for file in audio_paths ]
 
-def is_nonsilent(audio_data, threshold=0.8):
+def is_nonsilent(audio_data, threshold):
 	'''
 	Çheck if the sound is silent sound.
 	return a list of index of non silent audio sound. 
@@ -287,16 +287,16 @@ def is_nonsilent(audio_data, threshold=0.8):
 	# if audio consist mostly non zero, indicating non silent sound
 	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > threshold*data.shape[0])]
 
-def filter_silent_sound(audio_data, sound_sets, gen_param_sets, speaker_sid):
+def filter_silent_sound(audio_data, sound_sets, gen_param_sets, speaker_sid, threshold = 0.8):
 	'''
 	Main function to filter the silent sound.
 	This function return list index of of non_silent sound 
 	'''
-	idx_list = is_nonsilent(audio_data)
+	idx_list = is_nonsilent(audio_data, threshold)
 	# convert back to list for consistancy purpose
 	non_silent_sound_sets = np.array(sound_sets)[idx_list].tolist() 
 	non_silent_param_sets = np.array(gen_param_sets)[idx_list].tolist() 
-	# filter speaker sid for later used (in scale function)
+	# filter speaker sid for later used in preprocessing data (in scale function)
 	non_silent_sid = np.array(speaker_sid)[idx_list].tolist()
 	# count silent sound
 	silent_count = len(sound_sets) - len(idx_list)
@@ -416,7 +416,7 @@ def main():
 		print('[INFO] Loading audio data')
 		audio_data = load_audio_from_list(sound_sets, sample_rate=cf.SOUND_SAMPLING_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
 		print('[INFO] Filtering silent audio')
-		non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count = filter_silent_sound(audio_data, sound_sets,gen_param_sets, speaker_sid)
+		non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count = filter_silent_sound(audio_data, sound_sets,gen_param_sets, speaker_sid, cf.FILTER_THRES)
 		
 		print('[INFO] Saving state')
 		# store data in main list
