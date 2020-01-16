@@ -167,8 +167,7 @@ def log_formant(log, target_sound, target_label, estimated_sound, formant_dir):
 	log.write(formant_df.to_string())
 
 # plot formant plot
-def log_format_plot(log, formant_dir, save_csv_dir, label_name_path):
-	label_name = np.load(label_name_path)
+def log_format_plot(log, formant_dir, save_csv_dir, label_name):
 	sel_point = 20 if cf.DI_SYLLABLE else 13
 	utils.export_format_csv(label_name, formant_dir ,sel_point = sel_point)
 
@@ -403,7 +402,7 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	formant_dir = join(log_dir,'formant')
 	os.makedirs(formant_dir,exist_ok=True)
 	log_formant(log, target_sound, np.load(label_name_path), estimated_sound, formant_dir)
-	log_format_plot(log,formant_dir, log_dir, label_name_path)
+	log_format_plot(log,formant_dir, log_dir, np.load(label_name_path))
 	log.write('--------------------------------------------------------\n')
 	log.write('Reference directory\n')
 	log.write('Log directory: %s\n'%log_dir)
@@ -411,8 +410,6 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.close()
 
 def log_result_predict(y_pred, model_file, data_dir, output_dir, target_sound, predict_sound, syllable_name):
-	log_dir = join('result', 'predict')
-	os.makedirs(log_dir, exist_ok=True)
 	log = utils.get_log()
 	log.write('========================================================\n')
 	log.write('DATETIME %s\n'%datetime.now().strftime("%Y %B %d %H:%M"))
@@ -422,12 +419,13 @@ def log_result_predict(y_pred, model_file, data_dir, output_dir, target_sound, p
 		log.write('PROJECT-TYPE: Mono-syllablic vowel\n')
 	# calculate formant
 	log.write('---------------------------------\n')
-	formant_dir = join(log_dir,'formant')
+	formant_dir = join(output_dir,'formant')
 	os.makedirs(formant_dir,exist_ok=True)
 	log_formant(log, target_sound, syllable_name, predict_sound, formant_dir)
+	log_format_plot(log, formant_dir, output_dir, syllable_name)
 	log.write('--------------------------------------------------------\n')
 	log.write('Reference directory\n')
-	log.write('Log directory: %s\n'%log_dir)
+	log.write('Log directory: %s\n'%output_dir)
 	log.write('Model directory: %s\n'%model_file)
 	log.write('\n')
 	log.write('========================================================\n')

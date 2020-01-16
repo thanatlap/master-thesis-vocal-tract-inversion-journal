@@ -9,12 +9,30 @@ import librosa
 from librosa import feature
 import itertools
 import math
+from shutil import copyfile
 
 def invert_to_predefine_scale(params):
 	s_param = np.load(join('lib', 'templates', 'speaker_param.npz'))
 	p_low = s_param['low']
 	p_high = s_param['high']
 	return [(param - p_low)/(p_high - p_low) for param in params]
+
+def read_audio_path(data_path):
+	data = []
+	with open(join(data_path,'sound_set.txt'), 'r') as f:
+		data = np.array(f.read().split(','))
+	# path to audio data
+	return np.array([join(data_path, file+'.wav') for file in data])
+
+def extract_duration(data_path):
+	'''
+	extract duration for data generating after prediction
+	return a list of list [[sound1.wav, 1.2], [sound2.wav, 0.92]]
+	'''
+
+	audio_paths = read_audio_path(data_path)
+	return np.array([ [file,librosa.get_duration(librosa.load(file)[0])] for file in audio_paths ])
+
 
 def convert_to_disyllabic_parameter(params):
 	'''
@@ -93,6 +111,60 @@ def create_speaker_file(param_sets,output_dir,
 
 	return speaker_filenames
 
+def ges_template_gen(ges_file, duration, is_disyllable):
+
+	if is_disyllable:
+		duration = duration/2
+
+	f = open(ges_file, 'w')
+	f.write('<gestural_score>\n<gesture_sequence type="vowel-gestures" unit="">\n>')
+	f.write('<gesture value="aaa" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="bbb" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence>\n<gesture_sequence type="lip-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="tongue-tip-gestures" unit="">\n')
+	f.write('</gesture_sequence>\n<gesture_sequence type="tongue-body-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="velic-gestures" unit="">\n')
+	f.write('</gesture_sequence>\n<gesture_sequence type="glottal-shape-gestures" unit="">\n')
+	f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence>\n')
+	f.write('<gesture_sequence type="f0-gestures" unit="st">\n')
+	f.write('<gesture value="82.00000" slope="0.000000" duration_s="0.01000" time_constant_s="0.030000" neutral="0"/>\n')
+	f.write('<gesture value="83.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="83.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+	f.write('</gesture_sequence>\n')
+	f.write('<gesture_sequence type="lung-pressure-gestures" unit="dPa">\n')
+	f.write('<gesture value="0.000000" slope="0.000000" duration_s="0.010000" time_constant_s="0.005000" neutral="0" />\n')
+	f.write('<gesture value="8000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="8000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence> \n')
+	f.write('</gestural_score>\n')
+	f.close()
+
+def create_ges_file(param_sets, output_dir, data_path = None, is_disyllable = False, mode='others'):
+	
+	ges_dir = join(output_dir,'ges')
+	os.makedirs(ges_dir, exist_ok=True)
+
+	if mode == 'predict':
+
+		audio_duration = extract_duration(data_path)
+		ges_filenames = ["ges%s.speaker"%n for n, _ in enumerate(param_sets)]
+		
+		for idx, param in enumerate(param_sets):
+			file_path = join(ges_dir, ges_filenames[idx])
+			ges_template_gen(file_path, float(audio_duration[idx][1]), is_disyllable)
+
+	else:
+		ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
+		ges_filenames = [ges_file]*len(param_sets)
+		copyfile('templates/lib/'+ges_file, ges_dir)
+
+	return ges_filenames
+
+
 def initiate_VTL(VTL_path):
 	'''
 	initialize VTL (VocalTractLab Application) object
@@ -114,7 +186,7 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file,VTL_path, output
 	start_time = time()
 	for idx, output_file in enumerate(output_file_set):
 		speaker_file_name = ctypes.c_char_p(str.encode(speaker_file_list[idx]))
-		gesture_file_name = ctypes.c_char_p(str.encode(gesture_file))
+		gesture_file_name = ctypes.c_char_p(str.encode(gesture_file[idx]))
 		wav_file_name = ctypes.c_char_p(str.encode(output_file))
 		feedback_file_name = ctypes.c_char_p(b'feedback.txt')
 
@@ -126,22 +198,21 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file,VTL_path, output
 	output.put(failure)
 	
 
-def generate_sound(speaker_filenames, output_dir, ges_file,
+def generate_sound(speaker_filenames, ges_filenames, output_dir,
 	VTL_path = '../data_generator/VTL/VocalTractLabApi.dll',
 	njob = 4):
 
 	'''
 	return the list of an output filename 
 	'''
-	gesture_file = 'lib/templates/'+ges_file
-
 	# Create speaker folder
 	sound_dir = join(output_dir,'sound')
 	os.makedirs(sound_dir, exist_ok=True)
 
 	sound_sets = ["sound%s.wav"%str(x) for x,_ in enumerate(speaker_filenames)]
 	output_file_set = [join(sound_dir, sound) for sound in sound_sets]
-	speaker_file_set = [join(output_dir, 'speaker', file) for file in speaker_filenames]
+	speaker_file_set = [join(output_dir, 'speaker', file) for file in speaker_filenames] 
+	ges_file_set = [join(output_dir, 'ges', file) for file in ges_filenames]
 
 	# Start multiprocess
 	# Define an output queue
@@ -152,7 +223,7 @@ def generate_sound(speaker_filenames, output_dir, ges_file,
 		start = i*int(len(sound_sets)/njob)
 		end = (i+1)*int(len(sound_sets)/njob) if i != njob-1 else len(sound_sets)
 		# Setup a list of processes that we want to run
-		processes.append(mp.Process(target=ges_to_wav, args=(output_file_set[start:end], speaker_file_set[start:end], gesture_file,VTL_path, output)))
+		processes.append(mp.Process(target=ges_to_wav, args=(output_file_set[start:end], speaker_file_set[start:end], ges_file_set[start:end] ,VTL_path, output)))
 
 	# Run processes
 	for p in processes:
@@ -167,7 +238,7 @@ def generate_sound(speaker_filenames, output_dir, ges_file,
 	os.remove('feedback.txt')
 	return sound_sets
 
-def convert_param_to_wav(param_sets, output_dir, is_disyllable):
+def convert_param_to_wav(param_sets, output_dir, is_disyllable, data_path=None, mode='others'):
 	'''
 	Take param set and create an audio data. The data is store in the output folder
 	The output folder consist of 1. sound, 2. speaker, 3. npy
@@ -175,12 +246,13 @@ def convert_param_to_wav(param_sets, output_dir, is_disyllable):
 	'''
 	start = time()
 	speaker_filenames = create_speaker_file(param_sets, output_dir, is_disyllable=is_disyllable)
-	# ges file for d-syllable and m-syllable
-	ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
-	sound_sets = generate_sound(speaker_filenames, output_dir, ges_file)
+	ges_filenames = create_ges_file(param_sets, output_dir, data_path=data_path, is_disyllable=is_disyllable, mode=mode)
+
+	sound_sets = generate_sound(speaker_filenames, ges_filenames, output_dir)
 	os.makedirs(join(output_dir, 'npy'), exist_ok=True)
 	np.savez(join(output_dir, 'npy' ,'testset.npz'), 
 		param_sets = param_sets,
 		speaker_filenames = speaker_filenames,
 		sound_sets = sound_sets)
 	print('Successfully convert label to sound [Time: %.3fs]'%(time()-start))
+

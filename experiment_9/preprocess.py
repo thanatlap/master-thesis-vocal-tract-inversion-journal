@@ -61,7 +61,6 @@ def load_audio(audio_paths, sample_rate):
 	audio_data = np.array([ librosa.load(file, sr=sample_rate)[0] for file in audio_paths ])
 	return audio_data
 
-
 def random_sampling_data(audio_data, labels, random_n_sample):
 	'''
 	random sampling audio data for data augmentation 
@@ -405,7 +404,7 @@ def main(args):
 		np.save(arr=features, file=join(output_path,'features.npy'))
 
 	log = open(join(output_path, 'label_mode.txt'),"w")
-	log.write(args.label_normalize)
+	log.write(str(args.label_normalize))
 	log.close()
 
 	log = open(join(output_path,'description.txt'),"w")

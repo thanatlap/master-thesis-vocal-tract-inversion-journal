@@ -158,6 +158,14 @@ def main(args):
 		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=233, model_name='nn_fc')
 
+	if args.exp == 3:
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=234, model_name='nn_bilstm_12')
+
+	if args.exp == 4:
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=235, model_name='nn_bilstm_12')
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
 	parser.add_argument("exp", help="", type=int, default=0)

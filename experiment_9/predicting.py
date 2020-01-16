@@ -13,6 +13,12 @@ import model as nn
 import lib.dev_utils as utils
 import make_result as res
 import lib.dev_gen as gen
+import lib.dev_eval_result as evalresult
+
+from functools import partial
+
+np_load_old = partial(np.load)
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 def prep_data(data_dir, prep_folder):
 	'''
@@ -76,7 +82,10 @@ def main(args):
 	# read syllable name from text file
 	with open(join(args.data_dir,'syllable_name.txt')) as f:
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
-		syllable_name = np.array([item for pair in syllable_name for item in pair]) if is_disyllable else syllable_name
+		syllable_name = np.array([ '%s;%s'%(item,str(idx+1)) for pair in syllable_name for idx, item in enumerate(pair)]) if is_disyllable else syllable_name
+		
+		print(syllable_name)
+		print(syllable_name.shape)
 
 	if args.label_normalize == 1:
 		params = utils.destandardized_label(y_pred, is_disyllable)
@@ -89,20 +98,22 @@ def main(args):
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	
 	# convert vocaltract parameter to audio
-	gen.convert_param_to_wav(params, output_path, is_disyllable)
+	gen.convert_param_to_wav(params, output_path, is_disyllable, args.data_dir, mode='predict')
 	# load sound for comparison
 	with open(join(args.data_dir,'sound_set.txt'), 'r') as f:
 		files = np.array(f.read().split(','))
-		
-	target_sound = np.array([join(args.data_dir, file+'.wav') for file in files])
+
+	target_sound = gen.read_audio_path(args.data_dir)
 	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path, 'npy', 'testset.npz'))['sound_sets']])
 
+	# visualize spectrogram and wave plot
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
 	utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
 
 	# log result
 	res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)
-	# visualize spectrogram and wave plot
+	
+	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2)
 
 	
 	

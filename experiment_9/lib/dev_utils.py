@@ -198,12 +198,15 @@ def get_formant(sound_sets, save_dir, praatEXE, label, is_disyllable = False):
 														5500))
 
 		if is_disyllable:
-			F1.append(formantData[:int(formantData.shape[0]/2),1])
-			F1.append(formantData[int(formantData.shape[0]/2):,1])
-			F2.append(formantData[:int(formantData.shape[0]/2),2])
-			F2.append(formantData[int(formantData.shape[0]/2):,2])
-			F3.append(formantData[:int(formantData.shape[0]/2),3])
-			F3.append(formantData[int(formantData.shape[0]/2):,3])
+
+			transition_point = int(formantData.shape[0]/2)
+
+			F1.append(formantData[:transition_point,1])
+			F1.append(formantData[transition_point:,1])
+			F2.append(formantData[:transition_point,2])
+			F2.append(formantData[transition_point:,2])
+			F3.append(formantData[:transition_point,3])
+			F3.append(formantData[transition_point:,3])
 		else:
 			F1.append(formantData[:,1])
 			F2.append(formantData[:,2])
@@ -219,9 +222,13 @@ def get_formant(sound_sets, save_dir, praatEXE, label, is_disyllable = False):
 		
 	return F1, F2, F3
 
-def padding_and_trimming(actual,pred):
-	audio_length = pred.shape[1]
-	return np.array([data[:audio_length] if data.shape[0] >= audio_length else np.pad(data, (0, max(0, audio_length - data.shape[0])), "constant") for data in actual])
+def padding_and_trimming_each(actual,pred):
+    audio_length = pred.shape[0]
+    return np.array([data[:pred[idx].shape[0]] if data.shape[0] >= pred[idx].shape[0] else np.pad(data, (0, max(0, pred[idx].shape[0] - data.shape[0])), "constant", constant_values =1) for idx, data in enumerate(actual)])
+
+def padding_col(data):
+	max_len = len(max(data, key=len))
+	return np.array([item[:max_len] if item.shape[0] >= max_len else np.pad(item, (0, max(0, max_len - item.shape[0])), "constant", constant_values =1) for idx, item in enumerate(data)])
 
 def calculate_relative_error(actual,pred):
 	a = np.absolute(np.subtract(actual,pred))
@@ -236,6 +243,18 @@ def compute_formant_relative_error(target_sound, estimate_sound, formant_dir, pr
 	est_F1, est_F2, est_F3 = get_formant(estimate_sound, formant_dir, praat_exe, label='estimated', is_disyllable=is_disyllable)
 	act_F1, act_F2, act_F3 = get_formant(target_sound, formant_dir, praat_exe, label='actual', is_disyllable=is_disyllable)
 	
+	act_F1 = padding_and_trimming_each(act_F1, est_F1)
+	act_F2 = padding_and_trimming_each(act_F2, est_F2)
+	act_F3 = padding_and_trimming_each(act_F3, est_F3)
+
+	act_F1 = padding_col(act_F1)
+	act_F2 = padding_col(act_F2)
+	act_F3 = padding_col(act_F3)
+
+	est_F1 = padding_col(est_F1)
+	est_F2 = padding_col(est_F2)
+	est_F3 = padding_col(est_F3)
+
 	F1_re = calculate_relative_error(act_F1, est_F1)
 	F2_re = calculate_relative_error(act_F2, est_F2)
 	F3_re = calculate_relative_error(act_F3, est_F3)
@@ -244,10 +263,16 @@ def compute_formant_relative_error(target_sound, estimate_sound, formant_dir, pr
 
 def export_format_csv(label_name, formant_dir, sel_point = 13, disyllable = False):
 
-	act_F1 = np.load(os.path.join(formant_dir,'actual_F1.npy')).mean(axis=1)
-	act_F2 = np.load(os.path.join(formant_dir,'actual_F2.npy')).mean(axis=1)
-	est_F1 = np.load(os.path.join(formant_dir,'estimated_F1.npy')).mean(axis=1)
-	est_F2 = np.load(os.path.join(formant_dir,'estimated_F2.npy')).mean(axis=1)
+	act_F1 = np.load(os.path.join(formant_dir,'actual_F1.npy'))
+	act_F2 = np.load(os.path.join(formant_dir,'actual_F2.npy'))
+	est_F1 = np.load(os.path.join(formant_dir,'estimated_F1.npy'))
+	est_F2 = np.load(os.path.join(formant_dir,'estimated_F2.npy'))
+
+	act_F1 = padding_col(act_F1).mean(axis=1)
+	act_F2 = padding_col(act_F2).mean(axis=1)
+
+	est_F1 = padding_col(est_F1).mean(axis=1)
+	est_F2 = padding_col(est_F2).mean(axis=1)
 
 	df = pd.DataFrame(data={'Label':np.concatenate((label_name,label_name), axis=0), 'F1':np.concatenate((act_F1,est_F1), axis=0), 'F2':np.concatenate((act_F2,est_F2), axis=0), 'Target':len(act_F1)*[1] +  len(est_F1)*[0]})
 	if disyllable:

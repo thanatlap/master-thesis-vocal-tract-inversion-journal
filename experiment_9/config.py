@@ -8,8 +8,8 @@ DI_SYLLABLE = True
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
 # DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
 # DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
-DATASET_DIR = '../data/d_dataset_4/prep_exp9'
-
+# DATASET_DIR = '../data/d_dataset_4/prep_exp9'
+DATASET_DIR = '../data/d_dataset_3_u/prep_exp9'
 
 #---------------------------------
 
