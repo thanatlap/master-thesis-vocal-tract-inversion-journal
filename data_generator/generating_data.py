@@ -364,7 +364,7 @@ def reset(*args):
 def clean_folder():
 
 	try: 
-		for folder in ['speaker', 'ges', 'feedback', 'speaker_sim']:
+		for folder in ['speaker', 'ges', 'feedback']:
 			shutil.rmtree(join(cf.DATASET_DIR, folder))
 	except:
 		print('Folder Already Empty')
@@ -414,7 +414,7 @@ def main():
 		print('[INFO] Generating sound')
 		sound_sets, sound_idx = generate_sound(speaker_filenames, ges_filenames, sound_idx)
 		print('[INFO] Loading audio data')
-		audio_data = load_audio_from_list(sound_sets, sample_rate=cf.SOUND_SAMPLING_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
+		audio_data = load_audio_from_list(sound_sets, sample_rate=16000, parent_dir=join(cf.DATASET_DIR, 'sound'))
 		print('[INFO] Filtering silent audio')
 		non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count = filter_silent_sound(audio_data, sound_sets,gen_param_sets, speaker_sid, cf.FILTER_THRES)
 		
@@ -473,7 +473,6 @@ def main():
 	log.write('Sampling step: %s\n'%cf.SAMPLING_STEP)
 	log.write('Default parameter used: %s\n'%cf.PREDEFINE_PARAM_FILE)
 	log.write('Simulated speaker scale: %s\n'%cf.SPEAKER_N)
-	log.write('Sound sampling rate: %s\n'%cf.SOUND_SAMPLING_RATE)
 	log.write('------------------------------------------\n')
 	log.write('Entire param set: %s\n'%str(np.array(entire_param_sets).shape))
 	log.write('Entire sound set: %s\n'%str(np.array(entire_sound_sets).shape))

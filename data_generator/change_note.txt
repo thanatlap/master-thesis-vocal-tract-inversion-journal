@@ -2,7 +2,7 @@ Change Note
 [15 Jan 2020]
 - In _rand_fn, decrease change of complete random param from 0.01 to 0.005.
 - DATASIZE is no longer multiply by speaker and no longer duplicate for each speaker head.
-- Add cleansing function to clean unused folder (speaker, ges, feedback, speaker_sim)
+- Add cleansing function to clean unused folder (speaker, ges, feedback)
 - Adjust f0 gesture in simulate speaker file
 - In generate_vocaltract_parameter, add is_check_dup parameter (default = False) if not check dup, the check_dup function is
 	ignore and lat the dataset have a duplicated item.

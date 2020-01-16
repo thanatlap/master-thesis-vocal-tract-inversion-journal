@@ -93,7 +93,9 @@ def main(args):
 	params = utils.transform_VO(utils.add_params(params))
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
-	
+	# save param for averaging
+	np.save(params, file=join(output_path,'params.npy'))
+
 	# convert vocaltract parameter to audio
 	gen.convert_param_to_wav(params, output_path, is_disyllable, args.data_dir, mode='predict')
 	# load sound for comparison
