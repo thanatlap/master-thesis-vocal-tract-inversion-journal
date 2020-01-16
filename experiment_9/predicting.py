@@ -83,9 +83,6 @@ def main(args):
 	with open(join(args.data_dir,'syllable_name.txt')) as f:
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
 		syllable_name = np.array([ '%s;%s'%(item,str(idx+1)) for pair in syllable_name for idx, item in enumerate(pair)]) if is_disyllable else syllable_name
-		
-		print(syllable_name)
-		print(syllable_name.shape)
 
 	if args.label_normalize == 1:
 		params = utils.destandardized_label(y_pred, is_disyllable)
