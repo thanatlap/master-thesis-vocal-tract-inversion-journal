@@ -8,19 +8,17 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
 from tensorflow.keras import callbacks
 import argparse
+import re
 import model as nn
 import lib.dev_utils as utils
 import make_result as res
 import lib.dev_gen as gen
 
-def prep_data(data_dir, prep_folder, model_type):
+def prep_data(data_dir, prep_folder):
 	'''
 	import audio, represent in mfcc feature and normalize 
 	'''
 	features = np.load(join(data_dir, prep_folder,'features.npy'))
-	if model_type == 'cnn':
-		features = utils.cnn_reshape(features)
-
 	print('Predict features %s'%str(features.shape))
 	return features 
 
@@ -45,27 +43,32 @@ def predict(features, model_file):
 
 def main(args):	
 
-	if args.model_type.lower() not in ['cnn', 'rnn']:
-		raise ValueError('model type %s is not define, support only ["cnn", "rnn"]')
-
 	if args.syllable.lower() not in ['mono', 'di']:
-		raise ValueError('model type %s is not define, support only ["mono", "di"]')
+		raise ValueError('[ERROR] Syllable type %s is not define, support only ["mono", "di"]')
 
 	is_disyllable = True if args.syllable.lower() == 'di' else False
 
 	# model_file
 	model_file = join('model',args.model_filename)
 	if not os.path.exists(model_file):
-		raise ValueError('Model %s does not exist!'%model_file)
+		raise ValueError('[ERROR] Model %s does not exist!'%model_file)
+
+	exp_num = int(re.search(r'\d+', args.model_filename).group())
+	if exp_num is None:
+		raise ValueError('[ERROR] Model filename %s does not contain exp_num!'%args.model_filename)
+
+	# check label_normalize 
+	if args.label_normalize not in [1,2]:
+		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
 
 	# prepare data
-	features = prep_data(args.data_dir, args.prep_folder, args.model_type.lower())
+	features = prep_data(args.data_dir, args.prep_folder)
 	# predict 
 	y_pred = predict(features, model_file)
 	# create output path
-	if args.exp_num:
+	if exp_num:
 		# if output filename is specify
-		output_path = join('result','predict_%s'%args.exp_num)
+		output_path = join('result','predict_%s'%exp_num)
 	else:
 		# else, use default
 		output_path = join('result','predict')
@@ -74,8 +77,14 @@ def main(args):
 	with open(join(args.data_dir,'syllable_name.txt')) as f:
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
 		syllable_name = np.array([item for pair in syllable_name for item in pair]) if is_disyllable else syllable_name
+
+	if args.label_normalize == 1:
+		params = utils.destandardized_label(y_pred, is_disyllable)
+	elif args.label_normalize == 2:
+		params = utils.descale_labels(y_pred)
+
 	# invert param back to predefined speaker scale
-	params = utils.transform_VO(utils.add_params((utils.destandardized_label(y_pred, is_disyllable))))
+	params = utils.transform_VO(utils.add_params(params))
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	
@@ -84,11 +93,9 @@ def main(args):
 	# load sound for comparison
 	with open(join(args.data_dir,'sound_set.txt'), 'r') as f:
 		files = np.array(f.read().split(','))
+		
 	target_sound = np.array([join(args.data_dir, file+'.wav') for file in files])
 	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path, 'npy', 'testset.npz'))['sound_sets']])
-	
-	print(target_sound.shape)
-	print(estimated_sound.shape)
 
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
 	utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
@@ -105,7 +112,6 @@ if __name__ == '__main__':
 	parser.add_argument("prep_folder", help="folder contain preprocess data", type=str)
 	parser.add_argument("model_filename", help="file of the model (hdf5)", type=str)
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	parser.add_argument("--model_type", help="model type cnn or rnn ['cnn','rnn']", type=str, default='rnn')
-	parser.add_argument("--exp_num", help="a specific output filename for storing result", type=str, default=None)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max]", type=int, default=1)
 	args = parser.parse_args()
 	main(args)

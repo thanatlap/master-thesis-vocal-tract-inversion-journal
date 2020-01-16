@@ -151,8 +151,12 @@ def main(args):
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
 	if args.exp == 1:
-		training_fn(nn., X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=232, model_name='')
+		training_fn(nn.nn_bilstm_10, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=232, model_name='nn_bilstm_10')
+
+	if args.exp == 2:
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=233, model_name='nn_fc')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")

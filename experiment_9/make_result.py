@@ -162,11 +162,6 @@ def log_formant(log, target_sound, target_label, estimated_sound, formant_dir):
 		log.write('F1 mean relative error: %s\n'%np.mean(F1_re))
 		log.write('F2 mean relative error: %s\n'%np.mean(F2_re))
 		log.write('F3 mean relative error: %s\n'%np.mean(F3_re))
-	# debug
-	print(F1_re.shape)
-	print(F2_re.shape)
-	print(F3_re.shape)
-	print(target_label.shape)
 	formant_df = pd.DataFrame(data={'Label':target_label, 'F1': F1_re, 'F2': F2_re, 'F3': F3_re})
 	formant_df.to_csv(join(formant_dir,'formant_df.csv'), index=False)
 	log.write(formant_df.to_string())
@@ -208,10 +203,10 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, train
 				'Epochs': cf.EPOCHS,
 				'EarlyStop At':stop_at,
 				'Learning rate': cf.LEARNING_RATE,
+				'Label mode': str(utils.get_label_prep_mode(cf.DATASET_DIR)),
+				'Eval label mode':np.NaN,
 				'Train feature shape':str(X_train.shape),
 				'Label shape':str(y_train.shape),
-				'test_size(%)':cf.TEST_SIZE,
-				'val_size(%)':cf.VAL_SIZE,
 				'Load_save':load_save,
 				'Load_checkpoint':load_checkpoint}
 
@@ -236,6 +231,7 @@ def log_experiment_csv_eval(experiment_num, result, r2):
 		log_df = pd.read_csv(log_file)
 		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval RMSE']] = result[1]
 		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval R2']] = r2
+		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval label mode']] = cf.LABEL_MODE
 		try:
 			log_df.to_csv(log_file, index=False)
 		except:
@@ -275,8 +271,6 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	log.write('DESCRIPTION:\n%s\n'%cf.EXP_DESCRIPTION)
 	log.write('--------------------------------------------------------\n')
 	log.write('REFERENCE DATASET: %s\n'%cf.DATASET_DIR)
-	log.write('Percent validating subset size: %s\n'%cf.VAL_SIZE)
-	log.write('Percent testing subset size: %s\n'%cf.TEST_SIZE)
 	log.write('Normalize features (MFCCs)\n')
 	log.write('Training set: %s %s\nValidatetion set: %s %s\nTesting set: %s %s\n'%(str(X_train.shape),str(y_train.shape),str(X_val.shape),str(y_val.shape),str(X_test.shape),str(y_test.shape)))
 	log.write('--------------------------------------------------------\n')
@@ -364,8 +358,15 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Inverse-transform Label\n')
 
-	t_actual_label = utils.transform_VO(utils.add_params((utils.destandardized_label(actual_label, cf.DI_SYLLABLE))))
-	t_y_pred = utils.transform_VO(utils.add_params((utils.destandardized_label(y_pred, cf.DI_SYLLABLE))))
+	if cf.LABEL_MODE == 1:
+		t_actual_label = utils.destandardized_label(actual_label, cf.DI_SYLLABLE)
+		t_y_pred = utils.destandardized_label(y_pred, cf.DI_SYLLABLE)
+	elif cf.LABEL_MODE == 2:
+		t_actual_label = utils.descale_labels(actual_label)
+		t_y_pred = utils.descale_labels(y_pred)
+
+	t_actual_label = utils.transform_VO(utils.add_params(t_actual_label))
+	t_y_pred = utils.transform_VO(utils.add_params(t_y_pred))
 
 	#RMSE of each vowel after descaling
 	log_rmse_distribution(log, 

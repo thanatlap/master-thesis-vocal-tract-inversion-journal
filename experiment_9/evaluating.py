@@ -73,7 +73,11 @@ def main():
 	print('Result R2: %.4f'%(r2))
 	# invert param back to predefined speaker scale
 	print('[INFO] transform label')
-	params = utils.transform_VO(utils.add_params((utils.destandardized_label(y_pred, cf.DI_SYLLABLE))))
+	if cf.LABEL_MODE == 1:
+		params = utils.destandardized_label(y_pred, cf.DI_SYLLABLE)
+	elif cf.LABEL_MODE == 2:
+		params = utils.descale_labels(y_pred)
+	params = utils.transform_VO(utils.add_params(params))
 	# convert label into a sound if the model is D-AAI, the label is merge into disyllabic vowel
 	# syllable name is not given because it already convert to disyllable since the prep_eval_set.py
 	params = gen.convert_to_disyllabic_parameter(params) if cf.DI_SYLLABLE else params

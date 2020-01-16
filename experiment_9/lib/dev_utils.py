@@ -24,11 +24,17 @@ def cnn_reshape(features):
 	return features.reshape((features.shape[0],features.shape[1],features.shape[2],1))
 
 #Function for preprocessing data
-def scale_labels(params):
-	return (params - param_low)/(param_high - param_low)
+def delete_params(params):
+	'''
+	This function remove JX, WC, TRX, TRY, and MS1,2,3 paramter
+	'''
+	return np.delete(params, [2,8,15,16,21,22,23] , axis=1)
 
 def descale_labels(scale_params):
-	return scale_params*(param_high - param_low) + param_low
+	# the function is called before the parameters was added.
+	ph = delete_params(param_high)
+	pl = delete_params(param_low)
+	return scale_params*(ph - pl) + pl
 
 def destandardized_label(params, is_disyllable):
 	vars_dir = 'vars'
@@ -330,4 +336,9 @@ def get_experiment_number():
 
 	# Load checkpoint
 	with open(join('vars','exp_num.txt'), "r") as num:
+		return list(map(int, num.readlines()))[0]
+
+def get_label_prep_mode(data_path):
+
+	with open(join(data_path,'label_mode.txt'), "r") as num:
 		return list(map(int, num.readlines()))[0]

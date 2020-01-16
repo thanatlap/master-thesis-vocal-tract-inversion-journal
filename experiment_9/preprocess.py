@@ -226,12 +226,6 @@ def standardize_mfcc(features, is_train, is_disyllable):
 	
 	return features 
 
-def delete_params(params):
-	'''
-	This function remove JX, WC, TRX, TRY, and MS1,2,3 paramter
-	'''
-	return np.delete(params, [2,8,15,16,21,22,23] , axis=1)
-
 def standardized_labels(params, is_train, is_disyllable):
 
 	vars_dir = 'vars'
@@ -266,7 +260,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 	if mode != 'predict':
 		print('[INFO] Remove label param having std < 0.05')
-		labels = delete_params(labels)
+		labels = utils.delete_params(labels)
 		if label_prep_mode == 1:
 			print('[INFO] Standardized labels')
 			labels = standardized_labels(labels, is_train, is_disyllable)
@@ -303,13 +297,13 @@ def main(args):
 		raise ValueError('[ERROR] Preprocess mode %s is not match [training, eval, predict]'%args.mode)
 	# check syllable mode
 	if args.syllable.lower() not in ['mono','di']:
-		raise ValueError('[ERROR] Preprocess mode %s is not match [mono, di]'%args.mode)
+		raise ValueError('[ERROR] Preprocess mode %s is not match [mono, di]'%args.syllable)
 	# store value to disyllable 
 	disyllable = True if args.syllable.lower() == 'di' else False
 
 	# check label_normalize 
 	if args.label_normalize not in [1,2]:
-		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.mode)
+		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
 
 	print('[INFO] Test size: %s'%str(args.split_size))
 	print('[INFO] Applied augment: %s'%str(args.is_augment))

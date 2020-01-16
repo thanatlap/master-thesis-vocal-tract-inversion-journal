@@ -6,6 +6,8 @@ from tensorflow.keras.layers import Activation, BatchNormalization
 
 import config as cf
 
+N_OUTPUTS = 17
+
 def rmse(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
 
@@ -70,7 +72,7 @@ def nn_fc(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear', kernel_initializer = 'he_uniform'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear', kernel_initializer = 'he_uniform'))
 	return model
 
 def nn_fc_bn(input_shape_1,input_shape_2):
@@ -93,7 +95,7 @@ def nn_fc_bn(input_shape_1,input_shape_2):
 	model.add(layers.Dense(1024, kernel_initializer = 'he_uniform'))
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
-	model.add(layers.Dense(16, activation='linear', kernel_initializer = 'he_uniform'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear', kernel_initializer = 'he_uniform'))
 	return model
 
 def nn_bilstm(input_shape_1,input_shape_2):
@@ -111,7 +113,7 @@ def nn_bilstm(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_2(input_shape_1,input_shape_2):
@@ -133,7 +135,7 @@ def nn_bilstm_2(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 
 	model.summary()
 
@@ -154,7 +156,7 @@ def nn_lstm(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear', kernel_initializer = 'he_uniform'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear', kernel_initializer = 'he_uniform'))
 	return model
 
 def nn_cnn(input_shape_1,input_shape_2):
@@ -195,7 +197,7 @@ def nn_cnn(input_shape_1,input_shape_2):
 	model.add(layers.Dense(1024, kernel_initializer = 'he_uniform'))
 	model.add(BatchNormalization())
 	model.add(Activation('elu'))
-	model.add(layers.Dense(16))
+	model.add(layers.Dense(N_OUTPUTS))
 	return model
 
 def nn_bilstm_3(input_shape_1,input_shape_2):
@@ -213,7 +215,7 @@ def nn_bilstm_3(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.7))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.7))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_4(input_shape_1,input_shape_2):
@@ -233,7 +235,7 @@ def nn_bilstm_4(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.7))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.7))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_5(input_shape_1,input_shape_2):
@@ -257,7 +259,7 @@ def nn_bilstm_5(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.7))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.7))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_6(input_shape_1,input_shape_2):
@@ -279,7 +281,7 @@ def nn_bilstm_6(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.7))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.7))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_7(input_shape_1,input_shape_2):
@@ -295,7 +297,7 @@ def nn_bilstm_7(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_8(input_shape_1,input_shape_2):
@@ -309,7 +311,7 @@ def nn_bilstm_8(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_9(input_shape_1,input_shape_2):
@@ -327,7 +329,7 @@ def nn_bilstm_9(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_10(input_shape_1,input_shape_2):
@@ -345,7 +347,7 @@ def nn_bilstm_10(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(64)))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_11(input_shape_1,input_shape_2):
@@ -362,7 +364,7 @@ def nn_bilstm_11(input_shape_1,input_shape_2):
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_12(input_shape_1,input_shape_2):
@@ -382,7 +384,7 @@ def nn_bilstm_12(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_13(input_shape_1,input_shape_2):
@@ -400,7 +402,7 @@ def nn_bilstm_13(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_14(input_shape_1,input_shape_2):
@@ -420,7 +422,7 @@ def nn_bilstm_14(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_15(input_shape_1,input_shape_2):
@@ -444,7 +446,7 @@ def nn_bilstm_15(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_16(input_shape_1,input_shape_2):
@@ -468,7 +470,7 @@ def nn_bilstm_16(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_17(input_shape_1,input_shape_2):
@@ -486,7 +488,7 @@ def nn_bilstm_17(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_18(input_shape_1,input_shape_2):
@@ -504,7 +506,7 @@ def nn_bilstm_18(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_19(input_shape_1,input_shape_2):
@@ -520,7 +522,7 @@ def nn_bilstm_19(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_20(input_shape_1,input_shape_2):
@@ -534,7 +536,7 @@ def nn_bilstm_20(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_21(input_shape_1,input_shape_2):
@@ -546,7 +548,7 @@ def nn_bilstm_21(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='relu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fc_bilstm_fc(input_shape_1,input_shape_2):
@@ -557,7 +559,7 @@ def nn_fc_bilstm_fc(input_shape_1,input_shape_2):
 	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
 	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fc_bilstm_fc_drop(input_shape_1,input_shape_2):
@@ -573,7 +575,7 @@ def nn_fc_bilstm_fc_drop(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fc_bilstm_fc_2(input_shape_1,input_shape_2):
@@ -583,7 +585,7 @@ def nn_fc_bilstm_fc_2(input_shape_1,input_shape_2):
 	model.add(layers.Dense(512, activation = 'elu'))
 	model.add(layers.Bidirectional(layers.LSTM(256, return_sequences=True)))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fc_bilstm_fc_2_drop(input_shape_1,input_shape_2):
@@ -597,7 +599,7 @@ def nn_fc_bilstm_fc_2_drop(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fc_bilstm_cn_fc_drop(input_shape_1,input_shape_2):
@@ -614,7 +616,7 @@ def nn_fc_bilstm_cn_fc_drop(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_3(input_shape_1,input_shape_2):
@@ -633,7 +635,7 @@ def nn_fbc_3(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_4(input_shape_1,input_shape_2):
@@ -652,7 +654,7 @@ def nn_fbc_4(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_5(input_shape_1,input_shape_2):
@@ -673,7 +675,7 @@ def nn_fbc_5(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_6(input_shape_1,input_shape_2):
@@ -691,7 +693,7 @@ def nn_fbc_6(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 
@@ -718,7 +720,7 @@ def nn_fbc_7(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_8(input_shape_1,input_shape_2):
@@ -741,7 +743,7 @@ def nn_fbc_8(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_9(input_shape_1,input_shape_2):
@@ -764,7 +766,7 @@ def nn_fbc_9(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_10(input_shape_1,input_shape_2):
@@ -789,7 +791,7 @@ def nn_fbc_10(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_11(input_shape_1,input_shape_2):
@@ -811,7 +813,7 @@ def nn_fbc_11(input_shape_1,input_shape_2):
 	model.add(layers.MaxPool1D())
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_12(input_shape_1,input_shape_2):
@@ -834,7 +836,7 @@ def nn_fbc_12(input_shape_1,input_shape_2):
 	model.add(layers.MaxPool1D())
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_22(input_shape_1,input_shape_2):
@@ -854,7 +856,7 @@ def nn_bilstm_22(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_23(input_shape_1,input_shape_2):
@@ -878,7 +880,7 @@ def nn_bilstm_23(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_23(input_shape_1,input_shape_2):
@@ -906,7 +908,7 @@ def nn_bilstm_23(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_24(input_shape_1,input_shape_2):
@@ -934,7 +936,7 @@ def nn_bilstm_24(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bilstm_25(input_shape_1,input_shape_2):
@@ -962,7 +964,7 @@ def nn_bilstm_25(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Bidirectional(layers.LSTM(64)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_fbc_13(input_shape_1,input_shape_2):
@@ -987,7 +989,7 @@ def nn_fbc_13(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_cbf_1(input_shape_1,input_shape_2):
@@ -1000,7 +1002,7 @@ def nn_cbf_1(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_cbf_2(input_shape_1,input_shape_2):
@@ -1015,7 +1017,7 @@ def nn_cbf_2(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_cbf_3(input_shape_1,input_shape_2):
@@ -1032,7 +1034,7 @@ def nn_cbf_3(input_shape_1,input_shape_2):
 	model.add(layers.Bidirectional(layers.LSTM(256, activation='linear')))
 	model.add(BatchNormalization())
 	model.add(Activation('tanh'))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_cbf_4(input_shape_1,input_shape_2):
@@ -1049,7 +1051,7 @@ def nn_cbf_4(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(1024, activation = 'elu'))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_cbf_5(input_shape_1,input_shape_2):
@@ -1064,7 +1066,7 @@ def nn_cbf_5(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Bidirectional(layers.LSTM(256)))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bcf_1(input_shape_1,input_shape_2):
@@ -1081,7 +1083,7 @@ def nn_bcf_1(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(32, 5, activation='relu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bcf_2(input_shape_1,input_shape_2):
@@ -1100,7 +1102,7 @@ def nn_bcf_2(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(1024, activation='elu'))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bcf_3(input_shape_1,input_shape_2):
@@ -1118,7 +1120,7 @@ def nn_bcf_3(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(1024, activation='elu'))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bcf_4(input_shape_1,input_shape_2):
@@ -1134,7 +1136,7 @@ def nn_bcf_4(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(1024, activation='elu'))
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 
@@ -1152,7 +1154,7 @@ def nn_bcf_5(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def nn_bcf_6(input_shape_1,input_shape_2):
@@ -1169,7 +1171,7 @@ def nn_bcf_6(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1189,7 +1191,7 @@ def nn_bcf_7(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 5, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1207,7 +1209,7 @@ def nn_bcf_8(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(32, 3, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1225,7 +1227,7 @@ def nn_bcf_9(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1247,7 +1249,7 @@ def nn_cn_1(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(128, 3, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1275,7 +1277,7 @@ def nn_cn_2(input_shape_1,input_shape_2):
 	model.add(layers.Flatten())
 	model.add(BatchNormalization())
 	model.add(Activation('elu'))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1295,7 +1297,7 @@ def nn_bcf_10(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1315,7 +1317,7 @@ def nn_bcf_11(input_shape_1,input_shape_2):
 	model.add(layers.Conv1D(64, 3, activation='elu', padding='same'))
 	model.add(layers.Flatten())
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1335,7 +1337,7 @@ def nn_bcf_12(input_shape_1,input_shape_2):
 	model.add(layers.Bidirectional(layers.LSTM(128)))
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model
 
@@ -1356,7 +1358,7 @@ def nn_bilstm_22(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(1024, activation='elu' ))
 	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(16, activation='linear'))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
 def resnet_1(input_shape_1,input_shape_2):
@@ -1372,7 +1374,7 @@ def resnet_1(input_shape_1,input_shape_2):
 	x = layers.Dropout(rate=0.3)(x)
 	x = layers.Bidirectional(layers.LSTM(128))(x)
 	x = layers.Dropout(rate=0.3)(x)
-	outputs = layers.Dense(16, activation='linear')(x)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	return model
@@ -1392,7 +1394,7 @@ def inception_1(input_shape_1,input_shape_2):
 	x = layers.Dropout(rate=0.3)(x)
 	x = layers.Bidirectional(layers.LSTM(128))(x)
 	x = layers.Dropout(rate=0.3)(x)
-	outputs = layers.Dense(16, activation='linear')(x)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	return model
@@ -1416,7 +1418,7 @@ def resnet_2(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	return model
@@ -1442,7 +1444,7 @@ def resnet_3(input_shape_1,input_shape_2):
 	x3 = layers.concatenate([x2, x])
 	x3 = layers.Flatten()(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	return model
 
@@ -1470,7 +1472,7 @@ def resnet_4(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Dense(1024, activation='elu')(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	return model
 
@@ -1501,7 +1503,7 @@ def resnet_5(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	
@@ -1546,7 +1548,7 @@ def resnet_6(input_shape_1,input_shape_2):
 	blayer = layers.Dropout(rate=0.3)(blayer)
 	blayer = layers.Bidirectional(layers.LSTM(128))(blayer)
 	blayer = layers.Dropout(rate=0.3)(blayer)
-	outputs = layers.Dense(16, activation='linear')(blayer)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(blayer)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	
@@ -1583,7 +1585,7 @@ def resnet_7(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	
@@ -1628,7 +1630,7 @@ def resnet_8(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	
@@ -1671,7 +1673,7 @@ def resnet_9(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	
@@ -1702,7 +1704,7 @@ def fb_1(input_shape_1,input_shape_2):
 	x3 = layers.Dropout(rate=0.3)(x3)
 	x3 = layers.Bidirectional(layers.LSTM(128))(x3)
 	x3 = layers.Dropout(rate=0.3)(x3)
-	outputs = layers.Dense(16, activation='linear')(x3)
+	outputs = layers.Dense(N_OUTPUTS, activation='linear')(x3)
 	model = keras.Model(inputs=inputs, outputs=outputs)
 	model.summary()
 	

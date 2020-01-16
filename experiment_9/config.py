@@ -6,12 +6,12 @@ DI_SYLLABLE = True
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_2/prep_data'
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
-DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
+# DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
 # DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
+DATASET_DIR = '../data/d_dataset_4/prep_exp9'
+
 
 #---------------------------------
-TEST_SIZE = 0.05
-VAL_SIZE = 0.05
 
 LOAD_FROM_SAVE = None
 LOAD_FROM_CHECKPOINT = None
@@ -53,6 +53,8 @@ EVAL_EXP_NUM = 157
 # EVALSET_DIR = '../data/m_eval'
 # MODEL_FILE = '124_nn_fbc_5_20200106_1456.h5'
 # EVAL_EXP_NUM = 124
+
+LABEL_MODE = 1 #1:standardized 2:minmax
 
 #----------------------------------
 # Praat config
