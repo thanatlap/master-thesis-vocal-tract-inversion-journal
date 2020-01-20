@@ -36,12 +36,10 @@ def predict(features, model_file):
 	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse, 
 		'R2': nn.R2,
 		'AdjustR2': nn.AdjustR2,
-		'custom_loss':nn.custom_loss, 
-		'custom_loss2':nn.custom_loss2,
-		'custom_loss3':nn.custom_loss3,
-		'custom_loss4':nn.custom_loss4,
-		'custom_loss5':nn.custom_loss5,
-		'custom_loss6':nn.custom_loss6,
+		'custom_loss':nn.cus_loss1, 
+		'custom_loss2':nn.cus_loss2,
+		'custom_loss3':nn.cus_loss3,
+		'custom_loss4':nn.cus_loss4,
 		})
 	model.summary()
 	y_pred = model.predict(features)
@@ -94,7 +92,7 @@ def main(args):
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	# save param for averaging
-	np.save(params, file=join(output_path,'params.npy'))
+	np.save(arr=params, file=join(output_path,'params.npy'))
 
 	# convert vocaltract parameter to audio
 	gen.convert_param_to_wav(params, output_path, is_disyllable, args.data_dir, mode='predict')

@@ -125,7 +125,7 @@ def lstm_1(input_shape_1,input_shape_2):
 	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model
 
-def bilstm_2(input_shape_1,input_shape_2):
+def bilstm_3(input_shape_1,input_shape_2):
 
 	model = tf.keras.Sequential()
 	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
@@ -138,5 +138,41 @@ def bilstm_2(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.3))
 	model.add(layers.Dense(256, activation='elu' ))
 	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
+	return model
+
+def bilstm_4(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Bidirectional(layers.LSTM(64)))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(256, activation='elu' ))
+	model.add(layers.Dropout(rate=0.3))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
+	return model
+
+def bilstm_5(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Bidirectional(layers.LSTM(64)))
+	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Dense(256, activation='elu' ))
+	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model

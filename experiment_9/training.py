@@ -196,6 +196,14 @@ def main(args):
 		training_fn(nn.bilstm_3, X_train, X_val, X_test, y_train, y_val, y_test, 
 			experiment_num=260, model_name='bilstm_3')
 
+	if args.exp == 12:
+		training_fn(nn.bilstm_4, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=261, model_name='bilstm_4')
+
+	if args.exp == 13:
+		training_fn(nn.bilstm_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=262, model_name='bilstm_5')
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
