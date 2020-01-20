@@ -8,8 +8,8 @@ DI_SYLLABLE = True
 # DATASET_DIR = '../data/m_dataset_2_sm/prep_data'
 # DATASET_DIR = '../data/m_dataset_3_u_L/prep_data_exp7'
 # DATASET_DIR = '../data/d_dataset_3_u/prep_data_exp7'
-# DATASET_DIR = '../data/d_dataset_4/prep_exp9'
-DATASET_DIR = '../data/d_dataset_3_u/prep_exp9'
+DATASET_DIR = '../data/d_dataset_4/prep_exp9'
+# DATASET_DIR = '../data/d_dataset_3_u/prep_exp9'
 
 #---------------------------------
 
@@ -26,14 +26,14 @@ EPS = None
 SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
-OPT = 'AMSGrad' # for record only
+OPT = 'Nadam' # for record only
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 1000
-MODEL_VERBOSE = 0
+EPOCHS = 200
+MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 5 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
 
 # Model Type
 CNN = False
@@ -41,20 +41,13 @@ CNN = False
 # --------------------------------
 # Evaluation
 # --------------------------------
-PREP_EVAL_FOLDER = 'prep_data_exp7'
+PREP_EVAL_FOLDER = 'prep_exp9_2'
 
 EVALSET_DIR = '../data/d_eval'
-MODEL_FILE = '157_nn_bilstm_12_20200108_0020.h5'
-EVAL_EXP_NUM = 157
+MODEL_FILE = '257_bilstm_2_20200120_1026.h5'
+EVAL_EXP_NUM = 257
 
-# MODEL_FILE = '9_d_bilstm.h5'
-# EVAL_EXP_NUM = 9
-
-# EVALSET_DIR = '../data/m_eval'
-# MODEL_FILE = '124_nn_fbc_5_20200106_1456.h5'
-# EVAL_EXP_NUM = 124
-
-LABEL_MODE = 1 #1:standardized 2:minmax
+LABEL_MODE = 2 #1:standardized 2:minmax
 
 #----------------------------------
 # Praat config

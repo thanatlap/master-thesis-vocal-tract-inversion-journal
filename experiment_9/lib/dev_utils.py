@@ -15,10 +15,23 @@ import praatio
 from praatio import praat_scripts
 from praatio.utilities import utils as praat_utils
 import warnings
+import argparse
 
 param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
 param_name = np.array(["HX","HY","JX","JA","LP","LD","VS","VO","WC","TCX","TCY","TTX","TTY","TBX","TBY","TRX","TRY","TS1","TS2","TS3","TS4","MA1","MA2","MA3"])
+
+del_params_list = [2,8,15,16,21,22,23]
+
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 def cnn_reshape(features):
 	return features.reshape((features.shape[0],features.shape[1],features.shape[2],1))
@@ -28,12 +41,12 @@ def delete_params(params):
 	'''
 	This function remove JX, WC, TRX, TRY, and MS1,2,3 paramter
 	'''
-	return np.delete(params, [2,8,15,16,21,22,23] , axis=1)
+	return np.delete(params,del_params_list  , axis=1)
 
 def descale_labels(scale_params):
 	# the function is called before the parameters was added.
-	ph = delete_params(param_high)
-	pl = delete_params(param_low)
+	ph = np.delete(param_high, del_params_list  , axis=0)
+	pl = np.delete(param_low, del_params_list  , axis=0)
 	return scale_params*(ph - pl) + pl
 
 def destandardized_label(params, is_disyllable):

@@ -47,12 +47,10 @@ def evaluating(features, labels):
 	model = models.load_model(model_path, custom_objects={'rmse': nn.rmse, 
 		'R2': nn.R2,
 		'AdjustR2': nn.AdjustR2,
-		'custom_loss':nn.custom_loss, 
-		'custom_loss2':nn.custom_loss2,
-		'custom_loss3':nn.custom_loss3,
-		'custom_loss4':nn.custom_loss4,
-		'custom_loss5':nn.custom_loss5,
-		'custom_loss6':nn.custom_loss6,
+		'custom_loss':nn.cus_loss1, 
+		'custom_loss2':nn.cus_loss2,
+		'custom_loss3':nn.cus_loss3,
+		'custom_loss4':nn.cus_loss4,
 		})
 	model.summary()
 	#Evaluate and predict

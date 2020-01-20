@@ -16,52 +16,64 @@ import lib.dev_gen as gen
 import lib.dev_eval_result as evalresult
 
 from functools import partial
-
 np_load_old = partial(np.load)
 np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
-def main(args):
+##### GLOBAL VARS #####
 
-	if args.syllable.lower() not in ['mono', 'di']:
-		raise ValueError('[ERROR] Syllable type %s is not define, support only ["mono", "di"]')
+PARAM_1 = 'predict_1'
+PARAM_2 = 'predict_2'
+PARAM_3 = 'predict_3'
+PARAM_4 = 'predict_4'
+PARAM_5 = 'predict_5'
 
-	is_disyllable = True if args.syllable.lower() == 'di' else False
+REC_DATA_1 = 'd_record_set_1'
+REC_DATA_2 = 'd_record_set_2'
+REC_DATA_3 = 'd_record_set_3'
+REC_DATA_4 = 'd_record_set_4'
+REC_DATA_5 = 'd_record_set_5'
 
-	params_1 = np.load(args.param_1)
-	params_2 = np.load(args.param_2)
-	params_3 = np.load(args.param_3)
-	params_4 = np.load(args.param_4)
-	params_5 = np.load(args.param_5)
+DISYLLABLE = True
 
-	params = np.mean(params_1, params_2, params_3, params_4, params_5)
+OUTPUT_FOLDER = 'predict_a1' 
+
+# ======================= #
+
+def main():
+
+	params_1 = np.load(join('result',PARAM_1))
+	params_2 = np.load(join('result',PARAM_2))
+	params_3 = np.load(join('result',PARAM_3))
+	params_4 = np.load(join('result',PARAM_4))
+	params_5 = np.load(join('result',PARAM_5))
+
+	# create output folder
+	output_path = join('result', OUTPUT_FOLDER)
+	os.makedirs(output_path)
+
+	# Find mean of the param
+
+
+	# The target sound must be average as well
+
 
 	# convert vocaltract parameter to audio
-	gen.convert_param_to_wav(params, args.output_path, is_disyllable, args.data_dir, mode='predict')
-	# load sound for comparison
-	with open(join(args.data_dir,'sound_set.txt'), 'r') as f:
-		files = np.array(f.read().split(','))
+	gen.convert_param_to_wav(params, output_path, is_disyllable, REC_DATA_1, mode='predict')
+	# # load sound for comparison
+	# with open(join(args.data_dir,'sound_set.txt'), 'r') as f:
+	# 	files = np.array(f.read().split(','))
 
-	target_sound = gen.read_audio_path(args.data_dir)
-	estimated_sound = np.array([join(args.output_path, 'sound', file) for file in np.load(join(args.output_path, 'npy', 'testset.npz'))['sound_sets']])
+	# target_sound = gen.read_audio_path(args.data_dir)
+	# estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path, 'npy', 'testset.npz'))['sound_sets']])
 
-	# visualize spectrogram and wave plot
-	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(args.output_path,'spectrogram'), 'Greys')
-	utils.generate_visualize_wav(target_sound, estimated_sound, join(args.output_path,'wave'))
+	# # visualize spectrogram and wave plot
+	# utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
+	# utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
 
-	# log result
-	res.log_result_predict(y_pred, model_file, args.data_dir,args.output_path, target_sound, estimated_sound, syllable_name)
+	# # log result
+	# res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)
 	
-	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2)
+	# evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2)
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser("Make the final result")
-	parser.add_argument("param_1", help="path to param", type=str)
-	parser.add_argument("param_2", help="path to param", type=str)
-	parser.add_argument("param_3", help="path to param", type=str)
-	parser.add_argument("param_4", help="path to param", type=str)
-	parser.add_argument("param_5", help="path to param", type=str)
-	parser.add_argument("output_path", help="output folder of the final result", type=str)
-	parser.add_argument("data_dir", help="data directory (choose one data)", type=str)
-	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	args = parser.parse_args()
-	main(args)
+	main()

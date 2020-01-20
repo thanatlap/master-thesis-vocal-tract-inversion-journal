@@ -10,6 +10,7 @@ from librosa import feature
 import itertools
 import math
 from shutil import copyfile
+import shutil 
 
 def invert_to_predefine_scale(params):
 	s_param = np.load(join('lib', 'templates', 'speaker_param.npz'))
@@ -160,7 +161,7 @@ def create_ges_file(param_sets, output_dir, data_path = None, is_disyllable = Fa
 	else:
 		ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
 		ges_filenames = [ges_file]*len(param_sets)
-		copyfile('templates/lib/'+ges_file, ges_dir)
+		shutil.copy('lib/templates/'+ges_file, ges_dir)
 
 	return ges_filenames
 

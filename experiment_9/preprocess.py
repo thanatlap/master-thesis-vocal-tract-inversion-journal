@@ -137,9 +137,11 @@ def scale_speaker_syllable(labels, data_path, mode):
 	'''
 	scale vocaltract parameter by max and min parameter that that speaker sid
 	'''
+	print(labels.shape)
 	# For training dataset, the scale is performed using simulated speaker  
 	if mode == 'training':
 		speaker_sid = np.load(join(data_path, 'npy', 'dataset.npz'))['ns_sid']
+		print(speaker_sid.shape)
 	else:
 		# else, the scale is performed using predefined speaker
 		speaker_sid = [0 for i in labels]
@@ -250,21 +252,22 @@ def standardized_labels(params, is_train, is_disyllable):
 	
 	return params
 
-def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, label_prep_mode, data_path=None):
-	
+def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, label_prep_mode, data_path=None): 
+
 	if is_disyllable:
 		# split audio data for disyllable, note that if mode=predict, labels is [].
 		print('[INFO] Spliting audio data for disyllabic')
 		features, labels = split_audio(features, labels, mode=mode)
 
 	if mode != 'predict':
+
 		print('[INFO] Remove label param having std < 0.05')
 		labels = utils.delete_params(labels)
+		print(labels.shape)
+		
 		if label_prep_mode == 1:
 			print('[INFO] Standardized labels')
 			labels = standardized_labels(labels, is_train, is_disyllable)
-		elif label_prep_mode == 2:
-			labels = scale_speaker_syllable(labels, data_path, mode)
 
 	print('[INFO] Padding audio length')
 	features = zero_padding_audio(features, mode, is_disyllable, is_train)
@@ -300,12 +303,15 @@ def main(args):
 	# store value to disyllable 
 	disyllable = True if args.syllable.lower() == 'di' else False
 
+	# convert string to boolean
+	is_augment = utils.str2bool(args.is_augment)
+
 	# check label_normalize 
 	if args.label_normalize not in [1,2]:
 		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
 
 	print('[INFO] Test size: %s'%str(args.split_size))
-	print('[INFO] Applied augment: %s'%str(args.is_augment))
+	print('[INFO] Applied augment: %s'%str(is_augment))
 	print('[INFO] Augment ratio sample: %s'%str(args.augment_samples))
 	print('[INFO] Sample rate: %s'%str(args.sample_rate))
 	print('[INFO] label normalize mode: %s'%str(args.label_normalize))
@@ -316,6 +322,12 @@ def main(args):
 	print('[INFO] Loading audio and labels data')
 	audio_data = load_audio(audio_paths, args.sample_rate)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
+
+	if args.mode != 'predict': 
+
+		if args.label_normalize == 2:
+				print('[INFO] Min Max Normalization labels')
+				labels = scale_speaker_syllable(labels, args.data_path, args.mode)
 	
 	# split data into train, test, validate subset if mode = 'training', else, evaluate and test
 	if args.mode == 'training':
@@ -328,7 +340,7 @@ def main(args):
 		X_train, X_test, y_train, y_test = train_test_split(audio_data, labels, test_size = split_size, random_state=0)
 		X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size =split_size, random_state=0)
 		# perform augmentation for training dataset (only X_train)
-		if args.is_augment:
+		if is_augment:
 			print('[INFO] Augmenting audio data')
 
 			# compute number of sample being augment based on training subset
@@ -412,7 +424,7 @@ def main(args):
 	log.write('Mode: %s\n'%str(args.mode))
 	log.write('Data_path: %s\n'%str(args.data_path))
 	log.write('Syllable: %s\n'%str(args.syllable))
-	log.write('Used Augmentation: %s\n'%str(args.is_augment))
+	log.write('Used Augmentation: %s\n'%str(is_augment))
 	log.write('Output_path: %s\n'%str(args.output_path))
 	log.write('Augment_Frac: %s\n'%str(args.augment_samples))
 	log.write('Sample_Rate: %s\n'%str(args.sample_rate))
@@ -425,7 +437,7 @@ if __name__ == '__main__':
 	parser.add_argument("mode", help="preprocessing mode ['training', 'eval', 'predict']", type=str)
 	parser.add_argument("data_path", help="data parent directory", type=str)
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	parser.add_argument('--is_augment', dest='is_augment', default=True, help='proceed data augmentation', type=bool)
+	parser.add_argument('--is_augment', dest='is_augment', default='True', help='proceed data augmentation', type=str)
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--sample_rate", help="audio sample rate", type=int, default=16000)
