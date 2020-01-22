@@ -32,8 +32,6 @@ def prep_data():
 	X_test = dataset['X_test']
 	y_test = dataset['y_test']
 
-	
-
 	print(X_train.shape)
 	print(y_train.shape)
 
@@ -153,63 +151,86 @@ def main(args):
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
 	if args.exp == 1:
-		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=250, model_name='nn_fc')
+		training_fn(nn.nn_bilstm_10, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=232, model_name='nn_bilstm_10')
 
 	if args.exp == 2:
-		training_fn(nn.bilstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=251, model_name='bilstm_1')
+		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=233, model_name='nn_fc')
 
 	if args.exp == 3:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=252, model_name='bilstm_2')
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=234, model_name='nn_bilstm_12')
 
 	if args.exp == 4:
-		training_fn(nn.bilstm_3, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=253, model_name='bilstm_3')
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=235, model_name='nn_bilstm_12')
 
 	if args.exp == 5:
-		training_fn(nn.lstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=254, model_name='lstm_1')
+		training_fn(nn.resnet_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=236, model_name='resnet_5')
 
 	if args.exp == 6:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=255, model_name='bilstm_2')
+		training_fn(nn.nn_fbc_13, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=237, model_name='nn_fbc_13')
 
 	if args.exp == 7:
-		training_fn(nn.lstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=256, model_name='lstm_1')
-
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=238, model_name='nn_bilstm_12')
 
 	if args.exp == 8:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=257, model_name='bilstm_2')
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=239, model_name='nn_bilstm_12')
 
 	if args.exp == 9:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=258, model_name='bilstm_2')
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=240, model_name='nn_bilstm_12')
 
 	if args.exp == 10:
-		cf.LOAD_FROM_SAVE = 'model/258_bilstm_2_20200120_1139.h5'
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=259, model_name='bilstm_2')
+		cf.LOSS_FN = [nn.custom_loss4]
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=241, model_name='nn_bilstm_12')
 
 	if args.exp == 11:
-		training_fn(nn.bilstm_3, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=260, model_name='bilstm_3')
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=242, model_name='nn_bilstm_12')
 
 	if args.exp == 12:
-		training_fn(nn.bilstm_4, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=261, model_name='bilstm_4')
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=243, model_name='nn_bilstm_12')
 
 	if args.exp == 13:
-		training_fn(nn.bilstm_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=262, model_name='bilstm_5')
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=244, model_name='nn_bilstm_12')
 
 	if args.exp == 14:
-		training_fn(nn.bilstm_6, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=263, model_name='bilstm_6')
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=245, model_name='nn_bilstm_12')
 
+	if args.exp == 15:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=246, model_name='nn_bilstm_12')
+
+	if args.exp == 16:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.resnet_5, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=247, model_name='resnet_5')
+
+	if args.exp == 17:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=248, model_name='nn_bilstm_12')
+
+	if args.exp == 18:
+		cf.LOSS_FN = 'mse'
+		training_fn(nn.nn_bilstm_12, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=249, model_name='nn_bilstm_12')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
