@@ -21,8 +21,9 @@ param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0,
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
 param_name = np.array(["HX","HY","JX","JA","LP","LD","VS","VO","WC","TCX","TCY","TTX","TTY","TBX","TBY","TRX","TRY","TS1","TS2","TS3","TS4","MA1","MA2","MA3"])
 
-del_params_list = [2,8,15,16,21,22,23]
-
+# del_params_list = [2,8,15,16,21,22,23]
+del_params_list = list(range(0,24))
+del_params_list.remove(1)
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):

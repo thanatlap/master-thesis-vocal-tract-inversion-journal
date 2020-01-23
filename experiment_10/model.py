@@ -5,7 +5,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Activation, BatchNormalization 
 import config as cf
 
-N_OUTPUTS = 17
+N_OUTPUTS = 1
 
 def rmse(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
@@ -26,23 +26,23 @@ def AdjustR2(y_true, y_pred):
 
 def cus_loss1(y_true, y_pred):
 	mse = K.mean(K.square(y_pred - y_true), axis=-1)
-	adjustR2 = AdjustR2(y_true, y_pred)
-	return (1-adjustR2)*mse + mse
+	r2 = R2(y_true, y_pred)
+	return (1-r2)*mse + mse
 
 def cus_loss2(y_true, y_pred):
 	mse = K.mean(K.square(y_pred - y_true), axis=-1)
-	adjustR2 = AdjustR2(y_true, y_pred)
-	return (1-adjustR2)*K.sqrt(mse) + mse
+	r2 = R2(y_true, y_pred)
+	return (1-r2)*K.sqrt(mse) + mse
 
 def cus_loss3(y_true, y_pred):
 	mse = K.mean(K.square(y_pred - y_true), axis=-1)
-	adjustR2 = AdjustR2(y_true, y_pred)
-	return (1-adjustR2)*mse + K.sqrt(mse)
+	r2 = R2(y_true, y_pred)
+	return (1-r2)*mse + K.sqrt(mse)
 
 def cus_loss4(y_true, y_pred):
 	rmse = K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
-	adjustR2 = AdjustR2(y_true, y_pred)
-	return (1-adjustR2)*rmse + rmse
+	r2 = R2(y_true, y_pred)
+	return (1-r2)*rmse + rmse
 
 
 def nn_fc(input_shape_1,input_shape_2):
@@ -193,5 +193,21 @@ def bilstm_6(input_shape_1,input_shape_2):
 	model.add(layers.Dropout(rate=0.5))
 	model.add(layers.Dense(512, activation='elu' ))
 	model.add(layers.Dropout(rate=0.5))
+	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
+	return model
+
+def bilstm_7(input_shape_1,input_shape_2):
+
+	model = tf.keras.Sequential()
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Bidirectional(layers.LSTM(64)))
+	model.add(layers.Dropout(rate=0.4))
+	model.add(layers.Dense(256, activation='elu' ))
+	model.add(layers.Dropout(rate=0.4))
 	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
 	return model

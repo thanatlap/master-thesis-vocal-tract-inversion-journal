@@ -262,8 +262,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 	if mode != 'predict':
 
 		print('[INFO] Remove label param having std < 0.05')
-		labels = utils.delete_params(labels)
-		print(labels.shape)
+		# labels = utils.delete_params(labels)
 		
 		if label_prep_mode == 1:
 			print('[INFO] Standardized labels')
@@ -334,7 +333,6 @@ def main(args):
 
 		# compute testing and validating size
 		split_size = int(args.split_size*audio_data.shape[0])
-		print('[DEBUG] split_size: %s'%str(split_size))
 
 		print('[INFO] Split audio data into different subset')
 		X_train, X_test, y_train, y_test = train_test_split(audio_data, labels, test_size = split_size, random_state=0)
@@ -345,7 +343,6 @@ def main(args):
 
 			# compute number of sample being augment based on training subset
 			augment_samples = int(args.augment_samples*X_train.shape[0])
-			print('[DEBUG] augment_samples: %s'%str(augment_samples))
 
 			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=strech_audio)
 			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=amplify_value)

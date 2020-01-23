@@ -32,7 +32,9 @@ def prep_data():
 	X_test = dataset['X_test']
 	y_test = dataset['y_test']
 
-	
+	y_train = utils.delete_params(y_train)
+	y_val = utils.delete_params(y_val)
+	y_test = utils.delete_params(y_test)
 
 	print(X_train.shape)
 	print(y_train.shape)
@@ -64,7 +66,9 @@ def get_model(model_fn, input_shape):
 			model.load_weights(cf.LOAD_FROM_CHECKPOINT)
 		# inti optimizer and complied
 		# opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
-		opt = optimizers.Nadam()
+		# opt = optimizers.Nadam()
+		# opt = optimizers.SGD(learning_rate=cf.LEARNING_RATE)
+		opt = optimizers.RMSprop()
 		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
 	return model
 
@@ -153,62 +157,40 @@ def main(args):
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
 	if args.exp == 1:
+		cf.LOSS_FN= 'mse'
 		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=250, model_name='nn_fc')
-
+			experiment_num=277, model_name='nn_fc')
+	
 	if args.exp == 2:
-		training_fn(nn.bilstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=251, model_name='bilstm_1')
+		cf.LOSS_FN= 'mse'
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=271, model_name='bilstm_7')
 
 	if args.exp == 3:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=252, model_name='bilstm_2')
+		cf.LOSS_FN= [nn.cus_loss1]
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=272, model_name='bilstm_7')
 
 	if args.exp == 4:
-		training_fn(nn.bilstm_3, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=253, model_name='bilstm_3')
+		cf.LOSS_FN= [nn.cus_loss2]
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=273, model_name='bilstm_7')
 
 	if args.exp == 5:
-		training_fn(nn.lstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=254, model_name='lstm_1')
+		cf.LOSS_FN= [nn.cus_loss3]
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=274, model_name='bilstm_7')
 
 	if args.exp == 6:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=255, model_name='bilstm_2')
+		cf.LOSS_FN= [nn.cus_loss4]
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=275, model_name='bilstm_7')
 
 	if args.exp == 7:
-		training_fn(nn.lstm_1, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=256, model_name='lstm_1')
-
-
-	if args.exp == 8:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=257, model_name='bilstm_2')
-
-	if args.exp == 9:
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=258, model_name='bilstm_2')
-
-	if args.exp == 10:
-		cf.LOAD_FROM_SAVE = 'model/258_bilstm_2_20200120_1139.h5'
-		training_fn(nn.bilstm_2, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=259, model_name='bilstm_2')
-
-	if args.exp == 11:
-		training_fn(nn.bilstm_3, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=260, model_name='bilstm_3')
-
-	if args.exp == 12:
-		training_fn(nn.bilstm_4, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=261, model_name='bilstm_4')
-
-	if args.exp == 13:
-		training_fn(nn.bilstm_5, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=262, model_name='bilstm_5')
-
-	if args.exp == 14:
-		training_fn(nn.bilstm_6, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=263, model_name='bilstm_6')
+		cf.LOSS_FN= [nn.rmse]
+		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
+			experiment_num=276, model_name='bilstm_7')
+	
 
 
 if __name__ == '__main__':
