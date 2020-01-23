@@ -15,6 +15,7 @@ from time import time
 from datetime import datetime
 import shutil 
 import argparse
+from functools import partial
 
 import lib.dev_utils as utils
 import model as nn
@@ -39,10 +40,10 @@ def prep_data():
 	print(X_train.shape)
 	print(y_train.shape)
 
-	if cf.CNN:
-		X_train = utils.cnn_reshape(X_train)
-		X_val = utils.cnn_reshape(X_val)
-		X_test = utils.cnn_reshape(X_test)
+	# if cf.CNN:
+	# 	X_train = utils.cnn_reshape(X_train)
+	# 	X_val = utils.cnn_reshape(X_val)
+	# 	X_test = utils.cnn_reshape(X_test)
 
 	print('Train features and labels %s %s'%(str(X_train.shape),str(y_train.shape)))
 	print('Validating features and labels %s %s'%(str(X_val.shape),str(y_val.shape)))
@@ -82,7 +83,7 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 	# Checkpoint
 	checkpoint = callbacks.ModelCheckpoint(filepath=join('model','checkpoint','weights.{epoch:02d}-{val_rmse:.4f}.h5'), 
 		monitor='val_rmse', verbose=1, mode='min',save_best_only=True, period = cf.CHECKPOINT_PEROID)
-	
+
 	if cf.EARLY_STOP_PATIENCE:
 		# Early stop
 		early = callbacks.EarlyStopping(monitor='val_loss', 
@@ -93,6 +94,12 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 	else:
 		early = None
 		callback_list = [checkpoint]
+
+	if cf.TENSORBOARD:
+		log_dir = join('tf_log','log_'+str(experiment_num)+str(datetime.now().strftime("%Y%m%d-%H%M%S")))
+		os.makedirs(log_dir, exist_ok=True)
+		tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+		callback_list.append(tensorboard_callback)
 
 	history = model.fit(features,labels,
 		batch_size=batch_size,
@@ -153,43 +160,20 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 
 def main(args):
 
-	if args.exp in range(1,100):
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
-	if args.exp == 1:
-		cf.LOSS_FN= 'mse'
-		training_fn(nn.nn_fc, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=277, model_name='nn_fc')
+	ptraining_fn = partial(training_fn, 
+		X_train=X_train, 
+		X_val=X_val, 
+		X_test=X_test, 
+		y_train=y_train, 
+		y_val=y_val, 
+		y_test=y_test,
+		experiment_num=0, 
+		model_name='undefined')
+
+	if args.exp == 1: ptraining_fn(nn.fc, experiment_num=2, model_name='fc')
 	
-	if args.exp == 2:
-		cf.LOSS_FN= 'mse'
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=271, model_name='bilstm_7')
-
-	if args.exp == 3:
-		cf.LOSS_FN= [nn.cus_loss1]
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=272, model_name='bilstm_7')
-
-	if args.exp == 4:
-		cf.LOSS_FN= [nn.cus_loss2]
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=273, model_name='bilstm_7')
-
-	if args.exp == 5:
-		cf.LOSS_FN= [nn.cus_loss3]
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=274, model_name='bilstm_7')
-
-	if args.exp == 6:
-		cf.LOSS_FN= [nn.cus_loss4]
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=275, model_name='bilstm_7')
-
-	if args.exp == 7:
-		cf.LOSS_FN= [nn.rmse]
-		training_fn(nn.bilstm_7, X_train, X_val, X_test, y_train, y_val, y_test, 
-			experiment_num=276, model_name='bilstm_7')
 	
 
 

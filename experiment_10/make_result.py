@@ -185,7 +185,7 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, train
 				'Date':datetime.now().strftime("%Y-%B-%d %H:%M"),
 				'Dataset': cf.DATASET_DIR[5:],
 				'Model':model_name,
-				'Type CNN': cf.CNN,
+				# 'Type CNN': cf.CNN,
 				'Train Loss': training_result[0],
 				'Train RMSE': training_result[1],
 				'Train R2': training_r2,

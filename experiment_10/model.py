@@ -2,10 +2,19 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Activation, BatchNormalization 
+from tensorflow.keras.layers import Activation, BatchNormalization, Dropout, Flatten, Dense, Bidirectional, LSTM
 import config as cf
+from functools import partial
 
-N_OUTPUTS = 1
+N_OUTPUTS = 17
+
+regDense = partial(Dense, 
+	activation='selu', 
+	kernel_initializer='he_normal',
+	kernel_regularizer=keras.regularizers.l2(0.01))
+
+pLSTM = partial(LSTM,
+	kernel_initializer='he_normal')
 
 def rmse(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
@@ -45,169 +54,40 @@ def cus_loss4(y_true, y_pred):
 	return (1-r2)*rmse + rmse
 
 
-def nn_fc(input_shape_1,input_shape_2):
+def fc(input_shape_1,input_shape_2):
+
+	dropout_rate = 0.2
+	unit_ff = 1024
 
 	model = tf.keras.Sequential()
-	
-	model.add(layers.Flatten(input_shape=(input_shape_1,input_shape_2)))
-	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(1024, activation='relu', kernel_initializer = 'he_uniform'))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear', kernel_initializer = 'he_uniform'))
+	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
+	model.add(regDense(unit_ff))
+	# model.add(Dropout(rate=dropout_rate))
+	model.add(regDense(unit_ff))
+	# model.add(Dropout(rate=dropout_rate))
+	model.add(regDense(unit_ff))
+	# model.add(Dropout(rate=dropout_rate))
+	model.add(regDense(unit_ff))
+	# model.add(Dropout(rate=dropout_rate))
+	model.add(regDense(unit_ff))
+	# model.add(Dropout(rate=dropout_rate))
+	model.add(regDense(N_OUTPUTS, activation='linear'))
+	model.summary()
 	return model
 
 def bilstm_1(input_shape_1,input_shape_2):
 
 	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(256, activation='relu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
+	model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
+	model.add(Dropout(rate=0.5))
+	model.add(Bidirectional(LSTM(64, return_sequences=True)))
+	model.add(Dropout(rate=0.5))
+	model.add(Bidirectional(LSTM(64, return_sequences=True)))
+	model.add(Dropout(rate=0.5))
+	model.add(Bidirectional(LSTM(64)))
+	model.add(Dropout(rate=0.5))
+	model.add(Dense(256, activation='relu' ))
+	model.add(Dropout(rate=0.5))
+	model.add(Dense(N_OUTPUTS, activation='linear'))
 	return model
 
-def bilstm_2(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(32)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(256, activation='relu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_3(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(32)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(256, activation='elu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def lstm_1(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.LSTM(32, return_sequences=True, input_shape=(input_shape_1,input_shape_2)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.LSTM(32, return_sequences=True))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.LSTM(32, return_sequences=True))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.LSTM(32))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(256, activation='relu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_3(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(32)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(256, activation='elu' ))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_4(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Bidirectional(layers.LSTM(64)))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(256, activation='elu' ))
-	model.add(layers.Dropout(rate=0.3))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_5(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Bidirectional(layers.LSTM(64)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(256, activation='elu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_6(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
-	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
-	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
-	model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
-	model.add(layers.Bidirectional(layers.LSTM(64)))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(512, activation='elu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(512, activation='elu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(512, activation='elu' ))
-	model.add(layers.Dropout(rate=0.5))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model
-
-def bilstm_7(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
-	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Bidirectional(layers.LSTM(64)))
-	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(256, activation='elu' ))
-	model.add(layers.Dropout(rate=0.4))
-	model.add(layers.Dense(N_OUTPUTS, activation='linear'))
-	return model

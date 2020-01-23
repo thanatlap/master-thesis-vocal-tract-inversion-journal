@@ -14,6 +14,8 @@ Note:
 
 To-do
 - preprocess using ceptral normalization https://www.kaggle.com/c/freesound-audio-tagging/discussion/54082
+- https://dsp.stackexchange.com/questions/19564/cepstral-mean-normalization/19567
+
 
 
 

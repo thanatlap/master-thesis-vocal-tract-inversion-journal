@@ -252,7 +252,7 @@ def standardized_labels(params, is_train, is_disyllable):
 	
 	return params
 
-def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, label_prep_mode, data_path=None): 
+def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
 
 	if is_disyllable:
 		# split audio data for disyllable, note that if mode=predict, labels is [].
@@ -261,7 +261,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 	if mode != 'predict':
 
-		print('[INFO] Remove label param having std < 0.05')
+		# print('[INFO] Remove label param having std < 0.05')
 		# labels = utils.delete_params(labels)
 		
 		if label_prep_mode == 1:
@@ -276,9 +276,11 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 	# get delta and delta-delta
 	print('[INFO] Adding delta and delta-delta')
 	features = transform_delta(features)
-	# Normalize MFCCs 
-	print('[INFO] Normalization in each timestep')
-	features = standardize_mfcc(features, is_train, is_disyllable)
+
+	if feat_prep_mode == 1:
+		# Normalize MFCCs 
+		print('[INFO] Normalization in each timestep')
+		features = standardize_mfcc(features, is_train, is_disyllable)
 	# swap dimension to (data, timestamp, features)
 	print('[INFO] Swap axis to (data, timestamp, features)')
 	features = np.swapaxes(features ,1,2)
@@ -306,14 +308,21 @@ def main(args):
 	is_augment = utils.str2bool(args.is_augment)
 
 	# check label_normalize 
-	if args.label_normalize not in [1,2]:
-		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
+	if args.label_normalize not in [1,2, 3]:
+		raise ValueError('[ERROR] Target Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
+
+	if args.feature_normalize not in [1,2]:
+		raise ValueError('[ERROR] Feature Preprocess mode %s is not match [1: standardized, 2: None]'%args.label_normalize)
 
 	print('[INFO] Test size: %s'%str(args.split_size))
 	print('[INFO] Applied augment: %s'%str(is_augment))
 	print('[INFO] Augment ratio sample: %s'%str(args.augment_samples))
 	print('[INFO] Sample rate: %s'%str(args.sample_rate))
-	print('[INFO] label normalize mode: %s'%str(args.label_normalize))
+	print('[INFO] Feauture normalize mode: %s'%str(args.feature_normalize))
+	if args.label_normalize == 3:
+		print('[INFO] Label normalize mode: None')
+	else:
+		print('[INFO] Label normalize mode: %s'%str(args.label_normalize))
 
 	# import data, note that if mode=predict, labels is [].
 	print('[INFO] Importing data')
@@ -355,6 +364,7 @@ def main(args):
 			sample_rate=args.sample_rate,
 			is_train=True,
 			label_prep_mode = args.label_normalize,
+			feat_prep_mode = args.feature_normalize,
 			data_path = args.data_path)
 
 		X_test, y_test = preprocess_pipeline(X_test, y_test, 
@@ -363,6 +373,7 @@ def main(args):
 			sample_rate=args.sample_rate,
 			is_train=False,
 			label_prep_mode = args.label_normalize,
+			feat_prep_mode = args.feature_normalize,
 			data_path = args.data_path)
 
 		X_val, y_val = preprocess_pipeline(X_val, y_val, 
@@ -371,6 +382,7 @@ def main(args):
 			sample_rate=args.sample_rate,
 			is_train=False,
 			label_prep_mode = args.label_normalize,
+			feat_prep_mode = args.feature_normalize,
 			data_path = args.data_path)
 
 	else:
@@ -381,6 +393,7 @@ def main(args):
 			sample_rate=args.sample_rate,
 			is_train=False,
 			label_prep_mode = args.label_normalize,
+			feat_prep_mode = args.feature_normalize,
 			data_path = args.data_path)
 		
 	# export data
@@ -426,6 +439,7 @@ def main(args):
 	log.write('Augment_Frac: %s\n'%str(args.augment_samples))
 	log.write('Sample_Rate: %s\n'%str(args.sample_rate))
 	log.write('Test size (in percent): %s\n'%str(args.split_size))
+	log.write('Feature normalize mode: %s\n'%str(args.feature_normalize))
 	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
 	log.close()
 
@@ -438,7 +452,8 @@ if __name__ == '__main__':
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--sample_rate", help="audio sample rate", type=int, default=16000)
-	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max]", type=int, default=1)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None]", type=int, default=1)
+	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
 	args = parser.parse_args()
 	main(args)

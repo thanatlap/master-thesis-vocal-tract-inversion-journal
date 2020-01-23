@@ -5,7 +5,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 DI_SYLLABLE = True
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_4/prep_exp9'
-DATASET_DIR = '../data/d_dataset_4/prep_exp10'
+DATASET_DIR = '../data/d_dataset_4/prep_exp10_nolfnorm'
 
 #---------------------------------
 
@@ -25,14 +25,14 @@ LOSS_FN = 'mse'
 OPT = 'RMSProp' # for record only
 
 # Training
-BATCH_SIZE = 256
-EPOCHS = 200
+BATCH_SIZE = 128
+EPOCHS = 150
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
 
-# Model Type
-CNN = False
+# Tensorboard
+TENSORBOARD = True
 
 # --------------------------------
 # Evaluation
@@ -50,4 +50,4 @@ LABEL_MODE = 2 #1:standardized 2:minmax
 PRAAT_EXE = r"G:\Praat.exe"
 
 # LOG_SHEET = 'log_experiment_journal.csv'
-LOG_SHEET = 'generalization_test_exp10.csv'
+LOG_SHEET = 'exp10_attemp2.csv'
