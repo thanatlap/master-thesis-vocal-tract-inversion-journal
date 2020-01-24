@@ -9,7 +9,7 @@ DATASET_DIR = '../data/d_dataset_4/prep_exp10_l4'
 
 #---------------------------------
 
-LOAD_FROM_SAVE = None
+LOAD_FROM_SAVE = '13_bilstm_20200124_1528.h5'
 LOAD_FROM_CHECKPOINT = None
 
 #---------------------------------
@@ -26,7 +26,7 @@ OPT = 'RMSProp' # for record only
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 200
+EPOCHS = 80
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
