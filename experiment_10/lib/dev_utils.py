@@ -51,6 +51,10 @@ def descale_labels(scale_params):
 	pl = np.delete(param_low, del_params_list  , axis=0)
 	return scale_params*(ph - pl) + pl
 
+def scale_label_back(scale_params):
+	# the function is same as descale_labels but use in preprocess when label normalize is set to 4
+	return scale_params*(param_high - param_low) + param_lowpl
+
 def destandardized_label(params, is_disyllable):
 	vars_dir = 'vars'
 	filename = 'label_mean_std_di.npy' if is_disyllable else 'label_mean_std_mono.npy' 

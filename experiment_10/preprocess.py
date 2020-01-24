@@ -270,7 +270,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		# print('[INFO] Remove label param having std < 0.05')
 		# labels = utils.delete_params(labels)
 		
-		if label_prep_mode == 1:
+		if label_prep_mode in [1,4]:
 			print('[INFO] Standardized labels')
 			labels = standardized_labels(labels, is_train, is_disyllable)
 
@@ -315,7 +315,7 @@ def main(args):
 	is_export_sample = utils.str2bool(args.is_export_sample)
 
 	# check label_normalize 
-	if args.label_normalize not in [1,2, 3]:
+	if args.label_normalize not in [1,2, 3, 4]:
 		raise ValueError('[ERROR] Target Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
 
 	if args.feature_normalize not in [1,2]:
@@ -341,8 +341,12 @@ def main(args):
 	if args.mode != 'predict': 
 
 		if args.label_normalize == 2:
-				print('[INFO] Min Max Normalization labels')
-				labels = scale_speaker_syllable(labels, args.data_path, args.mode)
+			print('[INFO] Min Max Normalization labels')
+			labels = scale_speaker_syllable(labels, args.data_path, args.mode)
+
+		if args.label_normalize == 4:
+			print('[INFO] Scale Back to Predefine Speaker')
+			labels = scale_label_back(scale_speaker_syllable(labels, args.data_path, args.mode))
 	
 	# split data into train, test, validate subset if mode = 'training', else, evaluate and test
 	if args.mode == 'training':
@@ -464,7 +468,7 @@ if __name__ == '__main__':
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--sample_rate", help="audio sample rate", type=int, default=16000)
-	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None]", type=int, default=1)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
 	parser.add_argument('--is_export_sample', dest='is_export_sample', default='True', help='export sample data', type=str)
