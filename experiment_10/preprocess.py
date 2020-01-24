@@ -178,6 +178,12 @@ def get_audio_max_length(audio_data, mode, is_train, is_disyllable):
 			audio_length = list(map(int, audio_length.readlines()))[0]
 	return audio_length
 
+def export_sample(feature, label, dest, sampling_num=10):
+	samp = np.random.choice(feature.shape[0],sampling_num, replace=False)
+	np.savez(join(dest, 'sample_data.npz'), 
+			features = feature[samp],
+			labels= label[samp])
+
 def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
 	audio_length = math.floor(audio_length*0.5) if is_disyllable else audio_length
@@ -306,6 +312,7 @@ def main(args):
 
 	# convert string to boolean
 	is_augment = utils.str2bool(args.is_augment)
+	is_export_sample = utils.str2bool(args.is_export_sample)
 
 	# check label_normalize 
 	if args.label_normalize not in [1,2, 3]:
@@ -409,6 +416,11 @@ def main(args):
 	output_path = join(args.data_path, args.output_path) 
 	# create output file
 	os.makedirs(output_path, exist_ok=True)
+
+	if is_export_sample: 
+		print('[INFO] Export sampling data')
+		export_sample(feature, label, dest, sampling_num=10)
+
 	# export training dataset
 	if args.mode == 'training':
 		np.savez(join(output_path, 'training_subsets.npz'), 
@@ -455,5 +467,8 @@ if __name__ == '__main__':
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
+	parser.add_argument('--is_export_sample', dest='is_export_sample', default='True', help='export sample data', type=str)
 	args = parser.parse_args()
 	main(args)
+
+	

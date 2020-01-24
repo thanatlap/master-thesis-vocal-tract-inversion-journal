@@ -58,13 +58,14 @@ def get_model(model_fn, input_shape):
 	'''
 	# load from save if save is defined in config file
 	if cf.LOAD_FROM_SAVE is not None:
-		return tf.keras.models.load_model(cf.LOAD_FROM_SAVE, custom_objects={'rmse': nn.rmse})
+		return tf.keras.models.load_model(join('model',cf.LOAD_FROM_SAVE), custom_objects={'rmse': nn.rmse})
 	else:
 		# initialize model
 		model = model_fn(input_shape[0],input_shape[1])
 		# load from weight if checkpoint is defined in config file
 		if cf.LOAD_FROM_CHECKPOINT is not None:
-			model.load_weights(cf.LOAD_FROM_CHECKPOINT)
+			print('[INFO] Continue from checkpoint')
+			model.load_weights(join('model','checkpoint',cf.LOAD_FROM_CHECKPOINT))
 		# inti optimizer and complied
 		# opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
 		# opt = optimizers.Nadam()
@@ -148,12 +149,14 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 		y_pred, result, r2 = testing(X_test, y_test, model)
 		# evaluate on training set
 		training_y_pred, training_result, training_r2 = testing(X_train, y_train, model)
-		# log experiment	
-		res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, result, r2, history, model, 
-			training_y_pred, training_result, training_r2, total_time, model_name, early)
 		print('Result experiment number: #%s'%experiment_num)
 		print('Result RMSE: %.4f'%(result[1]))
 		print('Result R2: %.4f\n'%(r2))
+		print('[INFO] Log Results')
+		# log experiment	
+		res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, result, r2, history, model, 
+			training_y_pred, training_result, training_r2, total_time, model_name, early)
+		
 	except Exception as e:
 		print('experiment %f fail'%experiment_num)
 		print(e)
@@ -172,7 +175,7 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
-	if args.exp == 1: ptraining_fn(nn.fc, experiment_num=2, model_name='fc')
+	if args.exp == 1: ptraining_fn(nn.fc, experiment_num=4, model_name='fc')
 	
 	
 

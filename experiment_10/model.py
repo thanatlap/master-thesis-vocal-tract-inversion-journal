@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Activation, BatchNormalization, Dropout, Flatten, Dense, Bidirectional, LSTM
+from tensorflow.keras.layers import AlphaDropout, Activation, BatchNormalization, Dropout, Flatten, Dense, Bidirectional, LSTM
 import config as cf
 from functools import partial
 
@@ -10,7 +10,7 @@ N_OUTPUTS = 17
 
 regDense = partial(Dense, 
 	activation='selu', 
-	kernel_initializer='he_normal',
+	kernel_initializer='lecun_normal',
 	kernel_regularizer=keras.regularizers.l2(0.01))
 
 pLSTM = partial(LSTM,
@@ -56,21 +56,23 @@ def cus_loss4(y_true, y_pred):
 
 def fc(input_shape_1,input_shape_2):
 
-	dropout_rate = 0.2
+	dropout_rate = 0.3
 	unit_ff = 1024
 
 	model = tf.keras.Sequential()
 	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
 	model.add(regDense(unit_ff))
-	# model.add(Dropout(rate=dropout_rate))
+	model.add(AlphaDropout(rate=dropout_rate))
 	model.add(regDense(unit_ff))
-	# model.add(Dropout(rate=dropout_rate))
+	model.add(AlphaDropout(rate=dropout_rate))
 	model.add(regDense(unit_ff))
-	# model.add(Dropout(rate=dropout_rate))
+	model.add(AlphaDropout(rate=dropout_rate))
 	model.add(regDense(unit_ff))
-	# model.add(Dropout(rate=dropout_rate))
+	model.add(AlphaDropout(rate=dropout_rate))
 	model.add(regDense(unit_ff))
-	# model.add(Dropout(rate=dropout_rate))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(regDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
 	model.add(regDense(N_OUTPUTS, activation='linear'))
 	model.summary()
 	return model

@@ -317,6 +317,10 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	log.write('========================================================\n')
 	log.close()
 
+	# save y pred from testing subset for eda
+	print('[INFO] Export y pred')
+	np.save(arr=y_pred, file=join(log_dir,'y_pred.npy'))
+
 def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimated_sound, exp_num):
 
 	# prepare path

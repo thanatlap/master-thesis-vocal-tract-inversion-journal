@@ -5,7 +5,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 DI_SYLLABLE = True
 #---------------------------------
 # DATASET_DIR = '../data/d_dataset_4/prep_exp9'
-DATASET_DIR = '../data/d_dataset_4/prep_exp10_nolfnorm'
+DATASET_DIR = '../data/d_dataset_4/prep_exp10'
 
 #---------------------------------
 
@@ -26,7 +26,7 @@ OPT = 'RMSProp' # for record only
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 150
+EPOCHS = 200
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
