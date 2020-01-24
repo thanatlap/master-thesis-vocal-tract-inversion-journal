@@ -8,16 +8,121 @@ from functools import partial
 
 N_OUTPUTS = 17
 
-regDense = partial(Dense, 
+selfNormDense = partial(Dense, 
 	activation='selu', 
 	kernel_initializer='lecun_normal',
 	kernel_regularizer=keras.regularizers.l2(0.01))
 
+pDense = partial(Dense, 
+	activation='elu', 
+	kernel_initializer='he_normal',
+	kernel_regularizer=keras.regularizers.l2(0.01))
+
+bDense = partial(Dense, 
+	activation='linear', 
+	kernel_initializer='he_normal',
+	kernel_regularizer=keras.regularizers.l2(0.01))
+
 pLSTM = partial(LSTM,
-	kernel_initializer='he_normal')
+	kernel_initializer='he_normal',
+	return_sequences=True)
 
 def rmse(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
+
+def self_norm_fc(input_shape_1,input_shape_2):
+
+	dropout_rate = 0.3
+	unit_ff = 1024
+
+	model = tf.keras.Sequential()
+	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(unit_ff))
+	model.add(AlphaDropout(rate=dropout_rate))
+	model.add(selfNormDense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
+def fc(input_shape_1,input_shape_2):
+
+	dropout_rate = 0.3
+	unit_ff = 1024
+
+	model = tf.keras.Sequential()
+	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
+def fc_large(input_shape_1,input_shape_2):
+
+	dropout_rate = 0.4
+	unit_ff = 1024
+
+	model = tf.keras.Sequential()
+	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(unit_ff))
+	model.add(pDense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
+def fc_large_batchnorm(input_shape_1,input_shape_2):
+
+	unit_ff = 512
+	layer_num = 15
+
+	model = tf.keras.Sequential()
+	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
+	for i in range(layer_num):
+		model.add(bDense(unit_ff))
+		model.add(BatchNormalization())
+		model.add(Activation('elu'))
+	model.add(pDense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
+def bilstm_1(input_shape_1,input_shape_2):
+
+	unit_lstm = 64
+	unit_ff = 1024
+	dropout_rate = 0.5
+
+	model = tf.keras.Sequential()
+	model.add(Bidirectional(pLSTM(unit_lstm, input_shape=(input_shape_1,input_shape_2))))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(Bidirectional(pLSTM(unit_lstm)))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(Bidirectional(pLSTM(unit_lstm)))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(pDense(unit_ff))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(Dense(N_OUTPUTS, activation='linear'))
+	return model
 
 def R2(y_true, y_pred):
 	SS_res =  K.sum(K.square( y_true-y_pred ))
@@ -52,44 +157,3 @@ def cus_loss4(y_true, y_pred):
 	rmse = K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
 	r2 = R2(y_true, y_pred)
 	return (1-r2)*rmse + rmse
-
-
-def fc(input_shape_1,input_shape_2):
-
-	dropout_rate = 0.3
-	unit_ff = 1024
-
-	model = tf.keras.Sequential()
-	model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(unit_ff))
-	model.add(AlphaDropout(rate=dropout_rate))
-	model.add(regDense(N_OUTPUTS, activation='linear'))
-	model.summary()
-	return model
-
-def bilstm_1(input_shape_1,input_shape_2):
-
-	model = tf.keras.Sequential()
-	model.add(Bidirectional(LSTM(64, return_sequences=True, input_shape=(input_shape_1,input_shape_2))))
-	model.add(Dropout(rate=0.5))
-	model.add(Bidirectional(LSTM(64, return_sequences=True)))
-	model.add(Dropout(rate=0.5))
-	model.add(Bidirectional(LSTM(64, return_sequences=True)))
-	model.add(Dropout(rate=0.5))
-	model.add(Bidirectional(LSTM(64)))
-	model.add(Dropout(rate=0.5))
-	model.add(Dense(256, activation='relu' ))
-	model.add(Dropout(rate=0.5))
-	model.add(Dense(N_OUTPUTS, activation='linear'))
-	return model
-

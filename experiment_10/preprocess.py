@@ -137,11 +137,9 @@ def scale_speaker_syllable(labels, data_path, mode):
 	'''
 	scale vocaltract parameter by max and min parameter that that speaker sid
 	'''
-	print(labels.shape)
 	# For training dataset, the scale is performed using simulated speaker  
 	if mode == 'training':
 		speaker_sid = np.load(join(data_path, 'npy', 'dataset.npz'))['ns_sid']
-		print(speaker_sid.shape)
 	else:
 		# else, the scale is performed using predefined speaker
 		speaker_sid = [0 for i in labels]
@@ -312,7 +310,7 @@ def main(args):
 
 	# convert string to boolean
 	is_augment = utils.str2bool(args.is_augment)
-	is_export_sample = utils.str2bool(args.is_export_sample)
+	# is_export_sample = utils.str2bool(args.is_export_sample)
 
 	# check label_normalize 
 	if args.label_normalize not in [1,2, 3, 4]:
@@ -346,7 +344,7 @@ def main(args):
 
 		if args.label_normalize == 4:
 			print('[INFO] Scale Back to Predefine Speaker')
-			labels = scale_label_back(scale_speaker_syllable(labels, args.data_path, args.mode))
+			labels = utils.scale_label_back(scale_speaker_syllable(labels, args.data_path, args.mode))
 	
 	# split data into train, test, validate subset if mode = 'training', else, evaluate and test
 	if args.mode == 'training':
@@ -407,8 +405,7 @@ def main(args):
 			feat_prep_mode = args.feature_normalize,
 			data_path = args.data_path)
 		
-	# export data
-	print('[INFO] Exporting features and labels')
+	
 
 	# if output path is not specify
 	if args.output_path == None:
@@ -421,9 +418,12 @@ def main(args):
 	# create output file
 	os.makedirs(output_path, exist_ok=True)
 
-	if is_export_sample: 
-		print('[INFO] Export sampling data')
-		export_sample(feature, label, dest, sampling_num=10)
+	# if is_export_sample: 
+	# 	print('[INFO] Export sampling data')
+	# 	export_sample(feature, label, dest, sampling_num=10)
+
+	# export data
+	print('[INFO] Exporting features and labels')
 
 	# export training dataset
 	if args.mode == 'training':
@@ -471,7 +471,7 @@ if __name__ == '__main__':
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
-	parser.add_argument('--is_export_sample', dest='is_export_sample', default='True', help='export sample data', type=str)
+	# parser.add_argument('--is_export_sample', dest='is_export_sample', default='True', help='export sample data', type=str)
 	args = parser.parse_args()
 	main(args)
 

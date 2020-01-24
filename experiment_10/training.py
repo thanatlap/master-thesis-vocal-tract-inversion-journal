@@ -175,7 +175,10 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
-	if args.exp == 1: ptraining_fn(nn.fc, experiment_num=4, model_name='fc')
+	if args.exp == 1: ptraining_fn(nn.self_norm_fc, experiment_num=6, model_name='self_norm_fc')
+	if args.exp == 2: ptraining_fn(nn.fc, experiment_num=7, model_name='fc')
+	if args.exp == 3: ptraining_fn(nn.fc_large, experiment_num=8, model_name='fc_large')
+	if args.exp == 4: ptraining_fn(nn.fc_large_batchnorm, experiment_num=10, model_name='fc_large_batchnorm')
 	
 	
 
