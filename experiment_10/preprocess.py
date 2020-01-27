@@ -123,7 +123,7 @@ def augmentation(audio_data, labels, augment_samples, func, sr):
 	audio_data = np.concatenate((audio_data, aug_data), axis=0)
 	labels = np.concatenate((labels, labels_sub), axis=0)
 
-	export_sample(aug_data, labels_sub, 'data_prep_samples', filename=str(func)[10:15]+'.npy')
+	export_sample(aug_data, labels_sub, 'data_prep_samples', filename=str(func)[10:15])
 
 	return audio_data, labels
 
@@ -278,10 +278,10 @@ def min_max_scale_transform(params, is_train, is_disyllable):
 
 	if is_train:
 		scaler = MinMaxScaler(feature_range=(0, 1)).fit(params)
-		dump(scaler, filename)
+		dump(scaler, filepath)
 	else:
 		if os.path.isfile(filepath):
-			scaler = load(filename) 
+			scaler = load(filepath) 
 		else:
 			raise ValueError('File %s doest exist'%vars_dir)
 
@@ -374,7 +374,7 @@ def main(args):
 			print('[INFO] Min Max Normalization labels')
 			labels = scale_speaker_syllable(labels, args.data_path, args.mode)
 
-		if args.label_normalize == 4:
+		if args.label_normalize in [4,5]:
 			print('[INFO] Scale Back to Predefine Speaker')
 			labels = utils.scale_label_back(scale_speaker_syllable(labels, args.data_path, args.mode))
 	
@@ -398,9 +398,9 @@ def main(args):
 
 			# X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train,func=strech_audio)
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=amplify_value)
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=add_white_noise)
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=random_crop_out)
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=change_pitch)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=random_crop_out)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=add_white_noise)
 
 		X_train, y_train = preprocess_pipeline(X_train, y_train, 
 			mode=args.mode, 

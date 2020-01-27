@@ -188,7 +188,7 @@ def main(args):
 		cf.LEARNING_RATE = 0.005
 		ptraining_fn(nn.cnn_bilstm, experiment_num=24, model_name='cnn_bilstm')
 
-	if args.exp == 9: ptraining_fn(nn.pure_bilstm, experiment_num=25, model_name='pure_bilstm')
+	if args.exp == 9: ptraining_fn(nn.pure_bilstm, experiment_num=26, model_name='pure_bilstm')
 	
 	
 
