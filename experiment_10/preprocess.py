@@ -285,7 +285,9 @@ def min_max_scale_transform(params, is_train, is_disyllable):
 		else:
 			raise ValueError('File %s doest exist'%vars_dir)
 
-	return scaler.transform(params)
+	params = scaler.transform(params)
+
+	return params
 
 def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
 
@@ -305,7 +307,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 		if args.label_normalize == 5:
 			print('[INFO] Min Max Scale using it own min max, not a predefined')
-			scaler = min_max_scale_transform(labels, is_train, is_disyllable)
+			labels = min_max_scale_transform(labels, is_train, is_disyllable)
 
 	print('[INFO] Padding audio length')
 	features = zero_padding_audio(features, mode, is_disyllable, is_train)

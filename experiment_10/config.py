@@ -15,7 +15,7 @@ LOAD_FROM_CHECKPOINT = None
 #---------------------------------
 #Experiment setting
 #Model compile setting
-LEARNING_RATE = 0.005  
+LEARNING_RATE = 0.001  
 BETA1 = 0.9
 BETA2 = 0.999
 EPS = None
