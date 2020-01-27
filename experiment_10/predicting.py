@@ -7,6 +7,7 @@ from tensorflow.keras import models
 from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
 from tensorflow.keras import callbacks
+
 import argparse
 import re
 import model as nn
@@ -33,14 +34,7 @@ def predict(features, model_file):
 	Load model and predict the vocaltract parameter from given audio
 	'''
 	#Load model for evaluated
-	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse, 
-		'R2': nn.R2,
-		'AdjustR2': nn.AdjustR2,
-		'custom_loss':nn.cus_loss1, 
-		'custom_loss2':nn.cus_loss2,
-		'custom_loss3':nn.cus_loss3,
-		'custom_loss4':nn.cus_loss4,
-		})
+	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse})
 	model.summary()
 	y_pred = model.predict(features)
 	return y_pred
@@ -62,7 +56,7 @@ def main(args):
 		raise ValueError('[ERROR] Model filename %s does not contain exp_num!'%args.model_filename)
 
 	# check label_normalize 
-	if args.label_normalize not in [1,2]:
+	if args.label_normalize not in [1,2, 3]:
 		raise ValueError('[ERROR] Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
 
 	# prepare data
@@ -84,11 +78,15 @@ def main(args):
 
 	if args.label_normalize == 1:
 		params = utils.destandardized_label(y_pred, is_disyllable)
+		params = utils.transform_VO(utils.add_params(params))
 	elif args.label_normalize == 2:
 		params = utils.descale_labels(y_pred)
+		params = utils.transform_VO(utils.add_params(params))
+	elif args.label_normalize == 3:
+		params = utils.transform_VO(utils.add_params(y_pred))
+		params = utils.min_max_descale_labels(params, is_disyllable)
 
-	# invert param back to predefined speaker scale
-	params = utils.transform_VO(utils.add_params(params))
+	
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params
 	# save param for averaging

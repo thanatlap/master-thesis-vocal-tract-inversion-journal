@@ -67,10 +67,13 @@ def get_model(model_fn, input_shape):
 			print('[INFO] Continue from checkpoint')
 			model.load_weights(join('model','checkpoint',cf.LOAD_FROM_CHECKPOINT))
 		# inti optimizer and complied
-		# opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
-		# opt = optimizers.Nadam()
-		# opt = optimizers.SGD(learning_rate=cf.LEARNING_RATE)
-		opt = optimizers.RMSprop(learning_rate = cf.LEARNING_RATE)
+		if cf.OPT_NUM == 1:
+			opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
+		elif cf.OPT_NUM == 2:
+			opt = optimizers.Nadam()
+		elif cf.OPT_NUM == 3:
+			opt = optimizers.RMSprop(learning_rate = cf.LEARNING_RATE)
+		
 		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
 	return model
 
@@ -175,20 +178,37 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
-	if args.exp == 1: ptraining_fn(nn.self_norm_fc, experiment_num=6, model_name='self_norm_fc')
-	if args.exp == 2: ptraining_fn(nn.fc, experiment_num=7, model_name='fc')
-	if args.exp == 3: ptraining_fn(nn.fc_large, experiment_num=8, model_name='fc_large')
-	if args.exp == 4: ptraining_fn(nn.fc_large_batchnorm, experiment_num=10, model_name='fc_large_batchnorm')
-	if args.exp == 5: ptraining_fn(nn.bilstm, experiment_num=19, model_name='bilstm')
-	if args.exp == 6: ptraining_fn(nn.cnn_bilstm, experiment_num=20, model_name='cnn_bilstm')
-	if args.exp == 7: 
-		cf.LEARNING_RATE = 0.005
-		ptraining_fn(nn.bilstm, experiment_num=23, model_name='bilstm')
-	if args.exp == 8: 
-		cf.LEARNING_RATE = 0.005
-		ptraining_fn(nn.cnn_bilstm, experiment_num=24, model_name='cnn_bilstm')
-
 	if args.exp == 9: ptraining_fn(nn.pure_bilstm, experiment_num=26, model_name='pure_bilstm')
+	if args.exp == 8: ptraining_fn(nn.bilstm, experiment_num=31, model_name='bilstm')
+	
+	# baseline
+	if args.exp == 1: ptraining_fn(nn.fc_large_batchnorm, experiment_num=27, model_name='fc_large_batchnorm')
+	if args.exp == 2: ptraining_fn(nn.self_norm_fc, experiment_num=28, model_name='self_norm_fc')
+
+	# regularize
+	if args.exp == 3: ptraining_fn(nn.reg_pure_bilstm, experiment_num=29, model_name='reg_pure_bilstm')
+	if args.exp == 10: 
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.bilstm_with_reg_dense, experiment_num=36, model_name='bilstm_with_reg_dense')
+
+	# different architecture
+	if args.exp == 4: ptraining_fn(nn.cnn_bilstm, experiment_num=30, model_name='cnn_bilstm')
+	if args.exp == 5: ptraining_fn(nn.reg_bilstm, experiment_num=32, model_name='reg_bilstm')
+
+	# optimization
+	if args.exp == 6: 
+		cf.OPT_NUM = 2
+		cf.OPT = 'Nadam'
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=33, model_name='reg_pure_bilstm')
+
+	if args.exp == 7: 
+		cf.OPT_NUM = 1
+		cf.OPT = 'Adam'
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=34, model_name='reg_pure_bilstm')
+
+
+
+	
 	
 	
 

@@ -16,6 +16,8 @@ from praatio import praat_scripts
 from praatio.utilities import utils as praat_utils
 import warnings
 import argparse
+from joblib import dump, load
+from sklearn.preprocessing import MinMaxScaler
 
 param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
@@ -50,6 +52,18 @@ def descale_labels(scale_params):
 	ph = np.delete(param_high, del_params_list  , axis=0)
 	pl = np.delete(param_low, del_params_list  , axis=0)
 	return scale_params*(ph - pl) + pl
+
+def min_max_descale_labels(params, is_disyllable):
+	vars_dir = 'vars'
+	filename = 'labe_scaler_di.joblib' if is_disyllable else 'labe_scaler_mono.joblib' 
+	filepath = join(vars_dir, filename)
+
+	if os.path.isfile(filepath):
+		scaler = load(filepath) 
+	else:
+		raise ValueError('File %s doest exist'%vars_dir)
+
+	return scaler.inverse_transform(params)
 
 def scale_label_back(scale_params):
 	# the function is same as descale_labels but use in preprocess when label normalize is set to 4

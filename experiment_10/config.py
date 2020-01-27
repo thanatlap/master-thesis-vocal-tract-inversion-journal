@@ -23,6 +23,7 @@ SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
 OPT = 'RMSProp' # for record only
+OPT_NUM = 3
 
 # Training
 BATCH_SIZE = 64
