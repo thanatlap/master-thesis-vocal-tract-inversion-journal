@@ -70,7 +70,7 @@ def get_model(model_fn, input_shape):
 		# opt = optimizers.Adam(lr=cf.LEARNING_RATE, beta_1=cf.BETA1, beta_2=cf.BETA2, epsilon=cf.EPS, decay=cf.SDECAY, amsgrad=cf.AMSGRAD)
 		# opt = optimizers.Nadam()
 		# opt = optimizers.SGD(learning_rate=cf.LEARNING_RATE)
-		opt = optimizers.RMSprop()
+		opt = optimizers.RMSprop(learning_rate = cf.LEARNING_RATE)
 		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
 	return model
 
@@ -179,7 +179,16 @@ def main(args):
 	if args.exp == 2: ptraining_fn(nn.fc, experiment_num=7, model_name='fc')
 	if args.exp == 3: ptraining_fn(nn.fc_large, experiment_num=8, model_name='fc_large')
 	if args.exp == 4: ptraining_fn(nn.fc_large_batchnorm, experiment_num=10, model_name='fc_large_batchnorm')
-	if args.exp == 5: ptraining_fn(nn.bilstm, experiment_num=14, model_name='bilstm')
+	if args.exp == 5: ptraining_fn(nn.bilstm, experiment_num=19, model_name='bilstm')
+	if args.exp == 6: ptraining_fn(nn.cnn_bilstm, experiment_num=20, model_name='cnn_bilstm')
+	if args.exp == 7: 
+		cf.LEARNING_RATE = 0.005
+		ptraining_fn(nn.bilstm, experiment_num=23, model_name='bilstm')
+	if args.exp == 8: 
+		cf.LEARNING_RATE = 0.005
+		ptraining_fn(nn.cnn_bilstm, experiment_num=24, model_name='cnn_bilstm')
+
+	if args.exp == 9: ptraining_fn(nn.pure_bilstm, experiment_num=25, model_name='pure_bilstm')
 	
 	
 

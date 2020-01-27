@@ -23,8 +23,11 @@ import random
 import itertools
 import argparse
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from datetime import datetime
 from sklearn.utils import shuffle
+from functools import partial
+from joblib import dump, load
 
 import lib.dev_utils as utils
 
@@ -68,25 +71,25 @@ def random_sampling_data(audio_data, labels, random_n_sample):
 	audio_data_sub, labels_sub = zip(*random.sample(list(zip(audio_data, labels)), int(random_n_sample)))
 	return np.array(audio_data_sub), np.array(labels_sub)
 
-def strech_audio(audio_data):
+def strech_audio(audio_data, sr):
 	'''
 	strech (faster or slower) audio data which vary by 0.8 and 1.5
 	'''
 	return [ librosa.effects.time_stretch(data, rate=np.random.uniform(low=0.8,high=1.1)) for data in audio_data]
 
-def amplify_value(audio_data):
+def amplify_value(audio_data, sr):
 	'''
 	amplify value by 1.5 to 3 time the original data
 	'''
 	return np.array([ data*np.random.uniform(low=1.5,high=3) for data in audio_data])
 
-def add_white_noise(audio_data):
+def add_white_noise(audio_data, sr):
 	'''
 	add white noise
 	'''
 	return np.array([ data + np.random.uniform(low=0.001,high=0.01)*np.random.randn(data.shape[0]) for data in audio_data ])
 
-def random_crop_out(audio_data):
+def random_crop_out(audio_data, sr):
     '''
     random crop some part of the data out
     '''
@@ -104,7 +107,11 @@ def random_crop_out(audio_data):
         aug_data.append(data)
     return np.array(aug_data)
 
-def augmentation(audio_data, labels, augment_samples, func):
+def change_pitch(audio_data, sr):
+	return np.array([librosa.effects.pitch_shift(data, sr=sr, n_steps=np.random.uniform(low=-1.0,high=4)) for data in audio_data])
+	
+
+def augmentation(audio_data, labels, augment_samples, func, sr):
 	'''
 	the function to perform data augmentation
 	First, the data is being sampling both labels and audio data
@@ -112,9 +119,12 @@ def augmentation(audio_data, labels, augment_samples, func):
 	Then, the data is being concated to original data (both audio and labels)
 	'''
 	audio_data_sub, labels_sub = random_sampling_data(audio_data, labels, random_n_sample=augment_samples)
-	aug_data = func(audio_data_sub)
+	aug_data = func(audio_data_sub, sr)
 	audio_data = np.concatenate((audio_data, aug_data), axis=0)
 	labels = np.concatenate((labels, labels_sub), axis=0)
+
+	export_sample(aug_data, labels_sub, 'data_prep_samples', filename=str(func)[10:15]+'.npy')
+
 	return audio_data, labels
 
 def load_from_export(filename):
@@ -176,9 +186,12 @@ def get_audio_max_length(audio_data, mode, is_train, is_disyllable):
 			audio_length = list(map(int, audio_length.readlines()))[0]
 	return audio_length
 
-def export_sample(feature, label, dest, sampling_num=10):
+def export_sample(feature, label, dest, sampling_num=10, filename='sample_data.npz'):
 	samp = np.random.choice(feature.shape[0],sampling_num, replace=False)
-	np.savez(join(dest, 'sample_data.npz'), 
+
+	os.makedirs(dest, exist_ok=True)
+
+	np.savez(join(dest, filename), 
 			features = feature[samp],
 			labels= label[samp])
 
@@ -256,6 +269,24 @@ def standardized_labels(params, is_train, is_disyllable):
 	
 	return params
 
+def min_max_scale_transform(params, is_train, is_disyllable):
+
+	vars_dir = 'vars'
+	filename = 'labe_scaler_di.joblib' if is_disyllable else 'labe_scaler_mono.joblib' 
+	filepath = join(vars_dir, filename)
+	os.makedirs(vars_dir, exist_ok=True)
+
+	if is_train:
+		scaler = MinMaxScaler(feature_range=(0, 1)).fit(params)
+		dump(scaler, filename)
+	else:
+		if os.path.isfile(filepath):
+			scaler = load(filename) 
+		else:
+			raise ValueError('File %s doest exist'%vars_dir)
+
+	return scaler.transform(params)
+
 def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
 
 	if is_disyllable:
@@ -271,6 +302,10 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		if label_prep_mode in [1,4]:
 			print('[INFO] Standardized labels')
 			labels = standardized_labels(labels, is_train, is_disyllable)
+
+		if args.label_normalize == 5:
+			print('[INFO] Min Max Scale using it own min max, not a predefined')
+			scaler = min_max_scale_transform(labels, is_train, is_disyllable)
 
 	print('[INFO] Padding audio length')
 	features = zero_padding_audio(features, mode, is_disyllable, is_train)
@@ -313,8 +348,8 @@ def main(args):
 	# is_export_sample = utils.str2bool(args.is_export_sample)
 
 	# check label_normalize 
-	if args.label_normalize not in [1,2, 3, 4]:
-		raise ValueError('[ERROR] Target Preprocess mode %s is not match [1: standardized, 2: min-max]'%args.label_normalize)
+	if args.label_normalize not in [1,2, 3, 4, 5]:
+		raise ValueError('[ERROR] Target Preprocess mode %s is not match Choice: [1,2,3,4,5]'%args.label_normalize)
 
 	if args.feature_normalize not in [1,2]:
 		raise ValueError('[ERROR] Feature Preprocess mode %s is not match [1: standardized, 2: None]'%args.label_normalize)
@@ -324,10 +359,7 @@ def main(args):
 	print('[INFO] Augment ratio sample: %s'%str(args.augment_samples))
 	print('[INFO] Sample rate: %s'%str(args.sample_rate))
 	print('[INFO] Feauture normalize mode: %s'%str(args.feature_normalize))
-	if args.label_normalize == 3:
-		print('[INFO] Label normalize mode: None')
-	else:
-		print('[INFO] Label normalize mode: %s'%str(args.label_normalize))
+	print('[INFO] Label normalize mode: %s'%str(args.label_normalize))
 
 	# import data, note that if mode=predict, labels is [].
 	print('[INFO] Importing data')
@@ -362,10 +394,13 @@ def main(args):
 			# compute number of sample being augment based on training subset
 			augment_samples = int(args.augment_samples*X_train.shape[0])
 
-			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=strech_audio)
-			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=amplify_value)
-			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=add_white_noise)
-			X_train, y_train = augmentation(X_train, y_train, augment_samples=augment_samples, func=random_crop_out)
+			p_augmentation = partial(augmentation, augment_samples=augment_samples, sr=args.augment_samples)
+
+			# X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train,func=strech_audio)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=amplify_value)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=add_white_noise)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=random_crop_out)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=change_pitch)
 
 		X_train, y_train = preprocess_pipeline(X_train, y_train, 
 			mode=args.mode, 
@@ -468,7 +503,7 @@ if __name__ == '__main__':
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--sample_rate", help="audio sample rate", type=int, default=16000)
-	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized]", type=int, default=1)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
 	# parser.add_argument('--is_export_sample', dest='is_export_sample', default='True', help='export sample data', type=str)
