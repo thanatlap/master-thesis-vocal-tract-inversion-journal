@@ -4,8 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-# DATASET_DIR = '../data/d_dataset_4/prep_exp9'
-DATASET_DIR = '../data/d_dataset_4/prep_exp10'
+DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL_2'
 
 #---------------------------------
 
@@ -22,18 +21,18 @@ EPS = None
 SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
-OPT = 'RMSProp' # for record only
-OPT_NUM = 3
+OPT = 'AMSGRAD' # for record only
+OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 64
-EPOCHS = 100
+EPOCHS = 1000
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 15 # should increase earlystop since it seen can be improve
 
 # Tensorboard
-TENSORBOARD = True
+TENSORBOARD = False
 
 # --------------------------------
 # Evaluation

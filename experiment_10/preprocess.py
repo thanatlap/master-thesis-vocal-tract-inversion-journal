@@ -269,7 +269,7 @@ def standardized_labels(params, is_train, is_disyllable):
 	
 	return params
 
-def min_max_scale_transform(params, is_train, is_disyllable):
+def min_max_scale_transform(params, is_train, is_disyllable, feature_range=(-1, 1)):
 
 	vars_dir = 'vars'
 	filename = 'labe_scaler_di.joblib' if is_disyllable else 'labe_scaler_mono.joblib' 
@@ -277,7 +277,7 @@ def min_max_scale_transform(params, is_train, is_disyllable):
 	os.makedirs(vars_dir, exist_ok=True)
 
 	if is_train:
-		scaler = MinMaxScaler(feature_range=(0, 1)).fit(params)
+		scaler = MinMaxScaler(feature_range=feature_range).fit(params)
 		dump(scaler, filepath)
 	else:
 		if os.path.isfile(filepath):

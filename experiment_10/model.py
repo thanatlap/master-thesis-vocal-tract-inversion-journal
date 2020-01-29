@@ -182,11 +182,11 @@ def pure_bilstm(input_shape_1,input_shape_2):
 	model.summary()
 	return model
 
-def reg_pure_bilstm(input_shape_1,input_shape_2):
+def reg_pure_bilstm(input_shape_1,input_shape_2, unit_lstm, dropout_rate, bi_layer_num):
 
-	unit_lstm = 128
-	dropout_rate = 0.4
-	bi_layer_num = 5
+	# unit_lstm = 128
+	# dropout_rate = 0.5
+	# bi_layer_num = 5
 
 	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
 	# feature extraction layers

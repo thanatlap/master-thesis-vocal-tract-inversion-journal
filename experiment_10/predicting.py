@@ -118,6 +118,6 @@ if __name__ == '__main__':
 	parser.add_argument("prep_folder", help="folder contain preprocess data", type=str)
 	parser.add_argument("model_filename", help="file of the model (hdf5)", type=str)
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max]", type=int, default=1)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3: min-max scaler]", type=int, default=1)
 	args = parser.parse_args()
 	main(args)

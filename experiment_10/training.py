@@ -37,9 +37,6 @@ def prep_data():
 	y_val = utils.delete_params(y_val)
 	y_test = utils.delete_params(y_test)
 
-	print(X_train.shape)
-	print(y_train.shape)
-
 	# if cf.CNN:
 	# 	X_train = utils.cnn_reshape(X_train)
 	# 	X_val = utils.cnn_reshape(X_val)
@@ -51,7 +48,7 @@ def prep_data():
 
 	return X_train, X_val, X_test, y_train, y_val, y_test
 
-def get_model(model_fn, input_shape):
+def get_model(unit_lstm, dropout_rate, bi_layer_num, model_fn, input_shape):
 	'''
 	This function return the model if the model is being load from save or checkpoint
 	or initialize new model and weight
@@ -61,7 +58,7 @@ def get_model(model_fn, input_shape):
 		return tf.keras.models.load_model(join('model',cf.LOAD_FROM_SAVE), custom_objects={'rmse': nn.rmse})
 	else:
 		# initialize model
-		model = model_fn(input_shape[0],input_shape[1])
+		model = model_fn(input_shape[0],input_shape[1], unit_lstm, dropout_rate, bi_layer_num)
 		# load from weight if checkpoint is defined in config file
 		if cf.LOAD_FROM_CHECKPOINT is not None:
 			print('[INFO] Continue from checkpoint')
@@ -135,7 +132,7 @@ def testing(features, labels, model):
 	r2 = utils.compute_AdjustR2(labels,y_pred,multioutput='uniform_average')
 	return y_pred, result, r2
 
-def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experiment_num=None, model_name=None):
+def training_fn(model_fn, unit_lstm, dropout_rate, bi_layer_num, X_train, X_val, X_test, y_train, y_val, y_test, experiment_num=None, model_name=None):
 	'''
 	warpper function to training on each experiment
 	This function is created for training multiple model in one run.
@@ -143,9 +140,10 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 	# load experiment number
 	try:
 		experiment_num = utils.get_experiment_number() if experiment_num is None else experiment_num
-		print('Training experiment number: %s'%experiment_num)
+		print('### --- Training experiment number: %s'%experiment_num)
+		print('unit_lstm: %1.f,dropout_rate:%.2f ,bi_layer_num:%.1f'%(unit_lstm, dropout_rate, bi_layer_num))
 		# initialize/load model
-		model = get_model(model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
+		model = get_model(unit_lstm, dropout_rate, bi_layer_num, model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
 		# training
 		history, total_time, early = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
 		# evaluating
@@ -169,6 +167,9 @@ def main(args):
 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
 	ptraining_fn = partial(training_fn, 
+		unit_lstm=128, 
+		dropout_rate=0.5, 
+		bi_layer_num=5,
 		X_train=X_train, 
 		X_val=X_val, 
 		X_test=X_test, 
@@ -178,36 +179,97 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
-	if args.exp == 9: ptraining_fn(nn.pure_bilstm, experiment_num=26, model_name='pure_bilstm')
-	if args.exp == 8: ptraining_fn(nn.bilstm, experiment_num=31, model_name='bilstm')
-	
-	# baseline
-	if args.exp == 1: ptraining_fn(nn.fc_large_batchnorm, experiment_num=27, model_name='fc_large_batchnorm')
-	if args.exp == 2: ptraining_fn(nn.self_norm_fc, experiment_num=28, model_name='self_norm_fc')
+	if args.exp == 1: 
+		LEARNING_RATE = 0.01
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=56, model_name='reg_pure_bilstm')
 
-	# regularize
-	if args.exp == 3: ptraining_fn(nn.reg_pure_bilstm, experiment_num=29, model_name='reg_pure_bilstm')
-	if args.exp == 10: 
-		cf.EARLY_STOP_PATIENCE = 10
-		ptraining_fn(nn.bilstm_with_reg_dense, experiment_num=36, model_name='bilstm_with_reg_dense')
+	if args.exp == 2: 
+		LEARNING_RATE = 0.005
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=57, model_name='reg_pure_bilstm')
 
-	# different architecture
-	if args.exp == 4: ptraining_fn(nn.cnn_bilstm, experiment_num=30, model_name='cnn_bilstm')
-	if args.exp == 5: ptraining_fn(nn.reg_bilstm, experiment_num=32, model_name='reg_bilstm')
+	if args.exp == 3: 
+		LEARNING_RATE = 0.0005
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=58, model_name='reg_pure_bilstm')
 
-	# optimization
+	if args.exp == 4: 
+		LEARNING_RATE = 0.0001
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=59, model_name='reg_pure_bilstm')
+
+	if args.exp == 5: 
+		LEARNING_RATE = 0.00005
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=78, model_name='reg_pure_bilstm')
+
 	if args.exp == 6: 
-		cf.OPT_NUM = 2
-		cf.OPT = 'Nadam'
-		ptraining_fn(nn.reg_pure_bilstm, experiment_num=33, model_name='reg_pure_bilstm')
+		LEARNING_RATE = 0.1
+		ptraining_fn(nn.reg_pure_bilstm, experiment_num=60, model_name='reg_pure_bilstm')
 
 	if args.exp == 7: 
-		cf.OPT_NUM = 1
-		cf.OPT = 'Adam'
-		ptraining_fn(nn.reg_pure_bilstm, experiment_num=34, model_name='reg_pure_bilstm')
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=5,
+			experiment_num=61, model_name='reg_pure_bilstm')
 
+	if args.exp == 8: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=5,
+			experiment_num=62, model_name='reg_pure_bilstm')
 
+	if args.exp == 9: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=128, dropout_rate=0.5, bi_layer_num=4,
+			experiment_num=63, model_name='reg_pure_bilstm')
 
+	if args.exp == 10: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=128, dropout_rate=0.5, bi_layer_num=6,
+			experiment_num=64, model_name='reg_pure_bilstm')
+
+	if args.exp == 11: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=128, dropout_rate=0.5, bi_layer_num=7,
+			experiment_num=65, model_name='reg_pure_bilstm')
+
+	if args.exp == 12: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=128, dropout_rate=0.5, bi_layer_num=8,
+			experiment_num=66, model_name='reg_pure_bilstm')
+
+	if args.exp == 13: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=128, dropout_rate=0.5, bi_layer_num=9,
+			experiment_num=67, model_name='reg_pure_bilstm')
+
+	if args.exp == 14: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=4,
+			experiment_num=68, model_name='reg_pure_bilstm')
+
+	if args.exp == 15: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=6,
+			experiment_num=69, model_name='reg_pure_bilstm')
+
+	if args.exp == 16: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=7,
+			experiment_num=70, model_name='reg_pure_bilstm')
+
+	if args.exp == 17: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=8,
+			experiment_num=71, model_name='reg_pure_bilstm')
+
+	if args.exp == 18: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=64, dropout_rate=0.5, bi_layer_num=9,
+			experiment_num=72, model_name='reg_pure_bilstm')
+
+	if args.exp == 19: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=4,
+			experiment_num=73, model_name='reg_pure_bilstm')
+
+	if args.exp == 20: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=6,
+			experiment_num=74, model_name='reg_pure_bilstm')
+
+	if args.exp == 21: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=7,
+			experiment_num=75, model_name='reg_pure_bilstm')
+
+	if args.exp == 22: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=8,
+			experiment_num=76, model_name='reg_pure_bilstm')
+
+	if args.exp == 23: 
+		ptraining_fn(nn.reg_pure_bilstm, unit_lstm=256, dropout_rate=0.5, bi_layer_num=9,
+			experiment_num=77, model_name='reg_pure_bilstm')
 	
 	
 	
