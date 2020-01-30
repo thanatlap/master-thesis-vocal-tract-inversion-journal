@@ -177,8 +177,108 @@ def main(args):
 		model_name='undefined')
 
 	if args.exp == 1: 
+		LEARNING_RATE = 0.01
+		ptraining_fn(nn.inti_bilstm(), experiment_num=56, model_name='reg_pure_bilstm')
+
+	if args.exp == 2: 
+		LEARNING_RATE = 0.005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=57, model_name='reg_pure_bilstm')
+
+	if args.exp == 3: 
+		LEARNING_RATE = 0.0005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=58, model_name='reg_pure_bilstm')
+
+	if args.exp == 4: 
+		LEARNING_RATE = 0.0001
+		ptraining_fn(nn.inti_bilstm(), experiment_num=59, model_name='reg_pure_bilstm')
+
+	if args.exp == 5: 
+		LEARNING_RATE = 0.00005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=78, model_name='reg_pure_bilstm')
+
+	if args.exp == 6: 
+		LEARNING_RATE = 0.1
+		ptraining_fn(nn.inti_bilstm(), experiment_num=60, model_name='reg_pure_bilstm')
+
+	if args.exp == 7: 
 		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=5),
-			experiment_num=81, model_name='reg_pure_bilstm')
+			experiment_num=61, model_name='reg_pure_bilstm')
+
+	if args.exp == 8: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=62, model_name='reg_pure_bilstm')
+
+	if args.exp == 9: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=4),
+			experiment_num=63, model_name='reg_pure_bilstm')
+
+	if args.exp == 10: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=64, model_name='reg_pure_bilstm')
+
+	if args.exp == 11: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=7),
+			experiment_num=65, model_name='reg_pure_bilstm')
+
+	if args.exp == 12: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=8),
+			experiment_num=66, model_name='reg_pure_bilstm')
+
+	if args.exp == 13: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=9),
+			experiment_num=67, model_name='reg_pure_bilstm')
+
+	if args.exp == 14: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=4),
+			experiment_num=68, model_name='reg_pure_bilstm')
+
+	if args.exp == 15: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=69, model_name='reg_pure_bilstm')
+
+	if args.exp == 16: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=7),
+			experiment_num=70, model_name='reg_pure_bilstm')
+
+	if args.exp == 17: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=8),
+			experiment_num=71, model_name='reg_pure_bilstm')
+
+	if args.exp == 18: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=9),
+			experiment_num=72, model_name='reg_pure_bilstm')
+
+	if args.exp == 19: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=4),
+			experiment_num=73, model_name='reg_pure_bilstm')
+
+	if args.exp == 20: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=74, model_name='reg_pure_bilstm')
+
+	if args.exp == 21: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=7),
+			experiment_num=75, model_name='reg_pure_bilstm')
+
+	if args.exp == 22: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=8),
+			experiment_num=76, model_name='reg_pure_bilstm')
+
+	if args.exp == 23: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=9),
+			experiment_num=77, model_name='reg_pure_bilstm')
+	
+	if args.exp == 24: 
+		cf.EARLY_STOP_PATIENCE = 25
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=79, model_name='reg_pure_bilstm')
+
+	if args.exp == 25: 
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=80, model_name='reg_pure_bilstm')
+	
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")

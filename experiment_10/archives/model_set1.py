@@ -64,6 +64,29 @@ def fc_large_batchnorm(input_shape_1,input_shape_2):
 	model.summary()
 	return model
 
+def bilstm(input_shape_1,input_shape_2):
+
+	unit_lstm = 128
+	unit_ff = 1024
+	dropout_rate = 0.4
+	bi_layer_num = 5
+	ff_layer_num = 3
+
+	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+	# feature extraction layers
+	for i in range(bi_layer_num):
+		if i == bi_layer_num-1:
+			model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		else:
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+	# feed forward layers
+	for i in range(ff_layer_num):
+		model.add(regDense(unit_ff))
+	# output layers
+	model.add(regDense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
 def bilstm_with_reg_dense(input_shape_1,input_shape_2):
 
 	unit_lstm = 128
@@ -82,6 +105,31 @@ def bilstm_with_reg_dense(input_shape_1,input_shape_2):
 	# feed forward layers
 	for i in range(ff_layer_num):
 		model.add(bDense(unit_ff))
+	# output layers
+	model.add(Dense(N_OUTPUTS, activation='linear'))
+	model.summary()
+	return model
+
+def reg_bilstm(input_shape_1,input_shape_2):
+
+	unit_lstm = 128
+	unit_ff = 1024
+	dropout_rate = 0.4
+	bi_layer_num = 5
+	ff_layer_num = 3
+
+	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+	# feature extraction layers
+	for i in range(bi_layer_num):
+		if i == bi_layer_num-1:
+			model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		else:
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+		model.add(Dropout(rate=dropout_rate))
+	# feed forward layers
+	for i in range(ff_layer_num):
+		model.add(bDense(unit_ff))
+		model.add(Dropout(rate=dropout_rate))
 	# output layers
 	model.add(Dense(N_OUTPUTS, activation='linear'))
 	model.summary()
@@ -118,13 +166,25 @@ def cnn_bilstm(input_shape_1,input_shape_2):
 	model.summary()
 	return model
 
+def pure_bilstm(input_shape_1,input_shape_2):
+
+	unit_lstm = 128
+	dropout_rate = 0.4
+	bi_layer_num = 5
+
+	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+	# feature extraction layers
+	for i in range(bi_layer_num):
+		model.add(Bidirectional(pLSTM(unit_lstm)))
+		# model.add(Dropout(rate=dropout_rate))
+	# output layers
+	model.add(pLSTM(N_OUTPUTS, activation='linear', return_sequences=False))
+	model.summary()
+	return model
+
 def inti_bilstm(unit_lstm=128, dropout_rate=0.5, bi_layer_num=5):
 
-	pLSTM = partial(LSTM,
-		kernel_initializer='he_normal',
-		return_sequences=True)
-
-	def bilstm(input_shape_1,input_shape_2):
+	def reg_pure_bilstm(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
 		# feature extraction layers
 		for i in range(bi_layer_num):
@@ -136,3 +196,19 @@ def inti_bilstm(unit_lstm=128, dropout_rate=0.5, bi_layer_num=5):
 		return model
 
 	return bilstm
+
+def l2_pure_bilstm(input_shape_1,input_shape_2):
+
+	unit_lstm = 128
+	dropout_rate = 0.4
+	bi_layer_num = 5
+
+	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+	# feature extraction layers
+	for i in range(bi_layer_num):
+		model.add(Bidirectional(pLSTM(unit_lstm)))
+		model.add(Dropout(rate=dropout_rate))
+	# output layers
+	model.add(pLSTM(N_OUTPUTS, activation='linear', return_sequences=False))
+	model.summary()
+	return model

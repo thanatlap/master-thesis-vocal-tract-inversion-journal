@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL_2'
+DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL'
 
 #---------------------------------
 
@@ -27,7 +27,7 @@ OPT_NUM = 1
 # Training
 BATCH_SIZE = 64
 EPOCHS = 1000
-MODEL_VERBOSE = 2
+MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = 15 # should increase earlystop since it seen can be improve
 

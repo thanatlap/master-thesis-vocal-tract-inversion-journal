@@ -21,6 +21,8 @@ python training.py 20
 python training.py 21
 python training.py 22
 python training.py 23
+python training.py 24
+python training.py 25
 
 
 
