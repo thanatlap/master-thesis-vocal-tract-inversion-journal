@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL'
+DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL_2'
 
 #---------------------------------
 
@@ -25,7 +25,7 @@ OPT = 'AMSGRAD' # for record only
 OPT_NUM = 1
 
 # Training
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
@@ -50,4 +50,4 @@ LABEL_MODE = 2 #1:standardized 2:minmax
 PRAAT_EXE = r"G:\Praat.exe"
 
 # LOG_SHEET = 'log_experiment_journal.csv'
-LOG_SHEET = 'exp10_attemp2.csv'
+LOG_SHEET = 'exp10_attemp3.csv'

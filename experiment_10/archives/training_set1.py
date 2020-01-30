@@ -177,27 +177,27 @@ def main(args):
 		model_name='undefined')
 
 	if args.exp == 1: 
-		LEARNING_RATE = 0.01
+		cf.LEARNING_RATE = 0.01
 		ptraining_fn(nn.inti_bilstm(), experiment_num=56, model_name='reg_pure_bilstm')
 
 	if args.exp == 2: 
-		LEARNING_RATE = 0.005
+		cf.LEARNING_RATE = 0.005
 		ptraining_fn(nn.inti_bilstm(), experiment_num=57, model_name='reg_pure_bilstm')
 
 	if args.exp == 3: 
-		LEARNING_RATE = 0.0005
+		cf.LEARNING_RATE = 0.0005
 		ptraining_fn(nn.inti_bilstm(), experiment_num=58, model_name='reg_pure_bilstm')
 
 	if args.exp == 4: 
-		LEARNING_RATE = 0.0001
+		cf.LEARNING_RATE = 0.0001
 		ptraining_fn(nn.inti_bilstm(), experiment_num=59, model_name='reg_pure_bilstm')
 
 	if args.exp == 5: 
-		LEARNING_RATE = 0.00005
+		cf.LEARNING_RATE = 0.00005
 		ptraining_fn(nn.inti_bilstm(), experiment_num=78, model_name='reg_pure_bilstm')
 
 	if args.exp == 6: 
-		LEARNING_RATE = 0.1
+		cf.LEARNING_RATE = 0.1
 		ptraining_fn(nn.inti_bilstm(), experiment_num=60, model_name='reg_pure_bilstm')
 
 	if args.exp == 7: 

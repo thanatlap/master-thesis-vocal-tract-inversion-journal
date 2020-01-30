@@ -141,9 +141,8 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 	try:
 		experiment_num = utils.get_experiment_number() if experiment_num is None else experiment_num
 		print('### --- Training experiment number: %s'%experiment_num)
-		print('unit_lstm: %1.f,dropout_rate:%.2f ,bi_layer_num:%.1f'%(unit_lstm, dropout_rate, bi_layer_num))
 		# initialize/load model
-		model = get_model(unit_lstm, dropout_rate, bi_layer_num, model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
+		model = get_model(model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
 		# training
 		history, total_time, early = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
 		# evaluating
@@ -176,9 +175,139 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
+
+	# baseline
+	if args.exp == 0: ptraining_fn(nn.inti_bilstm(), experiment_num=0, model_name='inti_bilstm')
+
+	# test learning rate
 	if args.exp == 1: 
+		cf.LEARNING_RATE = 0.01
+		ptraining_fn(nn.inti_bilstm(), experiment_num=1, model_name='inti_bilstm')
+
+	if args.exp == 2: 
+		cf.LEARNING_RATE = 0.005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=2, model_name='inti_bilstm')
+
+	if args.exp == 3: 
+		cf.LEARNING_RATE = 0.0005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=3, model_name='inti_bilstm')
+
+	if args.exp == 4: 
+		cf.LEARNING_RATE = 0.0001
+		ptraining_fn(nn.inti_bilstm(), experiment_num=4, model_name='inti_bilstm')
+
+	if args.exp == 5: 
+		cf.LEARNING_RATE = 0.00005
+		ptraining_fn(nn.inti_bilstm(), experiment_num=5, model_name='inti_bilstm')
+
+	if args.exp == 6: 
+		cf.LEARNING_RATE = 0.1
+		ptraining_fn(nn.inti_bilstm(), experiment_num=6, model_name='inti_bilstm')
+
+
+	# test batch size
+
+	if args.exp == 7: 
+		cf.BATCH_SIZE = 32
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=7, model_name='inti_bilstm')
+
+	if args.exp == 8: 
+		cf.BATCH_SIZE = 64
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=8, model_name='inti_bilstm')
+
+	if args.exp == 9: 
+		cf.BATCH_SIZE = 256
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=9, model_name='inti_bilstm')
+
+	# test earlystop
+
+	if args.exp == 26: 
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=26, model_name='inti_bilstm')
+
+	if args.exp == 27: 
+		cf.EARLY_STOP_PATIENCE = 25
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=27, model_name='inti_bilstm')
+
+	if args.exp == 28: 
+		cf.EARLY_STOP_PATIENCE = 50
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=5),
+			experiment_num=28, model_name='inti_bilstm')
+
+	# test network
+
+	if args.exp == 10: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=3),
+			experiment_num=10, model_name='inti_bilstm')
+
+	if args.exp == 11: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=4),
+			experiment_num=11, model_name='inti_bilstm')
+
+	if args.exp == 12: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=6),
+			experiment_num=12, model_name='inti_bilstm')
+
+	if args.exp == 13: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=7),
+			experiment_num=13, model_name='inti_bilstm')
+
+	if args.exp == 14: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=8),
+			experiment_num=14, model_name='inti_bilstm')
+
+	if args.exp == 15: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.5, bi_layer_num=9),
+			experiment_num=15, model_name='inti_bilstm')
+
+	# test dropout
+
+	if args.exp == 16: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.4, bi_layer_num=5),
+			experiment_num=16, model_name='inti_bilstm')
+
+	if args.exp == 17: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.3, bi_layer_num=5),
+			experiment_num=17, model_name='inti_bilstm')
+
+	if args.exp == 18: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.2, bi_layer_num=5),
+			experiment_num=18, model_name='inti_bilstm')
+
+	if args.exp == 19: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=128, dropout_rate=0.1, bi_layer_num=5),
+			experiment_num=19, model_name='inti_bilstm')
+
+	# test capacity
+
+	if args.exp == 20: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=20, model_name='inti_bilstm')
+
+	if args.exp == 21: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.3, bi_layer_num=5),
+			experiment_num=21, model_name='inti_bilstm')
+
+	if args.exp == 22: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.5, bi_layer_num=8),
+			experiment_num=22, model_name='inti_bilstm')
+
+	if args.exp == 23: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=3),
+			experiment_num=23, model_name='inti_bilstm')
+
+	if args.exp == 24: 
 		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=5),
-			experiment_num=81, model_name='reg_pure_bilstm')
+			experiment_num=24, model_name='inti_bilstm')
+
+	if args.exp == 25: 
+		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=7),
+			experiment_num=25, model_name='inti_bilstm')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
