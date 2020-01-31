@@ -26,13 +26,15 @@ pLSTM = partial(LSTM,
 	kernel_initializer='he_normal',
 	return_sequences=True)
 
-pConv1D = partial(Conv1D,
-	padding = 'valid',
-	activation = 'elu',
-	kernel_initializer = 'he_normal')
-
 def rmse(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
+
+def huber_loss(y_true, y_pred):
+	error = y_true-y_pred
+	is_small_error = tf.abs(error) < 0.31
+	square_loss = tf.square(error)
+	linear_loss = tf.abs(error)
+	return tf.where(is_small_error, square_loss, linear_loss)
 
 def self_norm_fc(input_shape_1,input_shape_2):
 
@@ -64,60 +66,6 @@ def fc_large_batchnorm(input_shape_1,input_shape_2):
 	model.summary()
 	return model
 
-def bilstm_with_reg_dense(input_shape_1,input_shape_2):
-
-	unit_lstm = 128
-	unit_ff = 1024
-	dropout_rate = 0.4
-	bi_layer_num = 5
-	ff_layer_num = 3
-
-	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
-	# feature extraction layers
-	for i in range(bi_layer_num):
-		if i == bi_layer_num-1:
-			model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
-		else:
-			model.add(Bidirectional(pLSTM(unit_lstm)))
-	# feed forward layers
-	for i in range(ff_layer_num):
-		model.add(bDense(unit_ff))
-	# output layers
-	model.add(Dense(N_OUTPUTS, activation='linear'))
-	model.summary()
-	return model
-
-def cnn_bilstm(input_shape_1,input_shape_2):
-
-	unit_lstm = 128
-	unit_ff = 512
-	unit_cnn = 64
-	dropout_rate = 0.4
-	bi_layer_num = 5
-	ff_layer_num = 1
-	cnn_layer_num = 3
-	cnn_filter = 3
-
-	model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
-	# feature cnn
-	for i in range(cnn_layer_num):
-		model.add(pConv1D(filters = unit_cnn, kernel_size= cnn_filter))
-	# feature extraction layers
-	for i in range(bi_layer_num):
-		if i == bi_layer_num-1:
-			model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
-		else:
-			model.add(Bidirectional(pLSTM(unit_lstm)))
-		# model.add(Dropout(rate=dropout_rate))
-	# feed forward layers
-	# for i in range(ff_layer_num):
-	# 	model.add(bDense(unit_ff))
-	# 	model.add(Dropout(rate=dropout_rate))
-	# output layers
-	model.add(Dense(N_OUTPUTS, activation='linear'))
-	model.summary()
-	return model
-
 def inti_bilstm(unit_lstm=128, dropout_rate=0.5, bi_layer_num=5):
 
 	pLSTM = partial(LSTM,
@@ -136,3 +84,69 @@ def inti_bilstm(unit_lstm=128, dropout_rate=0.5, bi_layer_num=5):
 		return model
 
 	return bilstm
+
+def inti_cnn_bilstm(unit_cnn = 64, unit_lstm=64, cnn_filter=3, 
+	dropout_rate=0.4, cnn_layer = 3, bi_layer_num=5):
+
+	pLSTM = partial(LSTM,
+		kernel_initializer='he_normal',
+		return_sequences=True)
+
+	pConv1D = partial(Conv1D,
+		padding = 'same',
+		activation = 'elu',
+		kernel_initializer = 'he_normal')
+
+	def cnn_bilstm(input_shape_1,input_shape_2):
+
+		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+		
+		# cnn as feature extraction
+		for i in range(cnn_layer):
+			model.add(pConv1D(filters = unit_cnn, kernel_size= cnn_filter))
+
+		# feature extraction layers
+		for j in range(bi_layer_num):
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+			model.add(Dropout(rate=dropout_rate))
+
+		# output layers
+		model.add(pLSTM(N_OUTPUTS, activation='linear', return_sequences=False))
+		model.summary()
+		return model
+
+	return cnn_bilstm
+
+def inti_cnn_fc(unit_cnn = 64, unit_dense=1024, cnn_filter=3, dropout_rate=0.4, 
+	cnn_layer = 5, dense_layer_num=1):
+
+	pConv1D = partial(Conv1D,
+		padding = 'same',
+		activation = 'elu',
+		kernel_initializer = 'he_normal')
+
+	pDense = partial(Dense, 
+		activation='elu', 
+		kernel_initializer='he_normal')
+
+	def cnn_fc(input_shape_1,input_shape_2):
+
+		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+		
+		# cnn as feature extraction
+		for i in range(cnn_layer):
+			model.add(pConv1D(filters = unit_cnn, kernel_size= cnn_filter))
+			model.add(Dropout(rate=dropout_rate))
+
+		# FC 
+		model.add(Flatten())
+		for i in range(dense_layer_num):
+			model.add(pDense(unit_dense))
+			model.add(Dropout(rate=dropout_rate))
+
+		# output layers
+		model.add(pDense(N_OUTPUTS, activation='linear'))
+		model.summary()
+		return model
+
+	return cnn_fc

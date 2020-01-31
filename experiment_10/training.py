@@ -309,6 +309,93 @@ def main(args):
 		ptraining_fn(nn.inti_bilstm( unit_lstm=256, dropout_rate=0.5, bi_layer_num=7),
 			experiment_num=25, model_name='inti_bilstm')
 
+	if args.exp == 29: 
+		ptraining_fn(nn.inti_cnn_bilstm(),
+			experiment_num=29, model_name='cnn_bilstm')
+
+	if args.exp == 30: 
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(),
+			experiment_num=30, model_name='cnn_bilstm')
+
+	if args.exp == 31: 
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=4),
+			experiment_num=31, model_name='cnn_bilstm')
+
+	if args.exp == 32: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_bilstm(),
+			experiment_num=32, model_name='cnn_bilstm')
+
+	if args.exp == 33: 
+		ptraining_fn(nn.inti_cnn_fc(),
+			experiment_num=33, model_name='cnn_fc')
+
+	if args.exp == 34: 
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_fc(),
+			experiment_num=34, model_name='cnn_fc')
+
+	if args.exp == 35: 
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_fc(cnn_layer=8),
+			experiment_num=35, model_name='cnn_fc')
+
+	if args.exp == 36: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_fc(),
+			experiment_num=36, model_name='cnn_fc')
+
+	if args.exp == 37: 
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_fc(cnn_layer=3),
+			experiment_num=37, model_name='cnn_fc')
+
+	if args.exp == 38: 
+		cf.EARLY_STOP_PATIENCE = 10
+		ptraining_fn(nn.inti_cnn_fc(dense_layer_num=2),
+			experiment_num=38, model_name='cnn_fc')
+
+	if args.exp == 39: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=39, model_name='cnn_bilstm')
+
+	if args.exp == 40: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3),
+			experiment_num=40, model_name='cnn_bilstm')
+
+	if args.exp == 41: 
+		cf.LEARNING_RATE = 0.00001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3),
+			experiment_num=41, model_name='cnn_bilstm')
+
+	if args.exp == 42: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_bilstm( unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=42, model_name='inti_bilstm')
+
+	if args.exp == 43: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_bilstm(), experiment_num=43, model_name='inti_bilstm')
+
+	if args.exp == 44: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		cf.LOSS_FN = [nn.huber_loss]
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=44, model_name='cnn_bilstm')
+
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
 	parser.add_argument("exp", help="", type=int, default=0)

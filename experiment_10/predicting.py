@@ -8,6 +8,7 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
 from tensorflow.keras import callbacks
 
+from datetime import datetime
 import argparse
 import re
 import model as nn
@@ -64,13 +65,12 @@ def main(args):
 	# predict 
 	y_pred = predict(features, model_file)
 	# create output path
-	if exp_num:
-		# if output filename is specify
-		output_path = join('result','predict_%s'%exp_num)
-	else:
-		# else, use default
-		output_path = join('result','predict')
-	os.makedirs(output_path, exist_ok=True)
+	output_path = join('result','predict_%s'%exp_num)
+	index = 1
+	while os.path.exists(output_path):
+		output_path = join('result','predict_%s_%s'%(exp_num,index))
+		index += 1
+	os.makedirs(output_path)
 	# read syllable name from text file
 	with open(join(args.data_dir,'syllable_name.txt')) as f:
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
@@ -110,7 +110,14 @@ def main(args):
 	
 	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2)
 
-	
+	log = open(join(output_path,'description.txt'),"w")
+	log.write('Date %s\n'%str(datetime.now().strftime("%Y-%B-%d %H:%M")))
+	log.write('Data Dir: %s\n'%str(args.data_dir))
+	log.write('Folder: %s\n'%str(args.prep_folder))
+	log.write('Syllable: %s\n'%str(args.syllable))
+	log.write('Model File: %s\n'%str(args.model_filename))
+	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
+	log.close()
 	
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Predicting vocaltract from audio")
