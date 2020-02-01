@@ -265,7 +265,7 @@ def standardized_labels(params, is_train, is_disyllable):
 			raise ValueError('File %s doest exist'%vars_dir)
 	# normalize each feature by its mean and plus small value to 
 	# prevent value of zero
-	params = (params - mean)/std
+	params = (params - mean)/(std+1e-6)
 	
 	return params
 
@@ -399,9 +399,9 @@ def main(args):
 			p_augmentation = partial(augmentation, augment_samples=augment_samples, sr=args.augment_samples)
 
 			# X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train,func=strech_audio)
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=amplify_value)
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=change_pitch)
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=random_crop_out)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=amplify_value)
+			# X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=random_crop_out)
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=add_white_noise)
 
 		X_train, y_train = preprocess_pipeline(X_train, y_train, 

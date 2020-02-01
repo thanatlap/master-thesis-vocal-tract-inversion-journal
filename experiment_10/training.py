@@ -112,7 +112,8 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 	total_time = time()-start
 	print('[Total training time: %.3fs]'%total_time)
 	if model_name:
-		model_name = str(model_name)+'_'+str(datetime.now().strftime("%Y%m%d_%H%M"))+'.h5'
+		# model_name = str(model_name)+'_'+str(datetime.now().strftime("%Y%m%d_%H%M"))+'.h5'
+		model_name = str(model_name)+'.h5'
 	else:
 		model_name = 'model_'+str(datetime.now().strftime("%Y%m%d_%H%M"))+'.h5'
 
@@ -163,7 +164,13 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 
 def main(args):
 
-	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	if args.exp == 47:
+		cf.DATASET_DIR = '../data/d_dataset_6/prep_exp10'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+
+	if args.exp == 48:
+		cf.DATASET_DIR = '../data/d_dataset_7/prep_exp10'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
 	ptraining_fn = partial(training_fn, 
 		X_train=X_train, 
@@ -394,6 +401,30 @@ def main(args):
 		cf.LOSS_FN = [nn.huber_loss]
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
 			experiment_num=44, model_name='cnn_bilstm')
+
+	if args.exp == 45: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=45, model_name='cnn_bilstm')
+
+	if args.exp == 46: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=46, model_name='cnn_bilstm')
+
+	if args.exp == 47: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=46, model_name='cnn_bilstm')
+
+	if args.exp == 48: 
+		cf.LEARNING_RATE = 0.0001
+		cf.EARLY_STOP_PATIENCE = 5
+		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
+			experiment_num=46, model_name='cnn_bilstm')
 
 
 if __name__ == '__main__':

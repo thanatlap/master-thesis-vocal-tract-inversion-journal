@@ -16,7 +16,7 @@ import numpy as np
 import math
 
 def randomize_by_percent_change(predefine_params, from_idx, to_idx):
-	return [((predefine_params[to_idx][i] - predefine_params[from_idx][i])*np.random.uniform(0.005, high=0.99)) + predefine_params[from_idx][i] for i in  range(predefine_params.shape[1])]
+	return [((predefine_params[to_idx][i] - predefine_params[from_idx][i])*np.random.uniform(0.001, high=0.35)) + predefine_params[from_idx][i] for i in  range(predefine_params.shape[1])]
 
 def randomize_params(predefine_params, param_high, param_low, sampling_step=0.01):
 

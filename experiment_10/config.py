@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_4L/prep_exp10_XL_2'
+DATASET_DIR = '../data/d_dataset_6/prep_exp10'
 
 #---------------------------------
 

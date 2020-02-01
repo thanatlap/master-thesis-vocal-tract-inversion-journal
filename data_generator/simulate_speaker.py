@@ -196,7 +196,7 @@ def create_ges(ges_file, is_disyllable):
 
 	# time constant (The VTL constrict value to 0.04, inspect from empirical study (manually play with program))
 	a_time_constant = np.random.uniform(0.015, high=0.02)
-	b_time_constant = np.random.uniform(0.015, high=0.025)
+	b_time_constant = np.random.uniform(0.015, high=0.02)
 
 	# f0 gesture duration
 	total_duration = max_duration
@@ -230,7 +230,7 @@ def create_ges(ges_file, is_disyllable):
 		if idx == 0:
 			f0 = np.random.uniform(low=80, high=81)
 		elif idx == 1:
-			f0 = np.random.uniform(low=81, high=84)
+			f0 = np.random.uniform(low=81, high=83)
 		else:
 			f0 = f0
 		f.write('<gesture value="%.5f" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%(f0,d))
