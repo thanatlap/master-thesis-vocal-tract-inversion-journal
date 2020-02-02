@@ -191,7 +191,7 @@ def generate_speaker_file(gen_param_sets, speaker_sid, speaker_idx):
 			speaker_head = open(speaker_head_file,'r').read()
 		else: 
 			raise ValueError('Head file not exist, %s'%speaker_head_file)
-		ss.create_speaker(join(cf.DATASET_DIR, 'speaker',speaker_filenames[idx]), params, speaker_idx, speaker_head, speaker_tail, is_disyllable = cf.DI_SYLLABLE)
+		ss.create_speaker(join(cf.DATASET_DIR, 'speaker',speaker_filenames[idx]), params, speaker_head, speaker_tail, is_disyllable = cf.DI_SYLLABLE)
 	
 	return speaker_filenames, speaker_idx
 

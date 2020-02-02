@@ -26,7 +26,8 @@ ADULT_SPEAKER_FILE = TEMPLATE_DIR+'/adult_speaker.txt'
 INFANT_SPEAKER_FILE = TEMPLATE_DIR+'/infant_speaker.txt'
 TAIL_SPEAKER = TEMPLATE_DIR+'/speaker_tail.txt'
 SPKEAKER_SIM_DIR = DATASET_DIR+'/speaker_sim'
-LABEL_NAME = TEMPLATE_DIR+'/label_name_small.npy'
+# LABEL_NAME = TEMPLATE_DIR+'/label_name_small.npy'
+LABEL_NAME = TEMPLATE_DIR+'/syllable_name.txt'
 # the first n_speaker must be 0.0
 SPEAKER_N = [0.0, 0.1, 0.2, 0.25, -0.1, -0.2, -0.25]
 # SPEAKER_N = [0.0]

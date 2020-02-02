@@ -139,7 +139,8 @@ def simulate_speaker(scale_by, sid):
 	default_param = pd.read_csv(cf.PREDEFINE_PARAM_FILE).values
 	scale_default_param = (default_param - adult_low)/(adult_high - adult_low)
 	new_param = scale_default_param*(new_high - new_low) + new_low
-	syllable = np.load(cf.LABEL_NAME)
+	with open(cf.LABEL_NAME) as f:
+		syllable = np.array([word.strip() for line in f for word in line.split(',')])
 
 	filename = join(cf.SPKEAKER_SIM_DIR,'speaker_s%s_full.speaker'%sid)
 	f = open(filename, 'w')
@@ -152,7 +153,7 @@ def simulate_speaker(scale_by, sid):
 	f.write(open(cf.TAIL_SPEAKER,'r').read())
 	f.close()
 
-def create_speaker(filename, params, speaker_idx, speaker_head, speaker_tail, is_disyllable):
+def create_speaker(filename, params, speaker_head, speaker_tail, is_disyllable):
 	'''
 	create speaker file using simulated speaker vocaltract
 	'''

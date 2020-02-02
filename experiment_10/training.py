@@ -418,13 +418,13 @@ def main(args):
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 5
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=46, model_name='cnn_bilstm')
+			experiment_num=47, model_name='cnn_bilstm')
 
 	if args.exp == 48: 
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 5
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=46, model_name='cnn_bilstm')
+			experiment_num=48, model_name='cnn_bilstm')
 
 
 if __name__ == '__main__':
