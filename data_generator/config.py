@@ -1,14 +1,14 @@
 # Data generator control
 DI_SYLLABLE = True
 CONT = False
-REPLACE_FOLDER = False
-N_SPLIT = 20
+REPLACE_FOLDER = True
+N_SPLIT = 2
 CLEAN_FILE = False
 CLEAN_SOUND = False
-NJOB = 6
+NJOB = 2
 
 # Data generator hyperparameter
-DATASIZE =30000
+DATASIZE =10
 FILTER_THRES = 0.9
 SAMPLING_STEP = 0.01
 MIN_MAX_PERCENT_CHANGE = [0.01, 0.30] # min max
@@ -20,20 +20,20 @@ GES_MIN_MAX_DURATION_MONO = [0.4, 0.7] # min max
 GES_VARY_DURATION_DI = [0.45, 0.55] # %min %max
 GES_TIME_CONST = [0.015, 0.02] # min max
 GES_F0_INIT_MIN_MAX = [80, 81] # min max
+GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_7'
+DATASET_NAME = 'd_dataset_0'
 DATA_DESCRIPTION = 'Test Code'
 DATASET_DIR = '../data/'+DATASET_NAME
 
 # required file
 VTL_FILE = 'VTL/VocalTractLabApi.dll'
 TEMPLATE_DIR = 'templates'
-PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_set4.csv'
+PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_set3.csv'
 ADULT_SPEAKER_HEADER_FILE = TEMPLATE_DIR+'/adult_speaker_header.txt'
 INFANT_SPEAKER_HEADER_FILE = TEMPLATE_DIR+'/infant_speaker_header.txt'
 TAIL_SPEAKER = TEMPLATE_DIR+'/speaker_tail.txt'
-LABEL_NAME = TEMPLATE_DIR+'/syllable_name.txt'
 GES_HEAD = TEMPLATE_DIR+'/ges_head.txt'
 
 

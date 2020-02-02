@@ -10,6 +10,7 @@ from datetime import datetime
 import multiprocessing as mp
 import config as cf
 import simulate_speaker as ss
+import util_prevent_print as upp
 import random_param as rand_param 
 from functools import partial
 
@@ -44,10 +45,10 @@ def load_file_csv(file):
 
 def transform_param_data_to_npy(param_sets):
 
-	syllable_labels = param_set[PARAM].values
-	param_set = param_set.drop([PARAM], axis=1)
-	syllable_params = param_set.values
-	param_names = param_set.columns.values
+	syllable_labels = param_sets[PARAM].values
+	param_sets = param_sets.drop([PARAM], axis=1)
+	syllable_params = param_sets.values
+	param_names = param_sets.columns.values
 	return syllable_params, syllable_labels
 
 def random_param_from_syllable_pair(from_idx, to_idx, predefined_syllables):
@@ -57,7 +58,7 @@ def random_param_from_syllable_pair(from_idx, to_idx, predefined_syllables):
 	if np.random.uniform(0, high=1) < cf.RAMDOM_PARAM_NOISE_PROB:
 		random_param = rand_param.randomize_noise_params(predefined_syllables, PARAM_HIGH, PARAM_LOW, sampling_step=cf.SAMPLING_STEP)
 	else:
-		random_param = rand_param.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, MIN_MAX_PERCENT_CHANGE[0], MIN_MAX_PERCENT_CHANGE[1])
+		random_param = rand_param.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, cf.MIN_MAX_PERCENT_CHANGE[0], cf.MIN_MAX_PERCENT_CHANGE[1])
 	return random_param
 
 def randomly_select_syllable_pair(predefined_syllables):
@@ -65,14 +66,14 @@ def randomly_select_syllable_pair(predefined_syllables):
 	generate a vocal tract parameter set.
 	'''
 	# random select syllable pair  
+	num_item_pair = 4 if cf.DI_SYLLABLE else 2
 	while True:
-		syllable_pair = [ np.random.randint(predefined_syllables.shape[0]) for i in range(4 if cf.DI_SYLLABLE else 2)]
+		syllable_pair = [ np.random.randint(predefined_syllables.shape[0]) for i in range(num_item_pair)]
 		# check duplicate index
 		if ((len(syllable_pair) - len(set(syllable_pair))) == 0):
 			break
-
 	while True:
-		random_syllables = [random_param_from_syllable_pair(syllable_pair[idx*2], syllable_pair[idx*2+1], predefined_syllables) for idx in range(int(syllable_pair/2))]
+		random_syllables = [random_param_from_syllable_pair(syllable_pair[idx*2], syllable_pair[idx*2+1], predefined_syllables) for idx in range(int(num_item_pair/2))]
 		# Check if the param is directly pick from default param since we will used this as a final testing set.
 		if sum([0 if not (item in predefined_syllables.tolist()) else 1 for item in random_syllables]) == 0:
 			break
@@ -93,7 +94,7 @@ def check_duplicate_and_remove(random_param, total_aggregate_param):
 			if item in total_aggregate_param:
 				new_random_param.remove(item)
 				duplicate_item_count += 1
-	
+
 	return new_random_param, duplicate_item_count
 
 def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggregate_param):
@@ -106,7 +107,7 @@ def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggreg
 		random_param, batch_size = check_duplicate_and_remove(random_param, total_aggregate_param)
 		batch_gen_param.extend(random_param)
 		if batch_size > 0: print('[INFO] Re-Generated %s data'%batch_size)
-	
+
 	return batch_gen_param
 
 def scale_parameter(params, sid):
@@ -121,7 +122,7 @@ def scale_parameter(params, sid):
 	sim_high = sim_param['high']
 	sim_low = sim_param['low']
 	# scale back to the position of simulated speaker
-	return scale_param*(sim_high - sim_low) + sim_low
+	return (scale_param*(sim_high - sim_low) + sim_low).tolist()
 
 def adjust_speaker_syllabel_parameter(batch_gen_param, speaker_sid):
 	'''
@@ -193,6 +194,7 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file_list, feedback_f
 	'''
 	# initialize vocaltractlab application
 	VTL = initiate_VTL()
+	upp.stdout_redirected()
 	# compute in c 
 	for i, output_file in enumerate(output_file_set):
 		speaker_file_name = ctypes.c_char_p(str.encode(speaker_file_list[i]))
@@ -206,14 +208,6 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file_list, feedback_f
 								  feedback_file_name)  # output
 	# keep tract of any failure
 	output.put(failure)
-
-# Disable
-def blockPrint():
-	sys.stdout = open(os.devnull, 'w')
-
-# Restore
-def enablePrint():
-	sys.stdout = sys.__stdout__
 
 def generate_sound(speaker_filenames, ges_filenames, sound_idx):
 	'''
@@ -237,8 +231,6 @@ def generate_sound(speaker_filenames, ges_filenames, sound_idx):
 	ges_file_set = [join(cf.DATASET_DIR, 'ges', file) for file in ges_filenames]
 	feedback_file_set = [join(cf.DATASET_DIR, 'feedback', file) for file in feedback_filenames]
 
-	blockPrint()
-
 	# Start multiprocess
 	# Define an output queue
 	output = mp.Queue()
@@ -257,8 +249,6 @@ def generate_sound(speaker_filenames, ges_filenames, sound_idx):
 	# Exit the completed processes
 	for p in processes:
 		p.join()
-
-	enablePrint()
 
 	failures = [output.get() for p in processes]
 	if any(failures) != 0: raise ValueError('Error at file: ',failures)
@@ -358,7 +348,7 @@ def clean_up_file():
 def check_file_exist(*args):
 
 	for file in args:
-		if not os.path.exists(filename):
+		if not os.path.exists(file):
 			raise ValueError('[ERROR] File %s does not exist'%file)
 
 def check_is_continue_or_replace():
@@ -378,7 +368,7 @@ def check_is_continue_or_replace():
 def main():
 	# check for error
 	check_file_exist(cf.VTL_FILE, cf.PREDEFINE_PARAM_FILE, cf.ADULT_SPEAKER_HEADER_FILE,
-		cf.INFANT_SPEAKER_HEADER_FILE, cf.TAIL_SPEAKER, cf.LABEL_NAME, cf.GES_HEAD)
+		cf.INFANT_SPEAKER_HEADER_FILE, cf.TAIL_SPEAKER, cf.GES_HEAD)
 	# check if continue or replace the main output folder
 	check_is_continue_or_replace()
 
@@ -462,7 +452,7 @@ def main():
 	else:
 		log = open(log_filepath, 'w')
 		
-	log.write('\n------------------------------------------\n')
+	log.write('\n========================================\n')
 	log.write('DATASET: %s\n'%cf.DATASET_NAME)
 	log.write('Generated Date: %s\n'%timestamp) if not cf.CONT else log.write('Modified Date: %s\n'%timestamp)
 	log.write('Data Description: %s\n'%cf.DATA_DESCRIPTION)
@@ -473,10 +463,10 @@ def main():
 	log.write('METADATA\n')
 	log.write('Data size: %s\n'%cf.DATASIZE)
 	log.write('Epoch/Split: %s/%s\n'%(split_counter,cf.N_SPLIT))
-	log.write('Non silent param: %s\n'%str(ns_aggregate_param).shape)
-	log.write('Non silent sound: %s\n'%str(ns_aggregate_sound).shape)
-	log.write('Non audio data: %s\n'%str(ns_audio_data).shape)
-	log.write('Non speaker id: %s\n'%str(ns_sid).shape)
+	log.write('Non silent param: %s\n'%str(ns_aggregate_param.shape))
+	log.write('Non silent sound: %s\n'%str(ns_aggregate_sound.shape))
+	log.write('Non audio data: %s\n'%str(ns_audio_data.shape))
+	log.write('Non speaker id: %s\n'%str(ns_sid.shape))
 	log.write('------------------------------------------\n')
 	log.write('HYPERPARAMETER\n')
 	log.write('FILTER_THRES: %s\n'%cf.FILTER_THRES)
@@ -486,7 +476,13 @@ def main():
 	log.write('AUDIO_SAMPLE_RATE: %s\n'%cf.AUDIO_SAMPLE_RATE)
 	log.write('PREDEFINE_PARAM_FILE: %s\n'%cf.PREDEFINE_PARAM_FILE)
 	log.write('SPEAKER_N: %s\n'%cf.SPEAKER_N)
-	log.write('\n------------------------------------------\n')
+	log.write('GES_MIN_MAX_DURATION_DI: %s\n'%cf.GES_MIN_MAX_DURATION_DI)
+	log.write('GES_MIN_MAX_DURATION_MONO: %s\n'%cf.GES_MIN_MAX_DURATION_MONO)
+	log.write('GES_VARY_DURATION_DI: %s\n'%cf.GES_VARY_DURATION_DI)
+	log.write('GES_TIME_CONST: %s\n'%cf.GES_TIME_CONST)
+	log.write('GES_F0_INIT_MIN_MAX: %s\n'%cf.GES_F0_INIT_MIN_MAX)
+	log.write('GES_F0_NEXT_MIN_MAX: %s\n'%cf.GES_F0_NEXT_MIN_MAX)
+	log.write('------------------------------------------\n')
 	log.write('CONFIGURATIONS\n')
 	log.write('Replace Folder: %s\n'%cf.REPLACE_FOLDER)
 	log.write('Clean Folder: %s\n'%cf.CLEAN_FILE)
