@@ -270,76 +270,69 @@ def load_audio_from_list(sound_sets, sample_rate, parent_dir=''):
 
 def is_nonsilent(audio_data, threshold):
 	'''
-	Çheck if the sound is silent sound.
-	return a list of index of non silent audio sound. 
-	return in list format
+	Çheck if the sound is silent sound. return a list of index of non silent audio sound.
 	'''
 	# if audio consist mostly non zero, indicating non silent sound
 	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > threshold*data.shape[0])]
 
-def filter_silent_sound(audio_data, sound_sets, batch_gen_param, speaker_sid, threshold = 0.8):
-	'''
-	Main function to filter the silent sound.
-	This function return list index of of non_silent sound 
-	'''
+def filter_silent_sound(audio_data, total_aggregate_sound, total_aggregate_param, total_speaker_sid, threshold = 0.8):
+
 	idx_list = is_nonsilent(audio_data, threshold)
-	# convert back to list for consistancy purpose
-	non_silent_sound_sets = np.array(sound_sets)[idx_list].tolist() 
-	non_silent_param_sets = np.array(batch_gen_param)[idx_list].tolist() 
-	# filter speaker sid for later used in preprocessing data (in scale function)
-	non_silent_sid = np.array(speaker_sid)[idx_list].tolist()
+	# convert to np array to use subset by list feature
+	ns_aggregate_sound = np.array(total_aggregate_sound)[idx_list]
+	ns_aggregate_param = np.array(total_aggregate_param)[idx_list]
+	ns_sid = np.array(total_speaker_sid)[idx_list]
+	ns_audio_data = np.array(audio_data)[idx_list]
 	# count silent sound
-	silent_count = len(sound_sets) - len(idx_list)
+	silent_count = len(total_aggregate_sound) - len(idx_list)
 	
-	return non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count
+	return ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid, silent_count
 
 def save_state(speaker_idx, ges_idx, sound_idx, total_speaker_sid, 
-	entire_sound_sets, total_aggregate_param, 
-	ns_sound_sets, ns_param_sets, ns_sid):
+	total_aggregate_sound, total_aggregate_param):
 	'''
 	Save state for continuous data generation
 	'''
 	# create data folder
-	os.makedirs(join(cf.DATASET_DIR, 'npy'), exist_ok=True)
-	np.savez(join(cf.DATASET_DIR, 'npy','dataset.npz'), 
+	os.makedirs(join(cf.DATASET_DIR, 'vars'), exist_ok=True)
+	np.savez(join(cf.DATASET_DIR, 'vars','data_gen_state.npz'), 
 		state = np.array([speaker_idx, ges_idx, sound_idx]),
 		total_speaker_sid=np.array(total_speaker_sid), 
-		entire_sound_sets=np.array(entire_sound_sets),
-		total_aggregate_param = np.array(total_aggregate_param),
-		ns_sound_sets = np.array(ns_sound_sets),
-		ns_param_sets = np.array(ns_param_sets),
-		ns_sid = np.array(ns_sid))
+		total_aggregate_sound=np.array(total_aggregate_sound),
+		total_aggregate_param = np.array(total_aggregate_param))
 
 def load_state():
 	'''
 	load state for continuous data generation
 	'''
 	try:
-		data = np.load(join(cf.DATASET_DIR, 'npy','dataset.npz'))
+		data = np.load(join(cf.DATASET_DIR, 'vars','data_gen_state.npz'))
 		state = data['state'].tolist()
 		speaker_idx, ges_idx, sound_idx  = state[0], state[1], state[2]
 
 		total_speaker_sid = data['total_speaker_sid'].tolist()
-		entire_sound_sets = data['entire_sound_sets'].tolist()
+		total_aggregate_sound = data['total_aggregate_sound'].tolist()
 		total_aggregate_param = data['total_aggregate_param'].tolist()
-		ns_sound_sets = data['ns_sound_sets'].tolist()
-		ns_param_sets = data['ns_param_sets'].tolist()
-		ns_sid = data['ns_sid'].tolist()
 		
 	except:
+		print('[INFO] State not found, initialize new variable')
 		speaker_idx = 0
 		ges_idx = 0
 		sound_idx = 0
 		total_speaker_sid = []
-		entire_sound_sets = []
+		total_aggregate_sound = []
 		total_aggregate_param = []
-		ns_sound_sets = []
-		ns_param_sets = []
-		total_block_sound = []
-		total_block_label = []
-		ns_sid = []
 		
-	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, entire_sound_sets, total_aggregate_param, ns_sound_sets, ns_param_sets, ns_sid
+	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param
+
+def export_dataset(ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid):
+
+	np.savez(join(cf.DATASET_DIR,'dataset.npz'), 
+		ns_audio_data=ns_audio_data, 
+		ns_aggregate_sound=ns_aggregate_sound,
+		ns_aggregate_param=ns_aggregate_param,
+		ns_sid = ns_sid)
+
 
 def reset(*args):
 	try: 
@@ -348,13 +341,19 @@ def reset(*args):
 	except:
 		print('[INFO] Folder Already Empty')
 
-def clean_folder():
+def clean_folder(*args):
 
 	try: 
-		for folder in ['speaker', 'ges', 'feedback']:
+		for folder in args:
 			shutil.rmtree(join(cf.DATASET_DIR, folder))
 	except:
 		print('[INFO] Folder Already Empty')
+
+def clean_up_file():
+	if cf.CLEAN_FILE:
+		clean_folder('speaker', 'ges', 'feedback')
+	if cf.CLEAN_SOUND:
+		clean_folder('sound')
 
 def check_file_exist(*args):
 
@@ -398,19 +397,18 @@ def main():
 			predefined_syllables=predefined_syllables, 
 			syllable_labels=syllable_labels)
 
-	global_time = time()
+	start_time = time()
+	timestamp = datetime.now().strftime("%Y %B %d %H:%M")
 	split_counter = 1
+
+	# load state if exist
+	print('[INFO] Loading program states')
+	speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param = load_state()
 
 	while(split_counter <= cf.N_SPLIT):
 
-		print('\n\n------------------------------------------')
-		print('Step %s/%d'%(split_counter,cf.N_SPLIT))
-		print('------------------------------------------\n\n')
-		
-		# load state if exist
-		print('[INFO] Loading program states')
-		speaker_idx, ges_idx, sound_idx, total_speaker_sid, entire_sound_sets, total_aggregate_param, ns_sound_sets, ns_param_sets, ns_sid = load_state()
-		
+		print('------------------------------------------')
+		print('[INFO] Step %s/%d'%(split_counter,cf.N_SPLIT))		
 		# main generator algorithm
 		print('[INFO] Generating random parameters')
 		batch_gen_param = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefined_syllables, total_aggregate_param)	
@@ -424,72 +422,76 @@ def main():
 		ges_filenames, ges_idx = generate_gesture_file(len(batch_gen_param), ges_idx)
 		print('[INFO] Generating sound')
 		sound_sets, sound_idx = generate_sound(speaker_filenames, ges_filenames, sound_idx)
-		print('[INFO] Loading audio data')
-		audio_data = load_audio_from_list(sound_sets, sample_rate=16000, parent_dir=join(cf.DATASET_DIR, 'sound'))
-		print('[INFO] Filtering silent audio')
-		non_silent_sound_sets, non_silent_param_sets, non_silent_sid, silent_count = filter_silent_sound(audio_data, sound_sets,batch_gen_param, speaker_sid, cf.FILTER_THRES)
 		
-		print('[INFO] Saving state')
 		# store data in main list
 		total_aggregate_param += batch_gen_param
 		total_speaker_sid += speaker_sid
-		entire_sound_sets += sound_sets
-		
-		ns_sound_sets += non_silent_sound_sets
-		ns_param_sets += non_silent_param_sets
-		ns_sid += non_silent_sid
+		total_aggregate_sound += sound_sets
  
 		# save data
-		save_state(speaker_idx, ges_idx, sound_idx, 
+		print('[INFO] Saving state')
+		save_state(speaker_idx, 
+			ges_idx, 
+			sound_idx, 
 			total_speaker_sid, 
-			entire_sound_sets, 
-			total_aggregate_param, 
-			ns_sound_sets, 
-			ns_param_sets,
-			ns_sid)
+			total_aggregate_sound, 
+			total_aggregate_param)
 		
-		print('\n\n------------------------------------------')
-		print('Successfully export data')
-		print('Block sound found: ', silent_count)
-		print('End of step %s/%d'%(split_counter,cf.N_SPLIT))
-		print('------------------------------------------\n\n')
+		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
 		split_counter += 1
 
+	print('[INFO] Loading audio data for filtering')
+	audio_data = load_audio_from_list(total_aggregate_sound, sample_rate=cf.AUDIO_SAMPLE_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
+	print('[INFO] Filtering silent audio')
+	ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid, silent_count = filter_silent_sound(audio_data, 
+		total_aggregate_sound, total_aggregate_param, total_speaker_sid, cf.FILTER_THRES)
+	print('[INFO] Export dataset')
+	export_dataset(ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid)
+	# clean file
+	clean_up_file()
 	# Successfully generate
-
-	if cf.CLEAN_FILE:
-		print('[INFO] Cleansing')
-		clean_folder()
-
-
-	print('Successfully generated audio data')
-	print('[Time: %.3fs]'%(time()-global_time))
+	print('[INFO] Successfully generated audio data')
+	print('[INFO] Silent sound found: ', silent_count)
+	total_time = time()-start_time
+	print('[Time: %.3fs]'%total_time)
 
 	# Log report
-	if os.path.isfile(cf.DATA_LOG_FILE):
-		log = open(cf.DATA_LOG_FILE, 'a')
+	log_filepath = join(cf.DATASET_DIR, 'data_description.txt')
+	if os.path.isfile(log_filepath):
+		log = open(log_filepath, 'a')
 	else:
-		log = open(cf.DATA_LOG_FILE, 'w')
+		log = open(log_filepath, 'w')
 		
 	log.write('\n------------------------------------------\n')
 	log.write('DATASET: %s\n'%cf.DATASET_NAME)
-	if not cf.CONT: log.write('Generated Date: %s\n'%datetime.now().strftime("%Y %B %d %H:%M"))
-	if cf.CONT: log.write('Modified Date: %s\n'%datetime.now().strftime("%Y %B %d %H:%M"))
+	log.write('Generated Date: %s\n'%timestamp) if not cf.CONT else log.write('Modified Date: %s\n'%timestamp)
 	log.write('Data Description: %s\n'%cf.DATA_DESCRIPTION)
-	log.write('Di Syllable Data: %s\n'%str(cf.DI_SYLLABLE))
+	log.write('Disyllable Vowel: %s\n'%str(cf.DI_SYLLABLE))
 	log.write('Dataset Directory: %s\n'%cf.DATASET_DIR)
+	log.write('Total Generated Time: %s\n'%total_time)
 	log.write('------------------------------------------\n')
-	log.write('CONFIGURATIONS\n')
+	log.write('METADATA\n')
 	log.write('Data size: %s\n'%cf.DATASIZE)
-	log.write('Sampling step: %s\n'%cf.SAMPLING_STEP)
-	log.write('Default parameter used: %s\n'%cf.PREDEFINE_PARAM_FILE)
-	log.write('Simulated speaker scale: %s\n'%cf.SPEAKER_N)
+	log.write('Epoch/Split: %s/%s\n'%(split_counter,cf.N_SPLIT))
+	log.write('Non silent param: %s\n'%str(ns_aggregate_param).shape)
+	log.write('Non silent sound: %s\n'%str(ns_aggregate_sound).shape)
+	log.write('Non audio data: %s\n'%str(ns_audio_data).shape)
+	log.write('Non speaker id: %s\n'%str(ns_sid).shape)
 	log.write('------------------------------------------\n')
-	log.write('Entire param set: %s\n'%str(np.array(total_aggregate_param).shape))
-	log.write('Entire sound set: %s\n'%str(np.array(entire_sound_sets).shape))
-	log.write('Non silent audio: %s\n'%str(np.array(ns_sound_sets).shape))
-	log.write('Non silent labels: %s\n'%str(np.array(ns_param_sets).shape))
+	log.write('HYPERPARAMETER\n')
+	log.write('FILTER_THRES: %s\n'%cf.FILTER_THRES)
+	log.write('SAMPLING_STEP: %s\n'%cf.SAMPLING_STEP)
+	log.write('MIN_MAX_PERCENT_CHANGE: %s\n'%cf.MIN_MAX_PERCENT_CHANGE)
+	log.write('RAMDOM_PARAM_NOISE_PROB: %s\n'%cf.RAMDOM_PARAM_NOISE_PROB)
+	log.write('AUDIO_SAMPLE_RATE: %s\n'%cf.AUDIO_SAMPLE_RATE)
+	log.write('PREDEFINE_PARAM_FILE: %s\n'%cf.PREDEFINE_PARAM_FILE)
+	log.write('SPEAKER_N: %s\n'%cf.SPEAKER_N)
 	log.write('\n------------------------------------------\n')
+	log.write('CONFIGURATIONS\n')
+	log.write('Replace Folder: %s\n'%cf.REPLACE_FOLDER)
+	log.write('Clean Folder: %s\n'%cf.CLEAN_FILE)
+	log.write('Clean Sound: %s\n'%cf.CLEAN_SOUND)
+	log.write('NJOB: %s\n'%cf.NJOB)
 
 if __name__ == '__main__':
 	main()
