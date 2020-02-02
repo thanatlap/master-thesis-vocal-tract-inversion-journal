@@ -1,24 +1,10 @@
-'''
-Modify
-[15 Jan 2020]:
-- Change min range in uniform random from 0.001 to 0.005
-- Change max range in uniform random from 0.5 to 0.99
-- In randomize param, change default sampling size from 0.025 to 0.01
-
-[05 Nov 2019]:
-- in randomize_by_percent_change function, the highest percent change is adjust from 1 to 0.5
-  and the lowest percent change is 0.001
-- remove randomize_by_weight_warping function
-- in randomize_params function, add articulatory param 21, 22, 23 to have a fix value of -0.05 (MS parameters)
-'''
-
 import numpy as np
 import math
 
-def randomize_by_percent_change(predefine_params, from_idx, to_idx):
-	return [((predefine_params[to_idx][i] - predefine_params[from_idx][i])*np.random.uniform(0.01, high=0.25)) + predefine_params[from_idx][i] for i in  range(predefine_params.shape[1])]
+def randomize_by_percent_change(predefine_params, from_idx, to_idx, min_percent, max_percent):
+	return [((predefine_params[to_idx][i] - predefine_params[from_idx][i])*np.random.uniform(min_percent, high=max_percent)) + predefine_params[from_idx][i] for i in  range(predefine_params.shape[1])]
 
-def randomize_params(predefine_params, param_high, param_low, sampling_step=0.01):
+def randomize_noise_params(predefine_params, param_high, param_low, sampling_step=0.01):
 
 	'''
 	Randomly sampling the parameter.

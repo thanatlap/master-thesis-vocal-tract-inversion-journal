@@ -9,6 +9,8 @@ FILTER_THRES = 0.9
 #Config
 SAMPLING_STEP = 0.01
 NJOB = 6
+MIN_MAX_PERCENT_CHANGE = [0.01, 0.30] # min max
+RAMDOM_PARAM_NOISE_PROB = 0.005
 
 #Data
 DATASET_NAME = 'd_dataset_7'
@@ -19,7 +21,6 @@ DATASET_DIR = '../data/'+DATASET_NAME
 VTL_FILE = 'VTL/VocalTractLabApi.dll'
 TEMPLATE_DIR = 'templates'
 PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_set4.csv'
-# PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_small_u_ver.csv'
 
 # speaker simulation
 ADULT_SPEAKER_FILE = TEMPLATE_DIR+'/adult_speaker.txt'
