@@ -1,3 +1,0 @@
-generate new monosyllabic data with less timeframe (sample_rate=8000)
-
-using m_dataset_3_u as dataset
