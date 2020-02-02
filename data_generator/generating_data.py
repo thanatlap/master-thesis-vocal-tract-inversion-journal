@@ -1,14 +1,8 @@
-import ctypes
-import os
-import sys
-from os.path import join
+import ctypes, os, sys, shutil, math, itertools, librosa
+from os.path import join, exists
 from glob import glob
-import shutil
 import numpy as np
 import pandas as pd
-import math
-import itertools
-import librosa
 from scipy import spatial
 from scipy.spatial.distance import euclidean
 from time import time
@@ -16,13 +10,17 @@ from datetime import datetime
 import multiprocessing as mp
 import config as cf
 import simulate_speaker as ss
-import random_param as rparm 
+import random_param as rand_param 
 from functools import partial
 
-param_high = ss.adult_high
-param_low = ss.adult_low
-param_neutral = ss.adult_neutral
+PARAM_HIGH = ss.adult_high
+PARAM_LOW = ss.adult_low
 
+PARAM = 'PARAM'
+
+# fix error from numpy where np load allow_pickle set to False as default
+np_load_old = partial(np.load)
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 def initiate_VTL():
 	if os.path.exists(cf.VTL_FILE):
@@ -40,18 +38,26 @@ def load_file_csv(file):
 	Load data from csv file.
 	'''
 	if os.path.exists(file):
-		return pd.read_csv(file).values
+		return pd.read_csv(file)
 	else:
 		raise ValueError('File %s not found!'%file)
+
+def transform_param_data_to_npy(param_sets):
+
+	syllable_labels = param_set[PARAM].values
+	param_set = param_set.drop([PARAM], axis=1)
+	syllable_params = param_set.values
+	param_names = param_set.columns.values
+	return syllable_params, syllable_labels
 
 def random_param_from_syllable_pair(from_idx, to_idx, predefined_syllables):
 	'''
 	add some noise from  randomize params function
 	'''
 	if np.random.uniform(0, high=1) < cf.RAMDOM_PARAM_NOISE_PROB:
-		random_param = rparm.randomize_noise_params(predefined_syllables, param_high, param_low, sampling_step=cf.SAMPLING_STEP)
+		random_param = rand_param.randomize_noise_params(predefined_syllables, PARAM_HIGH, PARAM_LOW, sampling_step=cf.SAMPLING_STEP)
 	else:
-		random_param = rparm.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, MIN_MAX_PERCENT_CHANGE[0], MIN_MAX_PERCENT_CHANGE[1])
+		random_param = rand_param.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, MIN_MAX_PERCENT_CHANGE[0], MIN_MAX_PERCENT_CHANGE[1])
 	return random_param
 
 def randomly_select_syllable_pair(predefined_syllables):
@@ -96,18 +102,12 @@ def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggreg
 
 	while(batch_size > 0):
 		random_param = [ randomly_select_syllable_pair(predefined_syllables) for i in range(batch_size)]
+		print('[INFO] Check Duplicated Item')
 		random_param, batch_size = check_duplicate_and_remove(random_param, total_aggregate_param)
 		batch_gen_param.extend(random_param)
 		if batch_size > 0: print('[INFO] Re-Generated %s data'%batch_size)
 	
 	return batch_gen_param
-
-def repeat_label_by_n_speaker(batch_gen_param, n_speaker):
-	'''
-	To generate the same sound for different simulated speaker
-	the parameter is being repeat by number of speaker 
-	'''
-	return [x for item in batch_gen_param for x in itertools.repeat(item, n_speaker)]
 
 def scale_parameter(params, sid):
 	'''
@@ -115,9 +115,9 @@ def scale_parameter(params, sid):
 	scale of a new simulate speaker vocaltract parameter
 	'''
 	# scale to relative position
-	scale_param = (params - param_low)/(param_high - param_low)
+	scale_param = (params - PARAM_LOW)/(PARAM_HIGH - PARAM_LOW)
 	# load min and max param of a simulated speaker
-	sim_param = np.load(join(cf.SPKEAKER_SIM_DIR, 'speaker_param%s.npz'%sid))
+	sim_param = np.load(join(cf.DATASET_DIR, 'simulated_speakers', 'speaker_param_s%s.npz'%sid))
 	sim_high = sim_param['high']
 	sim_low = sim_param['low']
 	# scale back to the position of simulated speaker
@@ -162,7 +162,7 @@ def generate_speaker_file(batch_gen_param, speaker_sid, speaker_idx):
 
 	for idx, params in enumerate(batch_gen_param):
 		# path to speaker head file
-		speaker_head_file = join(cf.SPKEAKER_SIM_DIR, 'speaker_s%s.speaker'%speaker_sid[idx])
+		speaker_head_file = join(cf.DATASET_DIR,'simulated_speakers', 'speaker_s%s_partial.speaker'%speaker_sid[idx])
 
 		# check if speaker head file is exist
 		if os.path.isfile(speaker_head_file): 
@@ -184,7 +184,7 @@ def generate_gesture_file(n_ges, ges_idx):
 	# keep tract of ges id
 	ges_idx += n_ges
 	for file in ges_filenames:
-		ss.create_ges(join(cf.DATASET_DIR, 'ges',file), cf.DI_SYLLABLE)
+		ss.create_ges(join(cf.DATASET_DIR, 'ges',file), cf.DI_SYLLABLE, cf.GES_HEAD)
 	return ges_filenames, ges_idx
 
 def ges_to_wav(output_file_set, speaker_file_list, gesture_file_list, feedback_file_list, output, job_num):
@@ -342,14 +342,11 @@ def load_state():
 	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, entire_sound_sets, total_aggregate_param, ns_sound_sets, ns_param_sets, ns_sid
 
 def reset(*args):
-	'''
-	reset state if not continue
-	'''
 	try: 
 		for folder in args:
 			shutil.rmtree(folder)
 	except:
-		print('Folder Already Empty')
+		print('[INFO] Folder Already Empty')
 
 def clean_folder():
 
@@ -357,33 +354,57 @@ def clean_folder():
 		for folder in ['speaker', 'ges', 'feedback']:
 			shutil.rmtree(join(cf.DATASET_DIR, folder))
 	except:
-		print('Folder Already Empty')
+		print('[INFO] Folder Already Empty')
 
-def main():
-	'''
-	main function to run data generator
-	'''
-	# reset state if not continue generating data.
-	if not cf.CONT:
+def check_file_exist(*args):
+
+	for file in args:
+		if not os.path.exists(filename):
+			raise ValueError('[ERROR] File %s does not exist'%file)
+
+def check_is_continue_or_replace():
+
+	if cf.CONT:
+		print('[INFO] Continue generating data')
+	elif not cf.CONT and cf.REPLACE_FOLDER:
 		print('[INFO] Reset state')
 		reset(cf.DATASET_DIR)
 	else:
-		print('[INFO] Continue generating data')
+		index = 1
+		while exists(cf.DATASET_DIR):
+			index += 1 # if folder already exist, add (2) at the end and so on
+			cf.DATASET_DIR = cf.DATASET_DIR+'(%s)'%index
+		os.makedirs(cf.DATASET_DIR)
 
-	# simulated speaker vocaltract from given scale list.
-	for sid, scale in enumerate(cf.SPEAKER_N):
-		ss.simulate_speaker(scale, sid)
-
-	global_time = time()
+def main():
+	# check for error
+	check_file_exist(cf.VTL_FILE, cf.PREDEFINE_PARAM_FILE, cf.ADULT_SPEAKER_HEADER_FILE,
+		cf.INFANT_SPEAKER_HEADER_FILE, cf.TAIL_SPEAKER, cf.LABEL_NAME, cf.GES_HEAD)
+	# check if continue or replace the main output folder
+	check_is_continue_or_replace()
 
 	# load predefine parameter
-	predefined_syllables = load_file_csv(cf.PREDEFINE_PARAM_FILE)
-	counter = 1
+	predefined_data = load_file_csv(cf.PREDEFINE_PARAM_FILE)
+	predefined_syllables, syllable_labels = transform_param_data_to_npy(predefined_data)
 
-	while(counter <= cf.N_SPLIT):
+	# simulated speaker vocaltract from given scale list.
+	# note that the first item on list must be 0.0
+	for sid, scale in enumerate(cf.SPEAKER_N):
+		ss.simulate_speaker(scale, sid, 
+			adult_header_file=cf.ADULT_SPEAKER_HEADER_FILE, 
+			infant_header_file=cf.INFANT_SPEAKER_HEADER_FILE, 
+			speaker_tail_file=cf.TAIL_SPEAKER, 
+			dataset_folder=cf.DATASET_DIR,
+			predefined_syllables=predefined_syllables, 
+			syllable_labels=syllable_labels)
+
+	global_time = time()
+	split_counter = 1
+
+	while(split_counter <= cf.N_SPLIT):
 
 		print('\n\n------------------------------------------')
-		print('Step %s/%d'%(counter,cf.N_SPLIT))
+		print('Step %s/%d'%(split_counter,cf.N_SPLIT))
 		print('------------------------------------------\n\n')
 		
 		# load state if exist
@@ -430,9 +451,9 @@ def main():
 		print('\n\n------------------------------------------')
 		print('Successfully export data')
 		print('Block sound found: ', silent_count)
-		print('End of step %s/%d'%(counter,cf.N_SPLIT))
+		print('End of step %s/%d'%(split_counter,cf.N_SPLIT))
 		print('------------------------------------------\n\n')
-		counter += 1
+		split_counter += 1
 
 	# Successfully generate
 
