@@ -314,6 +314,7 @@ def load_state():
 		total_speaker_sid = data['total_speaker_sid'].tolist()
 		total_aggregate_sound = data['total_aggregate_sound'].tolist()
 		total_aggregate_param = data['total_aggregate_param'].tolist()
+		print('[INFO] Load from previous state')
 		
 	except:
 		print('[INFO] State not found, initialize new variable')
@@ -351,7 +352,8 @@ def reset(*args):
 	try: 
 		for folder in args:
 			shutil.rmtree(folder)
-	except:
+	except Exception as e: 
+		print(e)
 		print('[INFO] Folder Already Empty')
 
 def clean_folder(*args):
@@ -378,16 +380,20 @@ def check_is_continue_or_replace():
 
 	if cf.CONT:
 		print('[INFO] Continue generating data')
-		if not exists(cf.DATASET_DIR, 'dataset.npz'):
+		if not exists(join(cf.DATASET_DIR, 'dataset.npz')):
 			print('[WARNING] dataset.npz is not found!')
 	elif not cf.CONT and cf.REPLACE_FOLDER:
 		print('[INFO] Reset state')
+		print(cf.DATASET_DIR)
 		reset(cf.DATASET_DIR)
 	else:
 		index = 1
-		while exists(cf.DATASET_DIR):
-			index += 1 # if folder already exist, add (2) at the end and so on
-			cf.DATASET_DIR = cf.DATASET_DIR+'(%s)'%index
+		while True:
+			dataset_dir = cf.DATASET_DIR
+			if exists(dataset_dir):
+				dataset_dir = cf.DATASET_DIR+'_%s'%index
+				index += 1
+			cf.DATASET_DIR = dataset_dir
 		os.makedirs(cf.DATASET_DIR)
 
 def main():
@@ -411,7 +417,9 @@ def main():
 	speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status = load_state()
 
 	if prev_export_status == 1:
-		total_aggregate_param += np.load(join(cf.DATASET_DIR,'dataset.npz'))['ns_aggregate_param'].tolist()
+		prev_ns_aggregate_param = np.load(join(cf.DATASET_DIR,'dataset.npz'))['ns_aggregate_param'].tolist()
+	else:
+		prev_ns_aggregate_param = []
 
 	while(split_counter < cf.N_SPLIT):
 		split_counter += 1
@@ -419,7 +427,7 @@ def main():
 		print('[INFO] Step %s/%d'%(split_counter,cf.N_SPLIT))		
 		# main generator algorithm
 		print('[INFO] Generating random parameters')
-		batch_gen_param = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefined_syllables, total_aggregate_param)	
+		batch_gen_param = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefined_syllables, total_aggregate_param+prev_ns_aggregate_param)	
 		print('[INFO] Generating list of speaker id')
 		speaker_sid = get_speaker_sid(batch_gen_param, n_speaker=len(cf.SPEAKER_N))
 		print('[INFO] Adjusting vocaltract parameters')
@@ -444,7 +452,7 @@ def main():
 			total_speaker_sid, 
 			total_aggregate_sound, 
 			total_aggregate_param,
-			prev_export_status=0)
+			prev_export_status)
 		
 		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
 		
@@ -454,10 +462,14 @@ def main():
 	batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count = filter_silent_sound(audio_data, total_aggregate_param, total_speaker_sid)
 	
 	if cf.CONT:
-		ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid = import_dataset()
+		ns_audio_data, ns_aggregate_param, ns_sid = import_dataset()
 		ns_audio_data += batch_ns_audio
 		ns_aggregate_param += batch_ns_param
 		ns_sid += batch_ns_sid
+	else:
+		ns_audio_data = batch_ns_audio
+		ns_aggregate_param = batch_ns_param
+		ns_sid = batch_ns_sid
 
 	print('[INFO] Export dataset')
 	export_dataset(ns_audio_data, ns_aggregate_param, ns_sid)
@@ -487,10 +499,9 @@ def main():
 	log.write('METADATA\n')
 	log.write('Data size: %s\n'%cf.DATASIZE)
 	log.write('Epoch/Split: %s/%s\n'%(split_counter,cf.N_SPLIT))
-	log.write('Non silent param: %s\n'%str(ns_aggregate_param.shape))
-	log.write('Non silent sound: %s\n'%str(ns_aggregate_sound.shape))
-	log.write('Non audio data: %s\n'%str(ns_audio_data.shape))
-	log.write('Non speaker id: %s\n'%str(ns_sid.shape))
+	log.write('Non silent param: %s\n'%str(np.array(ns_aggregate_param).shape))
+	log.write('Non audio data: %s\n'%str(np.array(ns_audio_data).shape))
+	log.write('Non speaker id: %s\n'%str(np.array(ns_sid).shape))
 	log.write('Silent sound count: %s\n'%silent_count)
 	log.write('------------------------------------------\n')
 	log.write('HYPERPARAMETER\n')
