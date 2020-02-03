@@ -13,15 +13,10 @@ The predict dataset does not have the label
 
 '''
 import numpy as np
-import librosa 
+import librosa, os, math, random, itertools, argparse
 from librosa import feature
 import matplotlib.pyplot as plt
-import os
-import math
 from os.path import join
-import random
-import itertools
-import argparse
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from datetime import datetime
