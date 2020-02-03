@@ -169,12 +169,12 @@ def formant_chart(datapoint_df,  dir_path, experiment_num, is_disyllable, label_
 	else:
 		plot_formant_chart(datapoint_df, custome_reindex, dir_path, is_disyllable)
 
-def generate_eval_result(experiment_num, is_disyllable, mode='eval', label_set=1):
+def generate_eval_result(experiment_num, is_disyllable, mode='eval', label_set=1, output_path=None):
 
 	if label_set not in [1,2]:
 		raise ValueError('Label set %s not valid! [1:eval, 2:predict] (16 Jan 2020)'%str(label_set)) 
 
-	dir_path = 'result/'+mode+'_'+str(experiment_num)+'/formant/'
+	dir_path = 'result/'+mode+'_'+str(experiment_num)+'/formant/' if output_path==None else output_path
 
 	print('[INFO] read data')
 	formant_df = pd.read_csv(join(dir_path, 'formant_df.csv'))

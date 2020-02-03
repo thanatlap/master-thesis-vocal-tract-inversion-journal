@@ -108,7 +108,7 @@ def main(args):
 	# log result
 	res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)
 	
-	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2)
+	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2, output_path=join(output_path,'formant'))
 
 	log = open(join(output_path,'description.txt'),"w")
 	log.write('Date %s\n'%str(datetime.now().strftime("%Y-%B-%d %H:%M")))
