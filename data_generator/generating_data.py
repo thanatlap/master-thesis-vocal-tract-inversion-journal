@@ -461,7 +461,7 @@ def main():
 	print('[INFO] Filtering silent audio')
 	batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count = filter_silent_sound(audio_data, total_aggregate_param, total_speaker_sid)
 	
-	if cf.CONT:
+	if prev_export_status:
 		ns_audio_data, ns_aggregate_param, ns_sid = import_dataset()
 		ns_audio_data += batch_ns_audio
 		ns_aggregate_param += batch_ns_param
