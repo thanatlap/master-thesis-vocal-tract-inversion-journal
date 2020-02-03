@@ -9,25 +9,25 @@ def random_sampling_data(audio_data, labels, random_n_sample):
 	audio_data_sub, labels_sub = zip(*random.sample(list(zip(audio_data, labels)), int(random_n_sample)))
 	return np.array(audio_data_sub), np.array(labels_sub)
 
-def strech_audio(audio_data, sr):
+def strech_audio(audio_data):
 	'''
 	strech (faster or slower) audio data which vary by 0.8 and 1.5
 	'''
 	return [ librosa.effects.time_stretch(data, rate=np.random.uniform(low=0.8,high=1.1)) for data in audio_data]
 
-def amplify_value(audio_data, sr):
+def amplify_value(audio_data):
 	'''
 	amplify value by 1.5 to 3 time the original data
 	'''
 	return np.array([ data*np.random.uniform(low=1.5,high=3) for data in audio_data])
 
-def add_white_noise(audio_data, sr):
+def add_white_noise(audio_data):
 	'''
 	add white noise
 	'''
 	return np.array([ data + np.random.uniform(low=0.001,high=0.01)*np.random.randn(data.shape[0]) for data in audio_data ])
 
-def random_crop_out(audio_data, sr):
+def random_crop_out(audio_data):
     '''
     random crop some part of the data out
     '''
@@ -45,6 +45,7 @@ def random_crop_out(audio_data, sr):
         aug_data.append(data)
     return np.array(aug_data)
 
-def change_pitch(audio_data, sr):
-	return np.array([librosa.effects.pitch_shift(data, sr=sr, n_steps=np.random.uniform(low=-1.0,high=4)) for data in audio_data])
-	
+def init_change_pitch(sr):
+	def change_pitch(audio_data):
+		return np.array([librosa.effects.pitch_shift(data, sr=sr, n_steps=np.random.uniform(low=-1.0,high=4)) for data in audio_data])
+	return change_pitch

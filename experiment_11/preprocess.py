@@ -31,16 +31,17 @@ import lib.dev_augmentation as dev_aug
 TRAIN_MODE = 'training'
 EVAL_MODE = 'eval'
 PREDICT_MODE = 'predict'
+ORINIAL_SAMPLE_RATE = 22050
 
 np_load_old = partial(np.load)
 np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 def load_audio(audio_paths):
 	# force to load audio on 44100 sample rate, this rate can be resample down
-	return np.array([ librosa.load(file, sr=44100)[0] for file in audio_paths ])
+	return np.array([ librosa.load(file, sr=ORINIAL_SAMPLE_RATE)[0] for file in audio_paths ])
 
 def import_data(data_path, mode):
-
+	# import data, note that if mode=predict, labels is [].
 	if mode == TRAIN_MODE:
 		data = np.load(join(data_path,'dataset.npz'))
 		audio_data = data['ns_audio_data']
@@ -129,6 +130,9 @@ def export_sample(feature, label, dest, sampling_num=10, filename='sample_data.n
 			features = feature[samp],
 			labels= label[samp])
 
+def resample_audio_data(audio_data, reample_rate):
+	return [librosa.core.resample(data, ORINIAL_SAMPLE_RATE, reample_rate) for data in audio_data]
+
 def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
 	audio_length = math.floor(audio_length*0.5) if is_disyllable else audio_length
@@ -151,7 +155,7 @@ def transform_delta(mfcc):
 	'''
 	return np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=1)
 
-def augmentation(audio_data, labels, augment_samples, func, sr, is_export_sample):
+def augmentation(audio_data, labels, augment_samples, func, is_export_sample):
 	'''
 	the function to perform data augmentation
 	First, the data is being sampling both labels and audio data
@@ -159,7 +163,7 @@ def augmentation(audio_data, labels, augment_samples, func, sr, is_export_sample
 	Then, the data is being concated to original data (both audio and labels)
 	'''
 	audio_data_sub, labels_sub = dev_aug.random_sampling_data(audio_data, labels, random_n_sample=augment_samples)
-	aug_data = func(audio_data_sub, sr)
+	aug_data = func(audio_data_sub)
 	audio_data = np.concatenate((audio_data, aug_data), axis=0)
 	labels = np.concatenate((labels, labels_sub), axis=0)
 
@@ -238,17 +242,21 @@ def main(args):
 		print('[INFO] default output directory is used')
 		args.output_path = 'prep_data'
 
-	print('[INFO] Test size: %s'%str(args.split_size))
-	print('[INFO] Applied augment: %s'%str(is_augment))
-	print('[INFO] Augment ratio sample: %s'%str(args.augment_samples))
-	print('[INFO] Sample rate: %s'%str(args.sample_rate))
-	print('[INFO] Feauture normalize mode: %s'%str(args.feature_normalize))
-	print('[INFO] Label normalize mode: %s'%str(args.label_normalize))
+	print('[INFO] CONFIG DETAIL')
+	print('--Test size: %s'%str(args.split_size))
+	print('--Applied augment: %s'%str(is_augment))
+	print('--Augment ratio sample: %s'%str(args.augment_samples))
+	print('--Resample rate: %s'%str(args.resample_rate))
+	print('--Feauture normalize mode: %s'%str(args.feature_normalize))
+	print('--Label normalize mode: %s'%str(args.label_normalize))
 
-	# import data, note that if mode=predict, labels is [].
 	print('[INFO] Importing data')
 	audio_data, labels = import_data(args.data_path, mode=args.mode)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
+
+	if args.resample_rate != ORINIAL_SAMPLE_RATE:
+		print('[INFO] Resample audio sample rate')
+		audio_data = resample_audio_data(audio_data, reample_rate)
 
 	if args.mode != 'predict': 
 
@@ -263,7 +271,7 @@ def main(args):
 	p_preprocess_pipeline = partial(preprocess_pipeline,
 		mode=args.mode, 
 		is_disyllable=disyllable, 
-		sample_rate=args.sample_rate,
+		sample_rate=args.resample_rate,
 		is_train=False,
 		label_prep_mode = args.label_normalize,
 		feat_prep_mode = args.feature_normalize,
@@ -283,10 +291,9 @@ def main(args):
 			print('[INFO] Augmenting audio data')
 			# compute number of sample being augment based on training subset
 			augment_samples = int(args.augment_samples*X_train.shape[0])
-			p_augmentation = partial(augmentation, augment_samples=augment_samples, 
-				sr=args.augment_samples, is_export_sample=is_export_sample)
+			p_augmentation = partial(augmentation, augment_samples=augment_samples, is_export_sample=is_export_sample)
 
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.change_pitch)
+			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.init_change_pitch(args.resample_rate))
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.amplify_value)
 			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.add_white_noise)
 
@@ -338,7 +345,7 @@ def main(args):
 	log.write('Used Augmentation: %s\n'%str(is_augment))
 	log.write('Output_path: %s\n'%str(args.output_path))
 	log.write('Augment_Frac: %s\n'%str(args.augment_samples))
-	log.write('Sample_Rate: %s\n'%str(args.sample_rate))
+	log.write('Sample_Rate: %s\n'%str(args.resample_rate))
 	log.write('Test size (in percent): %s\n'%str(args.split_size))
 	log.write('Feature normalize mode: %s\n'%str(args.feature_normalize))
 	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
@@ -353,7 +360,7 @@ if __name__ == '__main__':
 	parser.add_argument('--is_augment', dest='is_augment', default='True', help='proceed data augmentation', type=str)
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
-	parser.add_argument("--sample_rate", help="audio sample rate", type=int, default=16000)
+	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
