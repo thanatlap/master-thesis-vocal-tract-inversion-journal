@@ -10,7 +10,6 @@ from datetime import datetime
 import multiprocessing as mp
 import config as cf
 import simulate_speaker as ss
-import util_prevent_print as upp
 import random_param as rand_param 
 from functools import partial
 
@@ -194,7 +193,6 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file_list, feedback_f
 	'''
 	# initialize vocaltractlab application
 	VTL = initiate_VTL()
-	upp.stdout_redirected()
 	# compute in c 
 	for i, output_file in enumerate(output_file_set):
 		speaker_file_name = ctypes.c_char_p(str.encode(speaker_file_list[i]))
@@ -269,10 +267,10 @@ def filter_silent_sound(audio_data, total_aggregate_sound, total_aggregate_param
 
 	idx_list = is_nonsilent(audio_data, threshold)
 	# convert to np array to use subset by list feature
+	ns_audio_data = np.array(audio_data)[idx_list]
 	ns_aggregate_sound = np.array(total_aggregate_sound)[idx_list]
 	ns_aggregate_param = np.array(total_aggregate_param)[idx_list]
 	ns_sid = np.array(total_speaker_sid)[idx_list]
-	ns_audio_data = np.array(audio_data)[idx_list]
 	# count silent sound
 	silent_count = len(total_aggregate_sound) - len(idx_list)
 	
@@ -341,9 +339,9 @@ def clean_folder(*args):
 
 def clean_up_file():
 	if cf.CLEAN_FILE:
-		clean_folder('speaker', 'ges', 'feedback')
+		clean_folder( 'feedback')
 	if cf.CLEAN_SOUND:
-		clean_folder('sound')
+		clean_folder('speaker', 'ges', 'sound')
 
 def check_file_exist(*args):
 
@@ -389,14 +387,14 @@ def main():
 
 	start_time = time()
 	timestamp = datetime.now().strftime("%Y %B %d %H:%M")
-	split_counter = 1
+	split_counter = 0
 
 	# load state if exist
 	print('[INFO] Loading program states')
 	speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param = load_state()
 
-	while(split_counter <= cf.N_SPLIT):
-
+	while(split_counter < cf.N_SPLIT):
+		split_counter += 1
 		print('------------------------------------------')
 		print('[INFO] Step %s/%d'%(split_counter,cf.N_SPLIT))		
 		# main generator algorithm
@@ -428,7 +426,7 @@ def main():
 			total_aggregate_param)
 		
 		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
-		split_counter += 1
+		
 
 	print('[INFO] Loading audio data for filtering')
 	audio_data = load_audio_from_list(total_aggregate_sound, sample_rate=cf.AUDIO_SAMPLE_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
@@ -441,7 +439,7 @@ def main():
 	clean_up_file()
 	# Successfully generate
 	print('[INFO] Successfully generated audio data')
-	print('[INFO] Silent sound found: ', silent_count)
+	print('[INFO] Silent sound found: %s'%silent_count)
 	total_time = time()-start_time
 	print('[Time: %.3fs]'%total_time)
 
@@ -467,6 +465,7 @@ def main():
 	log.write('Non silent sound: %s\n'%str(ns_aggregate_sound.shape))
 	log.write('Non audio data: %s\n'%str(ns_audio_data.shape))
 	log.write('Non speaker id: %s\n'%str(ns_sid.shape))
+	log.write('Silent sound count: %s\n'%silent_count)
 	log.write('------------------------------------------\n')
 	log.write('HYPERPARAMETER\n')
 	log.write('FILTER_THRES: %s\n'%cf.FILTER_THRES)

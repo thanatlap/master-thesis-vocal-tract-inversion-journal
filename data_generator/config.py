@@ -1,14 +1,14 @@
 # Data generator control
 DI_SYLLABLE = True
 CONT = False
-REPLACE_FOLDER = True
-N_SPLIT = 2
-CLEAN_FILE = False
+REPLACE_FOLDER = False
+N_SPLIT = 20
+CLEAN_FILE = True
 CLEAN_SOUND = False
-NJOB = 2
+NJOB = 6
 
 # Data generator hyperparameter
-DATASIZE =10
+DATASIZE = 30000
 FILTER_THRES = 0.9
 SAMPLING_STEP = 0.01
 MIN_MAX_PERCENT_CHANGE = [0.01, 0.30] # min max
@@ -23,8 +23,8 @@ GES_F0_INIT_MIN_MAX = [80, 81] # min max
 GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_0'
-DATA_DESCRIPTION = 'Test Code'
+DATASET_NAME = 'd_dataset_8'
+DATA_DESCRIPTION = 'Generate Data using new refacotring code'
 DATASET_DIR = '../data/'+DATASET_NAME
 
 # required file
