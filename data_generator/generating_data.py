@@ -393,19 +393,26 @@ def check_is_continue_or_replace():
 			if exists(dataset_dir):
 				dataset_dir = cf.DATASET_DIR+'_%s'%index
 				index += 1
-			cf.DATASET_DIR = dataset_dir
+			else:
+				cf.DATASET_DIR = dataset_dir
+				break
 		os.makedirs(cf.DATASET_DIR)
 
 def main():
 	# check for error
+	print('[INFO] Check required file')
 	check_file_exist(cf.VTL_FILE, cf.PREDEFINE_PARAM_FILE, cf.ADULT_SPEAKER_HEADER_FILE,
 		cf.INFANT_SPEAKER_HEADER_FILE, cf.TAIL_SPEAKER, cf.GES_HEAD)
 	# check if continue or replace the main output folder
+	print('[INFO] Check continue or replace')
 	check_is_continue_or_replace()
 
 	# load predefine parameter
+	print('[INFO] Load csv predefined param template')
 	predefined_data = load_file_csv(cf.PREDEFINE_PARAM_FILE)
+	print('[INFO] Transform param to npy')
 	predefined_syllables, syllable_labels = transform_param_data_to_npy(predefined_data)
+	print('[INFO] Simulated speaker')
 	simulate_speaker_from_given_ratio(predefined_syllables, syllable_labels)
 
 	start_time = time()

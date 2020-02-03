@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_8/prep_exp11'
+DATASET_DIR = '../data/d_dataset_9/prep_exp11'
 
 #---------------------------------
 
@@ -25,7 +25,7 @@ OPT = 'AMSGRAD' # for record only
 OPT_NUM = 1
 
 # Training
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50

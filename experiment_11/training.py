@@ -177,14 +177,12 @@ def main(args):
 		model_name='undefined')
 
 	# baseline
-	if args.exp == 1: ptraining_fn(nn.inti_bilstm(), experiment_num=1, model_name='bilstm')
-	if args.exp == 3: ptraining_fn(nn.inti_embedded_cnn_bilstm(), experiment_num=3, model_name='embedded_cnn_bilstm')
-
+	if args.exp == 1: ptraining_fn(nn.inti_bilstm(), experiment_num=3, model_name='bilstm')
 	if args.exp == 2: 
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 5
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=2, model_name='cnn_bilstm')
+			experiment_num=4, model_name='cnn_bilstm')
 
 
 if __name__ == '__main__':
