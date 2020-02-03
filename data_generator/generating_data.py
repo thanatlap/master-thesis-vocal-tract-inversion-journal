@@ -270,25 +270,24 @@ def load_audio_from_list(sound_sets, sample_rate, parent_dir=''):
 	audio_paths = [join(parent_dir, file) for file in sound_sets]
 	return [ librosa.load(file, sr=sample_rate)[0] for file in audio_paths ]
 
-def is_nonsilent(audio_data, threshold):
+def is_nonsilent(audio_data):
 	'''
 	Çheck if the sound is silent sound. return a list of index of non silent audio sound.
 	'''
 	# if audio consist mostly non zero, indicating non silent sound
-	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > threshold*data.shape[0])]
+	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > cf.FILTER_THRES*data.shape[0])]
 
-def filter_silent_sound(audio_data, total_aggregate_sound, total_aggregate_param, total_speaker_sid, threshold = 0.8):
+def filter_silent_sound(audio_data, total_aggregate_param, total_speaker_sid):
 
-	idx_list = is_nonsilent(audio_data, threshold)
+	idx_list = is_nonsilent(audio_data)
 	# convert to np array to use subset by list feature and back to list for consistency
 	batch_ns_audio = np.array(audio_data)[idx_list].tolist()
-	batch_ns_sound = np.array(total_aggregate_sound)[idx_list].tolist()
 	batch_ns_param = np.array(total_aggregate_param)[idx_list].tolist()
 	batch_ns_sid = np.array(total_speaker_sid)[idx_list].tolist()
 	# count silent sound
-	silent_count = len(total_aggregate_sound) - len(idx_list)
+	silent_count = len(audio_data) - len(idx_list)
 	
-	return batch_ns_audio, batch_ns_sound, batch_ns_param, batch_ns_sid, silent_count
+	return batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count
 
 def save_state(speaker_idx, ges_idx, sound_idx, total_speaker_sid, 
 	total_aggregate_sound, total_aggregate_param, prev_export_status):
@@ -328,11 +327,10 @@ def load_state():
 		
 	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status
 
-def export_dataset(ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid):
+def export_dataset(ns_audio_data, ns_aggregate_param, ns_sid):
 
 	np.savez(join(cf.DATASET_DIR,'dataset.npz'), 
 		ns_audio_data=np.array(ns_audio_data), 
-		ns_aggregate_sound=np.array(ns_aggregate_sound),
 		ns_aggregate_param=np.array(ns_aggregate_param),
 		ns_sid = np.array(ns_sid))
 
@@ -341,15 +339,13 @@ def import_dataset():
 	try:
 		data = np.load(join(cf.DATASET_DIR,'dataset.npz'))
 		ns_audio_data = data['ns_audio_data'].tolist()
-		ns_aggregate_sound = data['ns_aggregate_sound'].tolist()
 		ns_aggregate_param = data['ns_aggregate_param'].tolist()
 		ns_sid = data['ns_sid'].tolist()
 	except:
 		ns_audio_data = []
-		ns_aggregate_sound = []
 		ns_aggregate_param = []
 		ns_sid = []
-	return ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid
+	return ns_audio_data, ns_aggregate_param, ns_sid
 
 def reset(*args):
 	try: 
@@ -452,23 +448,19 @@ def main():
 		
 		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
 		
-
 	print('[INFO] Loading audio data for filtering')
 	audio_data = load_audio_from_list(total_aggregate_sound, sample_rate=cf.AUDIO_SAMPLE_RATE, parent_dir=join(cf.DATASET_DIR, 'sound'))
-	
 	print('[INFO] Filtering silent audio')
-	batch_ns_audio, batch_ns_sound, batch_ns_param, batch_ns_sid, silent_count = filter_silent_sound(audio_data, 
-		total_aggregate_sound, total_aggregate_param, total_speaker_sid, cf.FILTER_THRES)
+	batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count = filter_silent_sound(audio_data, total_aggregate_param, total_speaker_sid)
 	
 	if cf.CONT:
 		ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid = import_dataset()
 		ns_audio_data += batch_ns_audio
-		ns_aggregate_sound += batch_ns_sound
 		ns_aggregate_param += batch_ns_param
 		ns_sid += batch_ns_sid
 
 	print('[INFO] Export dataset')
-	export_dataset(ns_audio_data, ns_aggregate_sound, ns_aggregate_param, ns_sid)
+	export_dataset(ns_audio_data, ns_aggregate_param, ns_sid)
 	# total_* is not required to continue generated data
 	save_state(speaker_idx,ges_idx,sound_idx,[],[],[], prev_export_status=1) 
 	clean_up_file()
