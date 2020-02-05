@@ -1,12 +1,12 @@
 # Data generator control
 DI_SYLLABLE = True
-CONT = False
+CONT = True
 REPLACE_FOLDER = False
-N_SPLIT = 40
+N_SPLIT = 20
 CLEAN_FILE = True
 CLEAN_SOUND = True
 NJOB = 6
-DATASIZE = 60000
+DATASIZE = 40000
 
 # Data generator hyperparameter
 FILTER_THRES = 0.9
