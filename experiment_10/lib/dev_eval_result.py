@@ -131,6 +131,10 @@ def change_label_set_1(datapoint_df):
 	datapoint_df.at['9', 'Label']= 'œ:'
 	datapoint_df.at['@', 'Label']= 'ə:'
 	datapoint_df.at['o', 'Label']= 'o:'
+	datapoint_df.at['a', 'Label']= 'a:'
+	datapoint_df.at['i', 'Label']= 'i:'
+	datapoint_df.at['e', 'Label']= 'e:'
+	datapoint_df.at['u', 'Label']= 'u:'
 	return datapoint_df
 
 def change_label_set_2(datapoint_df):

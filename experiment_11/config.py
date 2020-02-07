@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_9/prep_exp11'
+DATASET_DIR = '../data/d_dataset_11/prep_exp11'
 
 #---------------------------------
 
@@ -37,13 +37,12 @@ TENSORBOARD = False
 # --------------------------------
 # Evaluation
 # --------------------------------
-PREP_EVAL_FOLDER = 'prep_exp9_2'
+PREP_EVAL_FOLDER = 'prep_exp11'
 
 EVALSET_DIR = '../data/d_eval'
-MODEL_FILE = '257_bilstm_2_20200120_1026.h5'
-EVAL_EXP_NUM = 257
+MODEL_FILE = '8_cnn_bilstm.h5'
 
-LABEL_MODE = 2 #1:standardized 2:minmax
+LABEL_MODE = 3 #1:standardized 2:minmax
 
 #----------------------------------
 # Praat config

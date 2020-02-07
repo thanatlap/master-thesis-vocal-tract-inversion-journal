@@ -388,8 +388,8 @@ def check_is_continue_or_replace():
 		reset(cf.DATASET_DIR)
 	else:
 		index = 1
+		dataset_dir = cf.DATASET_DIR
 		while True:
-			dataset_dir = cf.DATASET_DIR
 			if exists(dataset_dir):
 				dataset_dir = cf.DATASET_DIR+'_%s'%index
 				index += 1

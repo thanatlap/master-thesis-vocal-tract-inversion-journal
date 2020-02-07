@@ -55,16 +55,12 @@ def import_data(data_path, mode):
 			audio_paths = [join(data_path, file+'.wav') for file in data]
 			labels = []
 		elif mode == EVAL_MODE:
-			data = np.load(join(data_path, 'npy', 'testset.npz'))
-			audio_paths = [join(data_path,'sound', file) for file in data['sound_sets']]
-			labels = data['param_sets']
+			data = np.load(join(data_path, 'csv_dataset.npz'))
+			audio_paths = [join(data_path, file) for file in data['sound_sets']]
+			labels = data['syllable_params']
 
 		audio_data = load_audio(audio_paths)
 	return audio_data, labels
-
-def load_from_export(filename):
-	# load from export
-	return np.load(filename)
 
 # function to scale param
 def speaker_minmax_scale(params, data_path, sid, mode):
@@ -130,8 +126,8 @@ def export_sample(feature, label, dest, sampling_num=10, filename='sample_data.n
 			features = feature[samp],
 			labels= label[samp])
 
-def resample_audio_data(audio_data, reample_rate):
-	return [librosa.core.resample(data, ORINIAL_SAMPLE_RATE, reample_rate) for data in audio_data]
+def resample_audio_data(audio_data, resample_rate):
+	return np.array([librosa.core.resample(data, ORINIAL_SAMPLE_RATE, resample_rate) for data in audio_data])
 
 def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
@@ -204,6 +200,9 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		# Normalize MFCCs 
 		print('[INFO] Normalization in each timestep')
 		features = utils.standardize_mfcc(features, is_train, is_disyllable)
+	elif feat_prep_mode == 3:
+		print('[INFO] Normalization using self-centering')
+		features = utils.standardize_mfcc(features, is_train, is_disyllable, self_centering=True)
 	# swap dimension to (data, timestamp, features)
 	print('[INFO] Swap axis to (data, timestamp, features)')
 	features = np.swapaxes(features ,1,2)
@@ -235,7 +234,7 @@ def main(args):
 	# check label_normalize 
 	if args.label_normalize not in [1,2,3,4,5]:
 		raise ValueError('[ERROR] Target Preprocess mode %s is not match Choice: [1,2,3,4,5]'%args.label_normalize)
-	if args.feature_normalize not in [1,2]:
+	if args.feature_normalize not in [1,2, 3]:
 		raise ValueError('[ERROR] Feature Preprocess mode %s is not match [1: standardized, 2: None]'%args.label_normalize)
 	# if output path is not specify
 	if args.output_path == None:
@@ -256,7 +255,7 @@ def main(args):
 
 	if args.resample_rate != ORINIAL_SAMPLE_RATE:
 		print('[INFO] Resample audio sample rate')
-		audio_data = resample_audio_data(audio_data, reample_rate)
+		audio_data = resample_audio_data(audio_data, args.resample_rate)
 
 	if args.mode != 'predict': 
 
@@ -362,7 +361,7 @@ if __name__ == '__main__':
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
-	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None]", type=int, default=1)
+	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
 	parser.add_argument('--is_export_sample', dest='is_export_sample', default='False', help='export sample data', type=str)
 	args = parser.parse_args()

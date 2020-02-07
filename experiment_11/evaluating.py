@@ -8,6 +8,7 @@ from tensorflow.keras import models
 from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
 from tensorflow.keras import callbacks
+import re
 
 import model as nn
 import config as cf
@@ -28,8 +29,7 @@ def prep_data():
 	features =dataset['features']
 	labels= dataset['labels']
 
-	if cf.CNN:
-		features = utils.cnn_reshape(features)
+	labels = utils.delete_params(labels)
 
 	print('Eval features and labels %s %s'%(str(features.shape),str(labels.shape)))
 
@@ -44,14 +44,7 @@ def evaluating(features, labels):
 	if not os.path.exists(model_path):
 		raise ValueError('Model %s not found!'%model_path)
 
-	model = models.load_model(model_path, custom_objects={'rmse': nn.rmse, 
-		'R2': nn.R2,
-		'AdjustR2': nn.AdjustR2,
-		'custom_loss':nn.cus_loss1, 
-		'custom_loss2':nn.cus_loss2,
-		'custom_loss3':nn.cus_loss3,
-		'custom_loss4':nn.cus_loss4,
-		})
+	model = models.load_model(model_path, custom_objects={'rmse': nn.rmse})
 	model.summary()
 	#Evaluate and predict
 	eval_result = model.evaluate(features, labels)
@@ -62,7 +55,11 @@ def evaluating(features, labels):
 
 def main():	
 
-	print('Experiment#%s on disyllable model: %s'%(cf.EVAL_EXP_NUM,str(cf.DI_SYLLABLE)))
+	exp_num = int(re.search(r'\d+', cf.MODEL_FILE).group())
+	if exp_num is None:
+		raise ValueError('[ERROR] Model filename %s does not contain exp_num!'%args.model_filename)
+
+	print('Experiment#%s on disyllable model: %s'%(exp_num,str(cf.DI_SYLLABLE)))
 	# import data
 	features, labels = prep_data()
 	# evaluated model using evalset
@@ -71,26 +68,25 @@ def main():
 	print('Result R2: %.4f'%(r2))
 	# invert param back to predefined speaker scale
 	print('[INFO] transform label')
-	if cf.LABEL_MODE == 1:
-		params = utils.destandardized_label(y_pred, cf.DI_SYLLABLE)
-	elif cf.LABEL_MODE == 2:
-		params = utils.descale_labels(y_pred)
-	params = utils.transform_VO(utils.add_params(params))
+
+	params = utils.detransform_label(cf.LABEL_MODE, y_pred, cf.DI_SYLLABLE)
+
 	# convert label into a sound if the model is D-AAI, the label is merge into disyllabic vowel
 	# syllable name is not given because it already convert to disyllable since the prep_eval_set.py
 	params = gen.convert_to_disyllabic_parameter(params) if cf.DI_SYLLABLE else params
 	
 	# get eval log path to store the result
-	eval_dir = join('result', 'eval_'+str(cf.EVAL_EXP_NUM) )
+	eval_dir = join('result', 'eval_'+str(exp_num) )
 	# convert predicted vocaltract to audio
 	print('[INFO] generated wav')
 	gen.convert_param_to_wav(params, eval_dir, cf.DI_SYLLABLE)
 	# load sound for comparison
-	target_sound = np.array([join(cf.EVALSET_DIR, 'sound', file) for file in np.load(join(cf.EVALSET_DIR, 'npy', 'testset.npz'))['sound_sets']])
-	estimated_sound = np.array([join(eval_dir, 'sound', file) for file in np.load(join(eval_dir, 'npy', 'testset.npz'))['sound_sets'] ])
+	target_sound = np.array([join(cf.EVALSET_DIR, file) for file in np.load(join(cf.EVALSET_DIR, 'csv_dataset.npz'))['sound_sets']])
+	estimated_sound = np.array([join(eval_dir, 'sound', file) for file in np.load(join(eval_dir, 'testset.npz'))['sound_sets'] ])
+
 	# log the result
 	print('[INFO] logging result')
-	res.log_result_eval(labels, y_pred, eval_result, r2, target_sound, estimated_sound,cf.EVAL_EXP_NUM)
+	res.log_result_eval(labels, y_pred, eval_result, r2, target_sound, estimated_sound,exp_num)
 	# get visalization of spectrogram and wave plot
 	print('[INFO] generate spectrogram')
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(eval_dir,'spectrogram'), 'Greys')
@@ -99,7 +95,7 @@ def main():
 	utils.generate_visualize_wav(target_sound, estimated_sound, join(eval_dir,'wave'))
 
 	print('[INFO] generate evaluation result')
-	evalresult.generate_eval_result(cf.EVAL_EXP_NUM, cf.DI_SYLLABLE)
+	evalresult.generate_eval_result(exp_num, cf.DI_SYLLABLE)
 
 
 if __name__ == '__main__':

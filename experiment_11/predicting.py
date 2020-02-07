@@ -76,16 +76,7 @@ def main(args):
 		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
 		syllable_name = np.array([ '%s;%s'%(item,str(idx+1)) for pair in syllable_name for idx, item in enumerate(pair)]) if is_disyllable else syllable_name
 
-	if args.label_normalize == 1:
-		params = utils.destandardized_label(y_pred, is_disyllable)
-		params = utils.transform_VO(utils.add_params(params))
-	elif args.label_normalize == 2:
-		params = utils.descale_labels(y_pred)
-		params = utils.transform_VO(utils.add_params(params))
-	elif args.label_normalize == 3:
-		params = utils.transform_VO(utils.add_params(y_pred))
-		params = utils.min_max_descale_labels(params, is_disyllable)
-
+	params = utils.detransform_label(args.label_normalize, y_pred, is_disyllable)
 	
 	# convert prediction result (monosyllabic) to disyllabic vowel
 	params = gen.convert_to_disyllabic_parameter(params) if is_disyllable else params

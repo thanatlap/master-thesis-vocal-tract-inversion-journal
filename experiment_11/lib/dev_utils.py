@@ -40,26 +40,32 @@ def delete_params(params):
 	'''
 	return np.delete(params,DEL_PARAMS_LIST , axis=1)
 
-def standardize_mfcc(features, is_train, is_disyllable):
+def standardize_mfcc(features, is_train, is_disyllable, self_centering=False):
 
-	vars_dir = 'vars'
-	filename = 'mean_std_di.npy' if is_disyllable else 'mean_std_mono.npy' 
-	os.makedirs(vars_dir, exist_ok=True)
-	
-	# find mean of each feature in each timestep
-	if is_train:
-		mean = np.mean(features, axis=0)
-		std = np.std(features, axis=0)
-		np.save(os.path.join(vars_dir, filename),np.array([mean, std]))
-	else:
-		if os.path.isfile(os.path.join(vars_dir, filename)):
-			mean_std = np.load(os.path.join(vars_dir, filename)).tolist()
-			mean = np.array(mean_std[0])
-			std = np.array(mean_std[1])
+	if not self_centering:
+		vars_dir = 'vars'
+		filename = 'mean_std_di.npy' if is_disyllable else 'mean_std_mono.npy' 
+		os.makedirs(vars_dir, exist_ok=True)
+		
+		# find mean of each feature in each timestep
+		if is_train:
+			mean = np.mean(features, axis=0)
+			std = np.std(features, axis=0)
+			np.save(os.path.join(vars_dir, filename),np.array([mean, std]))
 		else:
-			raise ValueError('File %s doest exist'%vars_dir)
+			if os.path.isfile(os.path.join(vars_dir, filename)):
+				mean_std = np.load(os.path.join(vars_dir, filename)).tolist()
+				mean = np.array(mean_std[0])
+				std = np.array(mean_std[1])
+			else:
+				raise ValueError('File %s doest exist'%vars_dir)
+		features = (features - mean)/(std+1e-8)
 
-	return (features - mean)/(std+1e-8)
+	else:
+		# self centering to remove channel effect
+		features = (features - np.mean(features, axis=0))/(np.std(features, axis=0)+1e-8)
+
+	return features
 
 def standardized_labels(params, is_train, is_disyllable):
 
@@ -162,6 +168,36 @@ def transform_VO(labels):
 	for item in labels:
 		item[7:8] = [-1.0] if item[7] > -0.5 else [0.05]
 	return labels
+
+def label_imputation(params_descale, params):
+	# Add JX
+	params_descale[:,2] = 0
+	# adjust VO
+	params_descale[params[:,7] > -0.5,7] = 0.05 
+	params_descale[params[:,7] <= -0.5,7] = -1.0
+	# WC param
+	params_descale[:,8] = 0
+	# TRX param
+	params_descale[:,15] = params_descale[:,10]*0.9380 - 5.1100
+	# TRY param
+	params_descale[:,16] = params_descale[:,9]*0.8310 -3.0300
+	# MS param
+	params_descale[:,21] = -0.05
+	params_descale[:,22] = -0.05
+	params_descale[:,23] = -0.05
+	return params_descale
+
+def detransform_label(label_mode, y_pred, is_disyllable):
+	if label_mode == 1:
+		params = transform_VO(add_params(destandardized_label(y_pred, is_disyllable)))
+	elif label_mode == 2:
+		params = transform_VO(add_params(descale_labels(y_pred)))
+	elif label_mode == 3:
+		params = transform_VO(add_params(y_pred))
+		params_descale = min_max_descale_labels(params, is_disyllable)
+		params = label_imputation(params_descale, params)
+
+	return params
 
 # define a function to plot the result from training step
 def show_result(history, save_file, history_tag = ['loss','val_loss','rmse','val_rmse'], metric_label='RMSE'): 

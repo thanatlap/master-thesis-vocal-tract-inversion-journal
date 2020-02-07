@@ -36,7 +36,7 @@ def log_rmse_distribution(log,actual, pred, save_figure_dir, save_name, title,sa
 	# create csv to store numerical result
 	if data_label is not None:
 		log.write('RMSE %s\n'%title)
-		df = pd.DataFrame(data={'Label':np.load(data_label), 'Result': test_rmse})
+		df = pd.DataFrame(data={'Label': data_label, 'Result': test_rmse})
 		df.to_csv(join(save_csv_dir, 'dist_rmse_%s.csv'%title))
 		log.write(df.to_string())
 
@@ -345,15 +345,18 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('Result R2: %.4f\n'%(r2))
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Transform Label\n')
-	# get label name path
-	label_name_path = join(cf.EVALSET_DIR,'syllable_name.npy')
+
+	with open(join(cf.EVALSET_DIR,'syllable_name.txt')) as f:
+		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
+		syllable_name = np.array([ '%s;%s'%(item,str(idx+1)) for pair in syllable_name for idx, item in enumerate(pair)]) if cf.DI_SYLLABLE else syllable_name
+
 	#RMSE of each vowel before scaling
 	log_rmse_distribution(log, actual_label, y_pred, 
 		save_figure_dir = log_dir, 
 		save_name='rmse_eval_scale_%s.png'%exp_num, 
 		title='Eval_Scale_Parameters',
 		save_csv_dir=log_csv_dir,
-		data_label = label_name_path)
+		data_label = syllable_name)
 	log_stat_distribution(log,actual_label, y_pred,log_dir, subset='eval')
 	#Compare RMSE of each parameter
 	log_rmse_parameter(log, actual_label, y_pred, log_csv_dir, title='scale_eval')
@@ -361,15 +364,8 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Inverse-transform Label\n')
 
-	if cf.LABEL_MODE == 1:
-		t_actual_label = utils.destandardized_label(actual_label, cf.DI_SYLLABLE)
-		t_y_pred = utils.destandardized_label(y_pred, cf.DI_SYLLABLE)
-	elif cf.LABEL_MODE == 2:
-		t_actual_label = utils.descale_labels(actual_label)
-		t_y_pred = utils.descale_labels(y_pred)
-
-	t_actual_label = utils.transform_VO(utils.add_params(t_actual_label))
-	t_y_pred = utils.transform_VO(utils.add_params(t_y_pred))
+	t_actual_label = utils.detransform_label(cf.LABEL_MODE, actual_label, cf.DI_SYLLABLE)
+	t_y_pred = utils.detransform_label(cf.LABEL_MODE, y_pred, cf.DI_SYLLABLE)
 
 	#RMSE of each vowel after descaling
 	log_rmse_distribution(log, 
@@ -379,7 +375,7 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 		save_name='rmse_eval_descale_%s.png'%exp_num, 
 		title='Eval_Descale_Parameters',
 		save_csv_dir=log_csv_dir,
-		data_label = label_name_path)
+		data_label = syllable_name)
 	log_stat_distribution(log,t_actual_label, t_y_pred, log_dir, subset='trans_eval')
 	#Compare RMSE of each parameter
 	log_rmse_parameter(log, t_actual_label, t_y_pred, log_csv_dir, title='descale_eval',scale=False)
@@ -405,8 +401,8 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	# create csv log directory
 	formant_dir = join(log_dir,'formant')
 	os.makedirs(formant_dir,exist_ok=True)
-	log_formant(log, target_sound, np.load(label_name_path), estimated_sound, formant_dir)
-	log_format_plot(log,formant_dir, log_dir, np.load(label_name_path))
+	log_formant(log, target_sound, syllable_name, estimated_sound, formant_dir)
+	log_format_plot(log,formant_dir, log_dir, syllable_name)
 	log.write('--------------------------------------------------------\n')
 	log.write('Reference directory\n')
 	log.write('Log directory: %s\n'%log_dir)

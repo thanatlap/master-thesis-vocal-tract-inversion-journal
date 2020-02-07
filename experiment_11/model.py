@@ -85,6 +85,26 @@ def inti_bilstm(unit_lstm=128, dropout_rate=0.5, bi_layer_num=5):
 
 	return bilstm
 
+def inti_bilstm_2(unit_lstm=128, dropout_rate=0.3, bi_layer_num=6):
+
+	pLSTM = partial(LSTM,
+		kernel_initializer='he_normal',
+		return_sequences=True)
+
+	def bilstm(input_shape_1,input_shape_2):
+		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+		# feature extraction layers
+		for i in range(bi_layer_num-1):
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+			model.add(Dropout(rate=dropout_rate))
+		# output layers
+		model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		model.add(Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_normal'))
+		model.summary()
+		return model
+
+	return bilstm
+
 def inti_cnn_bilstm(unit_cnn = 64, unit_lstm=64, cnn_filter=3, 
 	dropout_rate=0.4, cnn_layer = 3, bi_layer_num=5):
 
@@ -117,7 +137,7 @@ def inti_cnn_bilstm(unit_cnn = 64, unit_lstm=64, cnn_filter=3,
 
 	return cnn_bilstm
 
-def inti_embedded_cnn_bilstm(unit_cnn = 64, unit_lstm=64, cnn_filter=3, 
+def inti_cnn_bilstm_2(unit_cnn = 128, unit_lstm=64, cnn_filter=3, 
 	dropout_rate=0.4, cnn_layer = 3, bi_layer_num=5):
 
 	pLSTM = partial(LSTM,
@@ -129,23 +149,88 @@ def inti_embedded_cnn_bilstm(unit_cnn = 64, unit_lstm=64, cnn_filter=3,
 		activation = 'elu',
 		kernel_initializer = 'he_normal')
 
-	def embedded_cnn_bilstm(input_shape_1,input_shape_2):
+	def cnn_bilstm(input_shape_1,input_shape_2):
 
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
-		model.add(Embedding(1000, 128, input_length=input_shape_1))
+		
 		# cnn as feature extraction
 		for i in range(cnn_layer):
 			model.add(pConv1D(filters = unit_cnn, kernel_size= cnn_filter))
 
-		model.add(Dropout(rate=dropout_rate))
 		# feature extraction layers
-		for j in range(bi_layer_num):
+		for j in range(bi_layer_num-1):
 			model.add(Bidirectional(pLSTM(unit_lstm)))
 			model.add(Dropout(rate=dropout_rate))
 
 		# output layers
-		model.add(pLSTM(N_OUTPUTS, activation='linear', return_sequences=False))
+		model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		model.add(Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_normal'))
 		model.summary()
 		return model
 
-	return embedded_cnn_bilstm
+	return cnn_bilstm
+
+def inti_dilation_cnn_bilstm(unit_cnn = 32, unit_lstm=64, cnn_filter=2, 
+	dropout_rate=0.4, cnn_layer = 2, bi_layer_num=3, dilation_rate=[1,2,4,8]):
+
+	pLSTM = partial(LSTM,
+		kernel_initializer='he_normal',
+		return_sequences=True)
+
+	def dilation_cnn_bilstm(input_shape_1,input_shape_2):
+
+		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
+		# cnn as feature extraction
+		for rate in dilation_rate*cnn_layer:
+			model.add(Conv1D(filters = unit_cnn, kernel_size= cnn_filter,padding = 'causal',
+				activation = 'elu', kernel_initializer = 'he_normal', dilation_rate=rate))
+
+		model.add(Dropout(rate=dropout_rate))
+		# feature extraction layers
+		for j in range(bi_layer_num-1):
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+			model.add(Dropout(rate=dropout_rate))
+
+		# output layers
+		model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		model.add(Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_normal'))
+		model.summary()
+		return model
+
+	return dilation_cnn_bilstm
+
+
+def inti_dilation_cnn_bilstm_2(unit_cnn = 32, unit_lstm=64, cnn_filter=2, 
+	dropout_rate=0.4, cnn_layer = 3, bi_layer_num=3, dilation_rate=[1,2,4,8]):
+
+	pLSTM = partial(LSTM,
+		kernel_initializer='he_normal',
+		return_sequences=True)
+
+	def dilation_conv1d(x):
+		input_x = x
+		for rate in dilation_rate:
+			x = Conv1D(filters = unit_cnn, kernel_size= cnn_filter,padding = 'causal',
+				activation = 'elu', kernel_initializer = 'he_normal', dilation_rate=rate)(x)
+			return x
+
+	def dilation_cnn_bilstm(input_shape_1,input_shape_2):
+
+		x = keras.InputLayer(input_shape=(input_shape_1,input_shape_2))
+
+		# cnn as feature extraction
+		
+
+		model.add(Dropout(rate=dropout_rate))
+		# feature extraction layers
+		for j in range(bi_layer_num-1):
+			model.add(Bidirectional(pLSTM(unit_lstm)))
+			model.add(Dropout(rate=dropout_rate))
+
+		# output layers
+		model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		model.add(Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_normal'))
+		model.summary()
+		return model
+
+	return dilation_cnn_bilstm

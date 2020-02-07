@@ -250,8 +250,7 @@ def convert_param_to_wav(param_sets, output_dir, is_disyllable, data_path=None, 
 	ges_filenames = create_ges_file(param_sets, output_dir, data_path=data_path, is_disyllable=is_disyllable, mode=mode)
 
 	sound_sets = generate_sound(speaker_filenames, ges_filenames, output_dir)
-	os.makedirs(join(output_dir, 'npy'), exist_ok=True)
-	np.savez(join(output_dir, 'npy' ,'testset.npz'), 
+	np.savez(join(output_dir ,'testset.npz'), 
 		param_sets = param_sets,
 		speaker_filenames = speaker_filenames,
 		sound_sets = sound_sets)
