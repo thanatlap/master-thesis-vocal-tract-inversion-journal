@@ -9,13 +9,7 @@ def create_speaker_from_csv(file, speaker_template_filepath,output_filename):
     '''
     create speaker file using simulated speaker vocaltract
     '''
-    param_set = gen.load_file_csv(file)
-    gen.error_check(param_set)
-    
-    syllable_labels = param_set[PARAM].values
-    param_set = param_set.drop([PARAM], axis=1)
-    syllable_params = param_set.values
-    param_names = param_set.columns.values
+    syllable_labels, syllable_params, param_names = gen.import_data_from_csv(file)
 
     with open(speaker_template_filepath[0],'r') as f:
         speaker_head = f.read()

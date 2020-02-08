@@ -90,7 +90,7 @@ def main(args):
 		files = np.array(f.read().split(','))
 
 	target_sound = gen.read_audio_path(args.data_dir)
-	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path, 'npy', 'testset.npz'))['sound_sets']])
+	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path,'testset.npz'))['sound_sets']])
 
 	# visualize spectrogram and wave plot
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')

@@ -177,44 +177,44 @@ def main(args):
 		model_name='undefined')
 
 	# baseline
-	if args.exp == 1: ptraining_fn(nn.inti_bilstm(), experiment_num=13, model_name='bilstm')
+	if args.exp == 1: ptraining_fn(nn.inti_bilstm(), experiment_num=21, model_name='bilstm')
 	if args.exp == 2: 
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 5
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=14, model_name='cnn_bilstm')
+			experiment_num=22, model_name='cnn_bilstm')
 
 	if args.exp == 3: 
 		cf.EARLY_STOP_PATIENCE = 5
 		ptraining_fn(nn.inti_cnn_bilstm_2(),
-			experiment_num=15, model_name='cnn_bilstm_2')
+			experiment_num=23, model_name='cnn_bilstm_2')
 
 	if args.exp == 4: 
 		cf.EARLY_STOP_PATIENCE = 20
 		ptraining_fn(nn.inti_dilation_cnn_bilstm(),
-			experiment_num=16, model_name='dilation_cnn_bilstm')
+			experiment_num=24, model_name='dilation_cnn_bilstm')
 
-	if args.exp == 5: ptraining_fn(nn.inti_bilstm_2(), experiment_num=17, model_name='bilstm_2')
+	if args.exp == 5: ptraining_fn(nn.inti_bilstm_2(), experiment_num=25, model_name='bilstm_2')
 
 	if args.exp == 6: 
 		cf.EARLY_STOP_PATIENCE = 5
 		cf.BATCH_SIZE = 32
 		ptraining_fn(nn.inti_cnn_bilstm_2(),
-			experiment_num=18, model_name='cnn_bilstm_2')
+			experiment_num=26, model_name='cnn_bilstm_2')
 
 	if args.exp == 7: 
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 20
 		cf.BATCH_SIZE = 16
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=19, model_name='cnn_bilstm')
+			experiment_num=27, model_name='cnn_bilstm')
 
 	if args.exp == 8: 
 		cf.LEARNING_RATE = 0.0001
 		cf.EARLY_STOP_PATIENCE = 20
 		cf.BATCH_SIZE = 8
 		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=20, model_name='cnn_bilstm')
+			experiment_num=28, model_name='cnn_bilstm')
 
 
 if __name__ == '__main__':

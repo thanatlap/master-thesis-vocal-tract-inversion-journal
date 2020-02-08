@@ -6,7 +6,7 @@ N_SPLIT = 10
 CLEAN_FILE = True
 CLEAN_SOUND = True
 NJOB = 6
-DATASIZE = 30000
+DATASIZE = 20000
 
 # Data generator hyperparameter
 FILTER_THRES = 0.9
@@ -23,7 +23,7 @@ GES_F0_INIT_MIN_MAX = [80, 81] # min max
 GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_11'
+DATASET_NAME = 'd_dataset_12'
 DATA_DESCRIPTION = 'Generate Data using new refacotring code'
 DATASET_DIR = '../data/'+DATASET_NAME
 
