@@ -131,7 +131,7 @@ def resample_audio_data(audio_data, resample_rate):
 
 def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
-	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (0, max(0, audio_length - data.shape[0])), "constant") for data in audio_data])
+	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (max(0,audio_length - data.shape[0]),0), "constant") for data in audio_data])
 
 def transfrom_mfcc(audio_data, sample_rate):
 	'''
