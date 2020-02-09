@@ -103,7 +103,7 @@ def get_audio_max_length(audio_data, mode, is_train, is_disyllable):
 	'''
 	audio_length_file = join('vars','audio_length_di.txt') if is_disyllable else join('vars','audio_length_mono.txt')
 	# for training set, the length is save
-	if mode in [TRAIN_MODE] and is_train:
+	if is_train:
 		os.makedirs('vars', exist_ok = True)
 
 		audio_length = len(max(audio_data, key=len))
@@ -131,7 +131,6 @@ def resample_audio_data(audio_data, resample_rate):
 
 def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
-	audio_length = math.floor(audio_length*0.5) if is_disyllable else audio_length
 	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (0, max(0, audio_length - data.shape[0])), "constant") for data in audio_data])
 
 def transfrom_mfcc(audio_data, sample_rate):
