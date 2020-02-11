@@ -16,6 +16,7 @@ from datetime import datetime
 import shutil 
 import argparse
 from functools import partial
+import pickle
 
 import lib.dev_utils as utils
 import model as nn
@@ -121,6 +122,8 @@ def training(features, labels, val_features, val_labels, model, batch_size = cf.
 		model_name = str(experiment_num)+'_'+model_name
 
 	model.save(join('model',model_name))
+	with open(join('model','hist_'+model_name[:-3]), 'wb') as file:
+		pickle.dump(history.history, file)
 	shutil.rmtree(join('model','checkpoint'))
 
 	return history, total_time, early
@@ -150,13 +153,14 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 		y_pred, result, r2 = testing(X_test, y_test, model)
 		# evaluate on training set
 		training_y_pred, training_result, training_r2 = testing(X_train, y_train, model)
+		val_y_pred, val_result, val_r2 = testing(X_val, y_val, model)
 		print('Result experiment number: #%s'%experiment_num)
 		print('Result RMSE: %.4f'%(result[1]))
 		print('Result R2: %.4f\n'%(r2))
 		print('[INFO] Log Results')
 		# log experiment	
 		res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, result, r2, history, model, 
-			training_y_pred, training_result, training_r2, total_time, model_name, early)
+			training_y_pred, training_result, training_r2, total_time, model_name, early, val_y_pred, val_result, val_r2)
 		
 	except Exception as e:
 		print('experiment %f fail'%experiment_num)
@@ -176,45 +180,208 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
-	# baseline
-	if args.exp == 1: ptraining_fn(nn.inti_bilstm(), experiment_num=21, model_name='bilstm')
-	if args.exp == 2: 
-		cf.LEARNING_RATE = 0.0001
-		cf.EARLY_STOP_PATIENCE = 5
-		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=22, model_name='cnn_bilstm')
 
-	if args.exp == 3: 
-		cf.EARLY_STOP_PATIENCE = 5
-		ptraining_fn(nn.inti_cnn_bilstm_2(),
-			experiment_num=23, model_name='cnn_bilstm_2')
+	# dropout = None
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	if args.exp == 1: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 2: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 3: ptraining_fn(nn.inti_lstm(), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 4: ptraining_fn(nn.inti_gru(), experiment_num=args.exp, model_name='gru')
+	if args.exp == 5: ptraining_fn(nn.inti_bilstm(), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 6: ptraining_fn(nn.inti_bigru(), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 7: ptraining_fn(nn.inti_cnn_bilstm(), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 8: ptraining_fn(nn.inti_cnn_bigru(), experiment_num=args.exp, model_name='cnn_bigru')
 
-	if args.exp == 4: 
-		cf.EARLY_STOP_PATIENCE = 20
-		ptraining_fn(nn.inti_dilation_cnn_bilstm(),
-			experiment_num=24, model_name='dilation_cnn_bilstm')
 
-	if args.exp == 5: ptraining_fn(nn.inti_bilstm_2(), experiment_num=25, model_name='bilstm_2')
+	# dropout = 0.3
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 9: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 10: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 11: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 12: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 13: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 14: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 15: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
 
-	if args.exp == 6: 
-		cf.EARLY_STOP_PATIENCE = 5
-		cf.BATCH_SIZE = 32
-		ptraining_fn(nn.inti_cnn_bilstm_2(),
-			experiment_num=26, model_name='cnn_bilstm_2')
 
-	if args.exp == 7: 
-		cf.LEARNING_RATE = 0.0001
-		cf.EARLY_STOP_PATIENCE = 20
-		cf.BATCH_SIZE = 16
-		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=27, model_name='cnn_bilstm')
+	# dropout = 0.5
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.5
+	if args.exp == 16: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 17: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 18: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 19: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 20: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 21: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 22: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
 
-	if args.exp == 8: 
-		cf.LEARNING_RATE = 0.0001
-		cf.EARLY_STOP_PATIENCE = 20
-		cf.BATCH_SIZE = 8
-		ptraining_fn(nn.inti_cnn_bilstm(cnn_layer=5, unit_lstm=64, dropout_rate=0.3, bi_layer_num=3),
-			experiment_num=28, model_name='cnn_bilstm')
+
+	# batch size = 16
+	cf.BATCH_SIZE = 16
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 23: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 24: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 25: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 26: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 27: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 28: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 29: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 30: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+	# batch size = 32
+	cf.BATCH_SIZE = 32
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 31: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 32: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 33: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 34: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 35: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 36: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 37: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 38: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# batch size = 128
+	cf.BATCH_SIZE = 128
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 39: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 40: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 41: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 42: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 43: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 44: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 45: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 46: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# learning rate = 0.01
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.01 
+	DROP_RATE = 0.3
+	if args.exp == 47: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 48: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 49: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 50: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 51: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 52: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 53: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 54: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# learning rate = 0.0001
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.0001 
+	DROP_RATE = 0.3
+	if args.exp == 55: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 56: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 57: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 58: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 59: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 60: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 61: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 62: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+	# patience = 5
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 1000
+	cf.EARLY_STOP_PATIENCE = 5
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 63: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 64: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 65: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 66: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 67: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 68: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 69: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 70: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# patience = 15
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 1000
+	cf.EARLY_STOP_PATIENCE = 15
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 71: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 72: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 73: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 74: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 75: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 76: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 77: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 78: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# patience = 30
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 1000
+	cf.EARLY_STOP_PATIENCE = 30
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 79: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 80: ptraining_fn(nn.init_FCNN(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 81: ptraining_fn(nn.inti_lstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 82: ptraining_fn(nn.inti_gru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 83: ptraining_fn(nn.inti_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 84: ptraining_fn(nn.inti_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 85: ptraining_fn(nn.inti_cnn_bilstm(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 86: ptraining_fn(nn.inti_cnn_bigru(drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+	# model small
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 87: ptraining_fn(nn.init_FCNN(layer_num = 3, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 88: ptraining_fn(nn.inti_lstm(layer_num=3, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 89: ptraining_fn(nn.inti_gru(layer_num=3, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 90: ptraining_fn(nn.inti_bilstm(bi_layer_num=3, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 91: ptraining_fn(nn.inti_bigru(bi_layer_num=3, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 92: ptraining_fn(nn.inti_cnn_bilstm(bi_layer_num=2, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 93: ptraining_fn(nn.inti_cnn_bigru(bi_layer_num=2, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+	# model large
+	cf.BATCH_SIZE = 64
+	cf.EPOCHS = 50
+	cf.EARLY_STOP_PATIENCE = None
+	cf.LEARNING_RATE = 0.001 
+	DROP_RATE = 0.3
+	if args.exp == 94: ptraining_fn(nn.init_FCNN(layer_num = 10, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 95: ptraining_fn(nn.inti_lstm(layer_num=10, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='lstm')
+	if args.exp == 96: ptraining_fn(nn.inti_gru(layer_num=10, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='gru')
+	if args.exp == 97: ptraining_fn(nn.inti_bilstm(bi_layer_num=10, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 98: ptraining_fn(nn.inti_bigru(bi_layer_num=10, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='bigru')
+	if args.exp == 99: ptraining_fn(nn.inti_cnn_bilstm(bi_layer_num=8, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 100: ptraining_fn(nn.inti_cnn_bigru(bi_layer_num=8, drop_rate=DROP_RATE), experiment_num=args.exp, model_name='cnn_bigru')
+
+
+
 
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ import lib.dev_augmentation as dev_aug
 TRAIN_MODE = 'training'
 EVAL_MODE = 'eval'
 PREDICT_MODE = 'predict'
-ORINIAL_SAMPLE_RATE = 22050
+ORINIAL_SAMPLE_RATE = 16000
 
 np_load_old = partial(np.load)
 np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)

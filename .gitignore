@@ -3,6 +3,8 @@
 */result/*
 data/*
 */model/*
+*/archives/*
 *.pyc
 *.wav
 temp/*
+*.h5

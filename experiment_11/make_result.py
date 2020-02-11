@@ -172,7 +172,8 @@ def log_format_plot(log, formant_dir, save_csv_dir, label_name):
 	utils.export_format_csv(label_name, formant_dir ,sel_point = sel_point)
 
 # Add to main log file
-def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name, stop_at):
+def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, 
+	model_name, stop_at, val_y_pred, val_result, val_r2):
 
 	os.makedirs('result', exist_ok=True)
 	log_file = join('..',cf.LOG_SHEET)
@@ -185,23 +186,25 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, train
 				'Date':datetime.now().strftime("%Y-%B-%d %H:%M"),
 				'Dataset': cf.DATASET_DIR[5:],
 				'Model':model_name,
-				# 'Type CNN': cf.CNN,
 				'Train Loss': training_result[0],
 				'Train RMSE': training_result[1],
 				'Train R2': training_r2,
+				'Validate Loss':val_result[0],
+				'Validate RMSE':val_result[1],
+				'Validate R2':val_r2,
 				'Test Loss':result[0],
 				'Test RMSE':result[1],
 				'Test R2':r2,
 				'Eval RMSE':np.NaN,
 				'Eval R2':np.NaN,
 				'Training_time': total_time,
-				'Loss function': cf.LOSS_FN,
-				'Optimizer': cf.OPT,
+				'EarlyStop At':stop_at,
 				'EarlyStopPatience': cf.EARLY_STOP_PATIENCE,
+				'Learning rate': cf.LEARNING_RATE,		
 				'Batch size':cf.BATCH_SIZE,
 				'Epochs': cf.EPOCHS,
-				'EarlyStop At':stop_at,
-				'Learning rate': cf.LEARNING_RATE,
+				'Loss function': cf.LOSS_FN,
+				'Optimizer': cf.OPT,
 				'Label mode': str(utils.get_label_prep_mode(cf.DATASET_DIR)),
 				'Eval label mode':np.NaN,
 				'Train feature shape':str(X_train.shape),
@@ -242,7 +245,8 @@ def log_experiment_csv_eval(experiment_num, result, r2):
 		print('Need to create main log in training file first!')
 
 def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, 
-	result, r2, history, model, training_y_pred, training_result, training_r2, total_time, model_name, early):
+	result, r2, history, model, training_y_pred, training_result, training_r2, total_time, model_name, early,
+	val_y_pred, val_result, val_r2):
 
 	# create log directory
 	log_dir = join('result','training_'+str(experiment_num))
@@ -257,7 +261,8 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	else:
 		stop_at = np.NaN
 
-	log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, model_name,stop_at)
+	log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, 
+		total_time, model_name,stop_at,val_y_pred, val_result, val_r2)
 
 	log = utils.get_log()
 	log.write('========================================================\n')

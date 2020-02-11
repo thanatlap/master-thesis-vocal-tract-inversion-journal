@@ -3,60 +3,104 @@ cd data_generator
 python generating_data.py
 cd ../experiment_11
 
-python preprocess.py training ..\data\d_dataset_12 di --output_path=prep_exp11 --augment_samples=0.3 --resample_rate=22050 --label_normalize=5 --feature_normalize=3 --split_size=0.1
-
+python preprocess.py training ..\data\d_dataset_t1 di --output_path=control_data --augment_samples=0.3 --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
 python training.py 1
-python training.py 5
 python training.py 2
-python training.py 7
-
-python preprocess.py predict ..\data\d_records\d_record_set_1 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_3 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_4 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_5 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_6 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_7 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-python preprocess.py predict ..\data\d_records\d_record_set_8 di --output_path=prep_exp11 --resample_rate=22050 --feature_normalize=3
-
-python predicting.py ..\data\d_records\d_record_set_1 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_2 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_3 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_4 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_5 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_6 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_7 prep_exp11 21_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_8 prep_exp11 21_bilstm.h5 di --label_normalize=3
-
-python predicting.py ..\data\d_records\d_record_set_1 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_2 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_3 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_4 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_5 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_6 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_7 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_8 prep_exp11 25_bilstm_2.h5 di --label_normalize=3
-
-python predicting.py ..\data\d_records\d_record_set_1 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_2 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_3 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_4 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_5 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_6 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_7 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_8 prep_exp11 22_cnn_bilstm.h5 di --label_normalize=3
-
-python predicting.py ..\data\d_records\d_record_set_1 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_2 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_3 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_4 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_5 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_6 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_7 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-python predicting.py ..\data\d_records\d_record_set_8 prep_exp11 27_cnn_bilstm.h5 di --label_normalize=3
-
 python training.py 3
 python training.py 4
+python training.py 5
 python training.py 6
+python training.py 7
 python training.py 8
-
+python training.py 9
+python training.py 10
+python training.py 11
+python training.py 12
+python training.py 13
+python training.py 14
+python training.py 15
+python training.py 16
+python training.py 17
+python training.py 18
+python training.py 19
+python training.py 20
+python training.py 21
+python training.py 22
+python training.py 23
+python training.py 24
+python training.py 25
+python training.py 26
+python training.py 27
+python training.py 28
+python training.py 29
+python training.py 30
+python training.py 31
+python training.py 32
+python training.py 33
+python training.py 34
+python training.py 35
+python training.py 36
+python training.py 37
+python training.py 38
+python training.py 39
+python training.py 40
+python training.py 41
+python training.py 42
+python training.py 43
+python training.py 44
+python training.py 45
+python training.py 46
+python training.py 47
+python training.py 48
+python training.py 49
+python training.py 50
+python training.py 51
+python training.py 52
+python training.py 53
+python training.py 54
+python training.py 55
+python training.py 56
+python training.py 57
+python training.py 58
+python training.py 59
+python training.py 60
+python training.py 61
+python training.py 62
+python training.py 63
+python training.py 64
+python training.py 65
+python training.py 66
+python training.py 67
+python training.py 68
+python training.py 69
+python training.py 70
+python training.py 71
+python training.py 72
+python training.py 73
+python training.py 74
+python training.py 75
+python training.py 76
+python training.py 77
+python training.py 78
+python training.py 79
+python training.py 80
+python training.py 81
+python training.py 82
+python training.py 83
+python training.py 84
+python training.py 85
+python training.py 86
+python training.py 87
+python training.py 88
+python training.py 89
+python training.py 90
+python training.py 91
+python training.py 92
+python training.py 93
+python training.py 94
+python training.py 95
+python training.py 96
+python training.py 97
+python training.py 98
+python training.py 99
+python training.py 100
