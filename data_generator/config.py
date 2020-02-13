@@ -1,12 +1,12 @@
 # Data generator control
-DI_SYLLABLE = True
+DI_SYLLABLE = False
 CONT = False
 REPLACE_FOLDER = True
 N_SPLIT = 10
 CLEAN_FILE = True
 CLEAN_SOUND = True
-NJOB = 4
-DATASIZE = 20000
+NJOB = 6
+DATASIZE = 30000
 
 # Data generator hyperparameter
 FILTER_THRES = 0.9
@@ -23,7 +23,7 @@ GES_F0_INIT_MIN_MAX = [80, 81] # min max
 GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_t1'
+DATASET_NAME = 'm_dataset_t1'
 DATA_DESCRIPTION = 'Data with 16000 sample rate'
 DATASET_DIR = '../data/'+DATASET_NAME
 

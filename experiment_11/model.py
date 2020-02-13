@@ -38,7 +38,7 @@ def init_baseline():
 		return model
 	return baseline
 
-def init_FCNN(unit_ff = 1024, layer_num = 5, drop_rate=None):
+def init_FCNN(unit_ff = 1024, layer_num = 4, drop_rate=0.4):
 
 	def FCNN(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential()
@@ -51,7 +51,7 @@ def init_FCNN(unit_ff = 1024, layer_num = 5, drop_rate=None):
 		return model
 	return FCNN
 
-def inti_lstm(unit=128, layer_num=5, drop_rate=None):
+def inti_lstm(unit=128, layer_num=5, drop_rate=0.4):
 
 	def lstm(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
@@ -66,7 +66,7 @@ def inti_lstm(unit=128, layer_num=5, drop_rate=None):
 		return model
 	return lstm
 
-def inti_gru(unit=128, layer_num=5, drop_rate=None):
+def inti_gru(unit=128, layer_num=5, drop_rate=0.4):
 
 	def gru(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
@@ -76,12 +76,13 @@ def inti_gru(unit=128, layer_num=5, drop_rate=None):
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 		# output layers
 		model.add(pGRU(unit, return_sequences=False))
+		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
 		model.summary()
 		return model
 	return gru
 
-def inti_bilstm(unit=128, bi_layer_num=5, drop_rate=None):
+def inti_bilstm(unit=128, bi_layer_num=5, drop_rate=0.4):
 
 	def bilstm(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
@@ -91,12 +92,13 @@ def inti_bilstm(unit=128, bi_layer_num=5, drop_rate=None):
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 		# output layers
 		model.add(Bidirectional(pLSTM(unit, return_sequences=False)))
+		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
 		model.summary()
 		return model
 	return bilstm
 
-def inti_bigru(unit=128, bi_layer_num=5, drop_rate=None):
+def inti_bigru(unit=128, bi_layer_num=5, drop_rate=0.4):
 
 	def bigru(input_shape_1,input_shape_2):
 		model = tf.keras.Sequential(InputLayer(input_shape=(input_shape_1,input_shape_2)))
@@ -106,13 +108,14 @@ def inti_bigru(unit=128, bi_layer_num=5, drop_rate=None):
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 		# output layers
 		model.add(Bidirectional(pGRU(unit, return_sequences=False)))
+		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
 		model.summary()
 		return model
 	return bigru
 
-def inti_cnn_bilstm(unit_cnn = 64, cnn_filter=3, cnn_layer = 3, 
-	unit_lstm=128, bi_layer_num=4, drop_rate=None):
+def inti_cnn_bilstm(unit_cnn = 64, cnn_filter=3, cnn_layer = 5, 
+	unit_lstm=128, bi_layer_num=4, drop_rate=0.4):
 
 	def cnn_bilstm(input_shape_1,input_shape_2):
 
@@ -128,15 +131,16 @@ def inti_cnn_bilstm(unit_cnn = 64, cnn_filter=3, cnn_layer = 3,
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 
 		# output layers
-		model.add(Bidirectional(pLSTM(unit, return_sequences=False)))
+		model.add(Bidirectional(pLSTM(unit_lstm, return_sequences=False)))
+		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
 		model.summary()
 		return model
 
 	return cnn_bilstm
 
-def inti_cnn_bigru(unit_cnn = 64, cnn_filter=3, cnn_layer = 3, 
-	unit_gru=128, bi_layer_num=4, drop_rate=None):
+def inti_cnn_bigru(unit_cnn = 64, cnn_filter=3, cnn_layer = 5, 
+	unit_gru=128, bi_layer_num=4, drop_rate=0.4):
 
 	def cnn_bigru(input_shape_1,input_shape_2):
 
@@ -152,7 +156,8 @@ def inti_cnn_bigru(unit_cnn = 64, cnn_filter=3, cnn_layer = 3,
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 
 		# output layers
-		model.add(Bidirectional(pGRU(unit, return_sequences=False)))
+		model.add(Bidirectional(pGRU(unit_gru, return_sequences=False)))
+		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
 		model.summary()
 		return model

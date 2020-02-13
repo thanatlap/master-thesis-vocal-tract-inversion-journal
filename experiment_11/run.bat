@@ -1,9 +1,9 @@
-cd ..
-cd data_generator
-python generating_data.py
-cd ../experiment_11
+rem cd ..
+rem cd data_generator
+rem python generating_data.py
+rem cd ../experiment_11
 
-python preprocess.py training ..\data\d_dataset_t1 di --output_path=control_data --augment_samples=0.3 --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
+rem python preprocess.py training ..\data\d_dataset_t1 di --output_path=control_data --is_augment=False --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
 python training.py 1
 python training.py 2
 python training.py 3
@@ -82,25 +82,43 @@ python training.py 75
 python training.py 76
 python training.py 77
 python training.py 78
-python training.py 79
-python training.py 80
-python training.py 81
-python training.py 82
-python training.py 83
-python training.py 84
-python training.py 85
-python training.py 86
-python training.py 87
-python training.py 88
-python training.py 89
-python training.py 90
-python training.py 91
-python training.py 92
-python training.py 93
-python training.py 94
-python training.py 95
-python training.py 96
-python training.py 97
-python training.py 98
-python training.py 99
-python training.py 100
+rem python training.py 79
+rem python training.py 80
+rem python training.py 81
+rem python training.py 82
+rem python training.py 83
+rem python training.py 84
+rem python training.py 85
+rem python training.py 86
+rem python training.py 87
+rem python training.py 88
+rem python training.py 89
+rem python training.py 90
+rem python training.py 91
+rem python training.py 92
+rem python training.py 93
+rem python training.py 94
+rem python training.py 95
+rem python training.py 96
+rem python training.py 97
+rem python training.py 98
+rem python training.py 99
+rem python training.py 100
+rem python preprocess.py training ..\data\d_dataset_t1 di --output_path=aug_data --augment_samples=0.3 --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
+rem python training.py 101
+rem python training.py 102
+rem python training.py 103
+rem python training.py 104
+rem python training.py 105
+rem python training.py 106
+rem python training.py 107
+rem python training.py 108
+
+rem cd ..
+rem cd data_generator
+rem python generating_data.py
+rem cd ../experiment_11
+
+rem python preprocess.py training ..\data\m_dataset_t1 mono --output_path=aug_data --augment_samples=0.3 --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
+rem python preprocess.py training ..\data\m_dataset_t1 mono --output_path=control_data --is_augment=False --resample_rate=16000 --label_normalize=5 --feature_normalize=3 --split_size=0.1
+

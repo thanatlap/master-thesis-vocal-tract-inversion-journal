@@ -196,7 +196,7 @@ def create_ges(ges_file, is_disyllable, gesture_header_file):
 
 	# f0 gesture duration
 	initial_f0_duration = np.random.choice([0.01,0.05])
-	duration = [initial_f0_duration, a_duration-initial_f0_duration, b_duration]
+	duration = [initial_f0_duration, a_duration-initial_f0_duration, b_duration] if is_disyllable else [initial_f0_duration, a_duration-initial_f0_duration]
 		
 	# create gesture file
 	f = open(ges_file, 'w')

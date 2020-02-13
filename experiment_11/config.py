@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t1/control_data'
+DATASET_DIR = '../data/d_dataset_t1/aug_data'
 
 #---------------------------------
 
@@ -25,11 +25,11 @@ OPT = 'AMSGRAD' # for record only
 OPT_NUM = 1
 
 # Training
-BATCH_SIZE = 64
+BATCH_SIZE = 16
 EPOCHS = 1000
 MODEL_VERBOSE = 0
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 15 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 5 # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False
@@ -47,4 +47,4 @@ LABEL_MODE = 3 #1:standardized 2:minmax
 #----------------------------------
 # Praat config
 PRAAT_EXE = r"G:\Praat.exe"
-LOG_SHEET = 'thesis_log.csv'
+LOG_SHEET = 'thesis_log_4.csv'
