@@ -121,31 +121,8 @@ def init_cnn_bilstm(feature_layer=3, bilstm_layer=3):
 		return model
 	return cnn_bilstm
 
-def init_cnn_bilstm_dropout():
 
-	def cnn_bilstm(input_shape_1,input_shape_2):
-
-		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-		x = pConv1D(64, kernel_size=7)(input_x)
-		x = BatchNormalization()(x)
-		x = Activation('elu')(x)
-		x = residual_block(x)
-		x = residual_block(x)
-		x = residual_block(x)
-		x = Bidirectional(pLSTM(128))(x)
-		x = layers.Dropout(rate=0.4)(x)
-		x = Bidirectional(pLSTM(128))(x)
-		x = layers.Dropout(rate=0.4)(x)
-		x = Bidirectional(pLSTM(128, return_sequences=False))(x)
-		x = layers.Dropout(rate=0.4)(x)
-		outputs = pDense(N_OUTPUTS, activation='linear')(x)
-		model = keras.Model(inputs=input_x, outputs=outputs)
-		model.summary()
-		return model
-	return cnn_bilstm
-
-
-def init_senet(feature_layer=3, bilstm = False):
+def init_senet(feature_layer=3, bilstm = False, dense=False):
 
 	reduction_ratio = 4
 
@@ -193,6 +170,9 @@ def init_senet(feature_layer=3, bilstm = False):
 			x = layers.Dropout(rate=0.4)(x)
 		else:
 			x = layers.GlobalAveragePooling1D()(x)
+		if dense: 
+			x = pDense(1024, activation='elu')(x)
+			x = layers.Dropout(rate=0.4)(x)
 		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		model.summary()
@@ -200,15 +180,19 @@ def init_senet(feature_layer=3, bilstm = False):
 	return res
 
 
-def init_LTRCNN():
+def init_LTRCNN(drop_rate=None):
 
 	def LTRCNN(input_shape_1,input_shape_2):
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
 		x1 = pConv1D(128, kernel_size=3, activation='relu')(input_x)
+		if drop_rate: x1 = Dropout(rate=drop_rate)(x1)
 		x2 = pConv1D(128, kernel_size=3, activation='relu')(x1)
+		if drop_rate: x2 = Dropout(rate=drop_rate)(x2)
 		x = layers.Concatenate()([x1, x2])
 		x = pLSTM(1024, return_sequences=False)(x)
-		outputs = pDense(1024, activation='relu')(x)
+		if drop_rate: x = Dropout(rate=drop_rate)(x)
+		x = pDense(1024, activation='relu')(x)
+		if drop_rate: x = Dropout(rate=drop_rate)(x)
 		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		model.summary()

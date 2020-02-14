@@ -198,8 +198,15 @@ def main(args):
 	if args.exp == 15: 
 		cf.LEARNING_RATE = 0.0015
 		ptraining_fn(nn.init_LTRCNN(), experiment_num=args.exp, model_name='LTRCNN')
+	if args.exp == 16: 
+		cf.LEARNING_RATE = 0.0015
+		ptraining_fn(nn.init_LTRCNN(drop_rate=0.4), experiment_num=args.exp, model_name='LTRCNN')
+	if args.exp == 17: ptraining_fn(nn.init_senet(feature_layer=1, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm_small')
+	if args.exp == 18: ptraining_fn(nn.init_cnn_bilstm(feature_layer=1), experiment_num=args.exp, model_name='cnn_bilstm_small')
+	if args.exp == 19: ptraining_fn(nn.init_senet(feature_layer=2, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm_small')
+	if args.exp == 20: ptraining_fn(nn.init_cnn_bilstm(feature_layer=2), experiment_num=args.exp, model_name='cnn_bilstm_small')
+	if args.exp == 21: ptraining_fn(nn.init_senet(feature_layer=2, bilstm=True, dense=True), experiment_num=args.exp, model_name='senet_bilstm_dense')
 
-		
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
 	parser.add_argument("exp", help="", type=int, default=0)

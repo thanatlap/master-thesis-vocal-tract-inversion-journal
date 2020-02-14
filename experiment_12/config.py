@@ -4,7 +4,7 @@ EXP_DESCRIPTION = 'TEST GENERALIZATION ABILITY'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t1/aug_data'
+DATASET_DIR = '../data/d_dataset_t2/aug_data'
 
 #---------------------------------
 
@@ -47,4 +47,4 @@ LABEL_MODE = 3 #1:standardized 2:minmax
 #----------------------------------
 # Praat config
 PRAAT_EXE = r"G:\Praat.exe"
-LOG_SHEET = 'thesis_log_1.csv'
+LOG_SHEET = 'thesis_log_2.csv'
