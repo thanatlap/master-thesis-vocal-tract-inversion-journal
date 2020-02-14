@@ -8,6 +8,7 @@ from os.path import join
 import sys
 import lib.dev_utils as utils
 import scipy.stats
+import pickle
 
 import model as nn
 import config as cf

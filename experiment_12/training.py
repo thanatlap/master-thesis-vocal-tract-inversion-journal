@@ -181,17 +181,25 @@ def main(args):
 		model_name='undefined')
 
 
-	if args.exp == 1: ptraining_fn(nn.init_resnet(), experiment_num=args.exp, model_name='init_resnet')
+	if args.exp == 1: ptraining_fn(nn.init_resnet(), experiment_num=args.exp, model_name='resnet')
 	if args.exp == 2: ptraining_fn(nn.init_bilstm(), experiment_num=args.exp, model_name='bilstm')
-	if args.exp == 3: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='init_FCNN')
-	if args.exp == 4: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='init_baseline')
+	if args.exp == 3: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 4: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 5: ptraining_fn(nn.init_cnn_bilstm(), experiment_num=args.exp, model_name='cnn_bilstm')
+	if args.exp == 6: ptraining_fn(nn.init_resnet(large=True), experiment_num=args.exp, model_name='resnet_large')
+	if args.exp == 7: ptraining_fn(nn.init_cnn_bilstm_dropout(), experiment_num=args.exp, model_name='cnn_bilstm_dropout')
+	if args.exp == 8: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
+	if args.exp == 9: ptraining_fn(nn.init_senet(bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
+	if args.exp == 10: ptraining_fn(nn.init_senet(feature_layer=6, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
+	if args.exp == 11: ptraining_fn(nn.init_cnn_bilstm(feature_layer=6), experiment_num=args.exp, model_name='cnn_bilstm_large')
+	if args.exp == 12: ptraining_fn(nn.init_cnn_bilstm(bilstm_layer=6), experiment_num=args.exp, model_name='cnn_bilstm_large')
+	if args.exp == 13: ptraining_fn(nn.init_cnn_bilstm(feature_layer=5,bilstm_layer=5), experiment_num=args.exp, model_name='cnn_bilstm_large')
+	if args.exp == 14: ptraining_fn(nn.init_senet(feature_layer=10, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
+	if args.exp == 15: 
+		cf.LEARNING_RATE = 0.0015
+		ptraining_fn(nn.init_LTRCNN(), experiment_num=args.exp, model_name='LTRCNN')
 
 		
-
-
-
-
-
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")
 	parser.add_argument("exp", help="", type=int, default=0)
