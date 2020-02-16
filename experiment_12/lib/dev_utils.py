@@ -18,6 +18,7 @@ import warnings
 import argparse
 from joblib import dump, load
 from sklearn.preprocessing import MinMaxScaler
+from matplotlib.ticker import MaxNLocator
 
 param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
@@ -26,12 +27,12 @@ param_name = np.array(["HX","HY","JX","JA","LP","LD","VS","VO","WC","TCX","TCY",
 DEL_PARAMS_LIST = [2,8,15,16,21,22,23]
 
 def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+	if v.lower() in ('yes', 'true', 't', 'y', '1'):
+		return True
+	elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+		return False
+	else:
+		raise argparse.ArgumentTypeError('Boolean value expected.')
 
 #Function for preprocessing data
 def delete_params(params):
@@ -199,64 +200,62 @@ def detransform_label(label_mode, y_pred, is_disyllable):
 
 	return params
 
-# define a function to plot the result from training step
-def show_result(history, save_file, history_tag = ['loss','val_loss','rmse','val_rmse'], metric_label='RMSE'): 
-	
-	# Print the result from the last epoch
-	print('Last train evaluation: %.3f'%history.history[history_tag[2]][-1])
-	print('Last validation evaluation: %.3f'%history.history[history_tag[3]][-1])
-	
-	loss = history.history[history_tag[0]]
-	val_loss = history.history[history_tag[1]]
-	
-	metric = history.history[history_tag[2]]
-	val_metric = history.history[history_tag[3]]
-	
-	epochs = range(1, len(loss) + 1)   
-	
+def show_result(history, save_file): 
+
+	epochs = range(1, int(len(history.history['loss'])) + 1)   
+
 	# Define a subplot 
-	fig, axs = plt.subplots(1,2,figsize=(15,4))
-	
+	fig, axs = plt.subplots(3,1,figsize=(8,16))
+
 	# Plot loss
 	loss_plot = axs[0]
-	
-	loss_plot.plot(epochs, loss, 'c--', label='Training Loss')
-	loss_plot.plot(epochs, val_loss, 'b', label='Validation Loss')
+
+	loss_plot.plot(epochs, history.history['loss'], 'c--', label='Training Loss')
+	loss_plot.plot(epochs, history.history['val_loss'], 'b', label='Validation Loss')
+	loss_plot.annotate('Validate\n%0.4f' % history.history['val_loss'][-1], xy=(1, history.history['val_loss'][-1]), xytext=(8, 0), 
+				 xycoords=('axes fraction', 'data'), textcoords='offset points')
 	loss_plot.set_title('Training and Validation Loss')
 	loss_plot.set_xlabel('Epochs')
 	loss_plot.set_ylabel('Loss')
 	loss_plot.legend()
-	
+	loss_plot.xaxis.set_major_locator(MaxNLocator(integer=True))
+
 	# Plot accuracy
 	met_plot = axs[1]
-	
-	met_plot.plot(epochs, metric, 'c--', label='Training Metric')
-	met_plot.plot(epochs, val_metric, 'b', label='Validation Metric')
-	met_plot.set_title('Training and Validation Evaluation')
+
+	met_plot.plot(epochs, history.history['rmse'], 'c--', label='Training RMSE')
+	met_plot.plot(epochs, history.history['val_rmse'], 'b', label='Validation RMSE')
+	met_plot.annotate('Validate\n%0.4f' % history.history['val_rmse'][-1], xy=(1, history.history['val_rmse'][-1]), xytext=(8, 0), 
+				 xycoords=('axes fraction', 'data'), textcoords='offset points')
+	met_plot.set_title('Training and Validation RMSE')
 	met_plot.set_xlabel('Epochs')
-	met_plot.set_ylabel(metric_label)
+	met_plot.set_ylabel('RMSE')
 	met_plot.legend()
+	met_plot.xaxis.set_major_locator(MaxNLocator(integer=True))
+	
+	r2_plot = axs[2]
+	r2_plot.plot(epochs, history.history['R2'], 'c--', label='Training R2')
+	r2_plot.plot(epochs, history.history['val_R2'], 'b', label='Validation R2')
+	
+	r2_plot.annotate('Validate\n%0.4f' % history.history['val_R2'][-1], xy=(1, history.history['val_R2'][-1]), xytext=(8, 0), 
+				 xycoords=('axes fraction', 'data'), textcoords='offset points')
+	r2_plot.set_title('Training and Validation R2')
+	r2_plot.set_xlabel('Epochs')
+	r2_plot.set_ylabel('R2')
+	r2_plot.legend()
+	r2_plot.xaxis.set_major_locator(MaxNLocator(integer=True))
 
 	fig.savefig(save_file)
 	plt.close()
-
-# Define an evaluation function to print the evaluation result
-def evaluation_report(model,features,labels):
-	
-	# Calculate result
-	result = model.evaluate(features,labels,verbose=False)
-	# Predict 
-	y_pred = model.predict(features)
-	# Show report
-	print("Loss: %s Metric: %s" %(result[0],result[1]))
-	
-	return y_pred, result
 
 # Compute RMSE
 def compute_rmse(actual,pred, axis=1):
 	# Compute RMSE by row (axis=1) result in rmse of each data
 	# Compute RMSE by column (axis=0) result in rmse of each label
 	return np.sqrt((np.square(actual - pred)).mean(axis=axis))
+
+def total_rmse(actual,pred):
+	return np.sqrt((np.square(actual - pred)).mean(axis=0)).mean(axis=0)
 
 # Visualize RMSE
 def rmse_distribution(rmse, save_file, title):
@@ -348,8 +347,8 @@ def get_formant(sound_sets, save_dir, praatEXE, label, is_disyllable = False):
 	return F1, F2, F3
 
 def padding_and_trimming_each(actual,pred):
-    audio_length = pred.shape[0]
-    return np.array([data[:pred[idx].shape[0]] if data.shape[0] >= pred[idx].shape[0] else np.pad(data, (0, max(0, pred[idx].shape[0] - data.shape[0])), "constant", constant_values =1) for idx, data in enumerate(actual)])
+	audio_length = pred.shape[0]
+	return np.array([data[:pred[idx].shape[0]] if data.shape[0] >= pred[idx].shape[0] else np.pad(data, (0, max(0, pred[idx].shape[0] - data.shape[0])), "constant", constant_values =1) for idx, data in enumerate(actual)])
 
 def padding_col(data):
 	max_len = len(max(data, key=len))

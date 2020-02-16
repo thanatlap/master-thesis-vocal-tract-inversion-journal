@@ -68,10 +68,10 @@ def random_param_from_syllable_pair(from_idx, to_idx, predefined_syllables):
 	'''
 	add some noise from  randomize params function
 	'''
-	if np.random.uniform(0, high=1) < cf.RAMDOM_PARAM_NOISE_PROB:
-		random_param = rand_param.randomize_noise_params(predefined_syllables, PARAM_HIGH, PARAM_LOW, sampling_step=cf.SAMPLING_STEP)
-	else:
-		random_param = rand_param.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, cf.MIN_MAX_PERCENT_CHANGE[0], cf.MIN_MAX_PERCENT_CHANGE[1])
+	# if np.random.uniform(0, high=1) < cf.RAMDOM_PARAM_NOISE_PROB:
+	# 	random_param = rand_param.randomize_noise_params(predefined_syllables, PARAM_HIGH, PARAM_LOW, sampling_step=cf.SAMPLING_STEP)
+	# else:
+	random_param = rand_param.randomize_by_percent_change(predefined_syllables, from_idx, to_idx, cf.MIN_MAX_PERCENT_CHANGE[0], cf.MIN_MAX_PERCENT_CHANGE[1])
 	return random_param
 
 def randomly_select_syllable_pair(predefined_syllables):
@@ -90,7 +90,6 @@ def randomly_select_syllable_pair(predefined_syllables):
 		# Check if the param is directly pick from default param since we will used this as a final testing set.
 		if sum([0 if not (item in predefined_syllables.tolist()) else 1 for item in random_syllables]) == 0:
 			break
-
 	# If generate disyllable, return a pair of param else, return only first pair
 	return random_syllables if cf.DI_SYLLABLE else random_syllables[0]
 

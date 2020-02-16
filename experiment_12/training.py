@@ -38,11 +38,6 @@ def prep_data():
 	y_val = utils.delete_params(y_val)
 	y_test = utils.delete_params(y_test)
 
-	# if cf.CNN:
-	# 	X_train = utils.cnn_reshape(X_train)
-	# 	X_val = utils.cnn_reshape(X_val)
-	# 	X_test = utils.cnn_reshape(X_test)
-
 	print('Train features and labels %s %s'%(str(X_train.shape),str(y_train.shape)))
 	print('Validating features and labels %s %s'%(str(X_val.shape),str(y_val.shape)))
 	print('Test features and labels %s %s'%(str(X_test.shape),str(y_test.shape)))
@@ -72,7 +67,7 @@ def get_model(model_fn, input_shape):
 		elif cf.OPT_NUM == 3:
 			opt = optimizers.RMSprop(learning_rate = cf.LEARNING_RATE)
 		
-		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse])
+		model.compile(optimizer=opt,loss=cf.LOSS_FN,metrics=[nn.rmse, nn.R2])
 	return model
 
 def training(features, labels, val_features, val_labels, model, model_name=None, experiment_num=None):
@@ -130,9 +125,12 @@ def testing(features, labels, model):
 	'''
 	evaluate on test subset using rmse and R2
 	'''
-	y_pred, result = utils.evaluation_report(model,features,labels)
-	r2 = utils.compute_AdjustR2(labels,y_pred,multioutput='uniform_average')
-	return y_pred, result, r2
+	loss = model.evaluate(features,labels,verbose=False)[0]
+	y_pred = model.predict(features)
+	r2 = utils.compute_R2(labels, y_pred,multioutput='uniform_average')
+	rmse = utils.total_rmse(labels, y_pred)
+	results = [loss, rmse, r2]
+	return y_pred, results
 
 def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experiment_num=None, model_name=None):
 	'''
@@ -140,29 +138,29 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 	This function is created for training multiple model in one run.
 	'''
 	# load experiment number
-	try:
-		experiment_num = utils.get_experiment_number() if experiment_num is None else experiment_num
-		print('### --- Training experiment number: %s'%experiment_num)
-		# initialize/load model
-		model = get_model(model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
-		# training
-		history, total_time, early = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
-		# evaluating
-		y_pred, result, r2 = testing(X_test, y_test, model)
-		# evaluate on training set
-		training_y_pred, training_result, training_r2 = testing(X_train, y_train, model)
-		val_y_pred, val_result, val_r2 = testing(X_val, y_val, model)
-		print('Result experiment number: #%s'%experiment_num)
-		print('Result RMSE: %.4f'%(result[1]))
-		print('Result R2: %.4f\n'%(r2))
-		print('[INFO] Log Results')
-		# log experiment	
-		res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, result, r2, history, model, 
-			training_y_pred, training_result, training_r2, total_time, model_name, early, val_y_pred, val_result, val_r2)
+	# try:
+	experiment_num = utils.get_experiment_number() if experiment_num is None else experiment_num
+	print('### --- Training experiment number: %s'%experiment_num)
+	# initialize/load model
+	model = get_model(model_fn = model_fn, input_shape = (X_train.shape[1],X_train.shape[2]))
+	# training
+	history, total_time, early = training(X_train, y_train, X_val, y_val, model, model_name=model_name, experiment_num=experiment_num)
+	training_y_pred, train_results = testing(X_train, y_train, model)
+	val_y_pred, val_results = testing(X_val, y_val, model)
+	y_pred, test_results = testing(X_test, y_test, model)
+	print('\n\n[INFO] Result experiment number: #%s'%experiment_num)
+	print(" -- |TRAINING  |  Loss: %.3f RMSE: %.3f R2:%.3f" %(train_results[0],train_results[1],train_results[2]))
+	print(" -- |VALIDATING|  Loss: %.3f RMSE: %.3f R2:%.3f" %(val_results[0],val_results[1],val_results[2]))
+	print(" -- |TESTING   |  Loss: %.3f RMSE: %.3f R2:%.3f\n\n" %(test_results[0],test_results[1],test_results[2]))
+	print('[INFO] Log Results')
+	# log experiment	
+	res.log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test, 
+		y_pred, test_results, history, model, 
+		training_y_pred, train_results, total_time, model_name, early, 
+		val_y_pred, val_results)
 		
-	except Exception as e:
-		print('experiment %f fail'%experiment_num)
-		print(e)
+	# except Exception as e:
+	# 	print('[ERROR] EXPERIMENT %d FAIL!\n%s'%(experiment_num,e))
 
 def main(args):
 	
@@ -180,32 +178,139 @@ def main(args):
 		experiment_num=0, 
 		model_name='undefined')
 
+	# COMPARE MODEL
+	cf.EPOCHS=100
+	cf.EARLY_STOP_PATIENCE=None
+	if args.exp == 1: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 2: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 3: ptraining_fn(nn.init_bilstm(), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 4: ptraining_fn(nn.init_resnet(), experiment_num=args.exp, model_name='resnet')
+	if args.exp == 5: ptraining_fn(nn.init_res_bilstm(), experiment_num=args.exp, model_name='res_bilstm')
+	if args.exp == 6: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
+	if args.exp == 7: ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 8: ptraining_fn(nn.init_LTRCNN(), experiment_num=args.exp, model_name='LTRCNN')
+	if args.exp == 9: ptraining_fn(nn.init_LTRCNN(drop_rate=0.4), experiment_num=args.exp, model_name='LTRCNN_reg')
 
-	if args.exp == 1: ptraining_fn(nn.init_resnet(), experiment_num=args.exp, model_name='resnet')
-	if args.exp == 2: ptraining_fn(nn.init_bilstm(), experiment_num=args.exp, model_name='bilstm')
-	if args.exp == 3: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='FCNN')
-	if args.exp == 4: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
-	if args.exp == 5: ptraining_fn(nn.init_cnn_bilstm(), experiment_num=args.exp, model_name='cnn_bilstm')
-	if args.exp == 6: ptraining_fn(nn.init_resnet(large=True), experiment_num=args.exp, model_name='resnet_large')
-	if args.exp == 7: ptraining_fn(nn.init_cnn_bilstm_dropout(), experiment_num=args.exp, model_name='cnn_bilstm_dropout')
-	if args.exp == 8: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
-	if args.exp == 9: ptraining_fn(nn.init_senet(bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
-	if args.exp == 10: ptraining_fn(nn.init_senet(feature_layer=6, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
-	if args.exp == 11: ptraining_fn(nn.init_cnn_bilstm(feature_layer=6), experiment_num=args.exp, model_name='cnn_bilstm_large')
-	if args.exp == 12: ptraining_fn(nn.init_cnn_bilstm(bilstm_layer=6), experiment_num=args.exp, model_name='cnn_bilstm_large')
-	if args.exp == 13: ptraining_fn(nn.init_cnn_bilstm(feature_layer=5,bilstm_layer=5), experiment_num=args.exp, model_name='cnn_bilstm_large')
-	if args.exp == 14: ptraining_fn(nn.init_senet(feature_layer=10, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm')
-	if args.exp == 15: 
-		cf.LEARNING_RATE = 0.0015
-		ptraining_fn(nn.init_LTRCNN(), experiment_num=args.exp, model_name='LTRCNN')
-	if args.exp == 16: 
-		cf.LEARNING_RATE = 0.0015
-		ptraining_fn(nn.init_LTRCNN(drop_rate=0.4), experiment_num=args.exp, model_name='LTRCNN')
-	if args.exp == 17: ptraining_fn(nn.init_senet(feature_layer=1, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm_small')
-	if args.exp == 18: ptraining_fn(nn.init_cnn_bilstm(feature_layer=1), experiment_num=args.exp, model_name='cnn_bilstm_small')
-	if args.exp == 19: ptraining_fn(nn.init_senet(feature_layer=2, bilstm=True), experiment_num=args.exp, model_name='senet_bilstm_small')
-	if args.exp == 20: ptraining_fn(nn.init_cnn_bilstm(feature_layer=2), experiment_num=args.exp, model_name='cnn_bilstm_small')
-	if args.exp == 21: ptraining_fn(nn.init_senet(feature_layer=2, bilstm=True, dense=True), experiment_num=args.exp, model_name='senet_bilstm_dense')
+	# COMPARE MODEL WITH EARLYSTOP
+	cf.EPOCHS=1000
+	cf.EARLY_STOP_PATIENCE=7
+	if args.exp == 10: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 11: ptraining_fn(nn.init_FCNN(), experiment_num=args.exp, model_name='FCNN')
+	if args.exp == 12: ptraining_fn(nn.init_bilstm(), experiment_num=args.exp, model_name='bilstm')
+	if args.exp == 13: ptraining_fn(nn.init_resnet(), experiment_num=args.exp, model_name='resnet')
+	if args.exp == 14: ptraining_fn(nn.init_res_bilstm(), experiment_num=args.exp, model_name='res_bilstm')
+	if args.exp == 15: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
+	if args.exp == 16: ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 17: ptraining_fn(nn.init_LTRCNN(), experiment_num=args.exp, model_name='LTRCNN')
+	if args.exp == 18: ptraining_fn(nn.init_LTRCNN(drop_rate=0.4), experiment_num=args.exp, model_name='LTRCNN_reg')
+
+	cf.EPOCHS=100
+	cf.BATCH_SIZE=64
+	cf.EARLY_STOP_PATIENCE=None
+	cf.LEARNING_RATE = 0.001 
+	# BATCH TUNING
+	if args.exp == 19: 
+		cf.BATCH_SIZE=16
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 20: 
+		cf.BATCH_SIZE=32
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 21: 
+		cf.BATCH_SIZE=128
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 22: 
+		cf.BATCH_SIZE=256
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+
+	# LEARNING TUNING
+	if args.exp == 23: 
+		cf.LEARNING_RATE = 0.01 
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 24: 
+		cf.LEARNING_RATE = 0.0001 
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 25: 
+		cf.LEARNING_RATE = 0.00001 
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+
+	# LEARNING TUNING
+	if args.exp == 26: 
+		cf.EPOCHS=1000
+		cf.EARLY_STOP_PATIENCE=15
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 27: 
+		cf.EPOCHS=1000
+		cf.EARLY_STOP_PATIENCE = 30
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	if args.exp == 28: 
+		cf.EPOCHS=1000
+		cf.EARLY_STOP_PATIENCE = 50
+		ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+
+	# DROPRATE TUNING
+	if args.exp == 29: ptraining_fn(nn.init_senet_skip(drop_rate=None), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 30: ptraining_fn(nn.init_senet_skip(drop_rate=0.1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 31: ptraining_fn(nn.init_senet_skip(drop_rate=0.2), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 32: ptraining_fn(nn.init_senet_skip(drop_rate=0.3), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 33: ptraining_fn(nn.init_senet_skip(drop_rate=0.4), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 34: ptraining_fn(nn.init_senet_skip(drop_rate=0.5), experiment_num=args.exp, model_name='senet_skip')
+
+	# SE LAYER TUNING
+	if args.exp == 35: ptraining_fn(nn.init_senet_skip(feature_layer=0), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 36: ptraining_fn(nn.init_senet_skip(feature_layer=1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 37: ptraining_fn(nn.init_senet_skip(feature_layer=3), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 38: ptraining_fn(nn.init_senet_skip(feature_layer=5), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 39: ptraining_fn(nn.init_senet_skip(feature_layer=10), experiment_num=args.exp, model_name='senet_skip')
+
+	# SE LAYER TUNING
+	if args.exp == 40: ptraining_fn(nn.init_senet_skip(bilstm=None), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 41: ptraining_fn(nn.init_senet_skip(bilstm=1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 42: ptraining_fn(nn.init_senet_skip(bilstm=2), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 43: ptraining_fn(nn.init_senet_skip(bilstm=3), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 44: ptraining_fn(nn.init_senet_skip(bilstm=4), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 45: ptraining_fn(nn.init_senet_skip(bilstm=5), experiment_num=args.exp, model_name='senet_skip')
+
+	# DENSE LAYER TUNING
+	if args.exp == 46: ptraining_fn(nn.init_senet_skip(dense=False), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 47: ptraining_fn(nn.init_senet_skip(dense=1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 48: ptraining_fn(nn.init_senet_skip(dense=2), experiment_num=args.exp, model_name='senet_skip')
+
+	# SE UNIT TUNING
+	if args.exp == 49: ptraining_fn(nn.init_senet_skip(cnn_unit=32), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 50: ptraining_fn(nn.init_senet_skip(cnn_unit=128), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 51: ptraining_fn(nn.init_senet_skip(cnn_unit=256), experiment_num=args.exp, model_name='senet_skip')
+
+	# BILSTM UNIT TUNING
+	if args.exp == 52: ptraining_fn(nn.init_senet_skip(bilstm_unit=64), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 53: ptraining_fn(nn.init_senet_skip(bilstm_unit=256), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 54: ptraining_fn(nn.init_senet_skip(bilstm_unit=512), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 55: ptraining_fn(nn.init_senet_skip(bilstm_unit=1024), experiment_num=args.exp, model_name='senet_skip')
+
+	# REDUCTION RATIO TUNING
+	if args.exp == 56: ptraining_fn(nn.init_senet_skip(reduction_ratio = 1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 57: ptraining_fn(nn.init_senet_skip(reduction_ratio = 2), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 58: ptraining_fn(nn.init_senet_skip(reduction_ratio = 4), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 59: ptraining_fn(nn.init_senet_skip(reduction_ratio = 8), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 60: ptraining_fn(nn.init_senet_skip(reduction_ratio = 16), experiment_num=args.exp, model_name='senet_skip')
+
+	# KERNEL TUNING
+	if args.exp == 61: ptraining_fn(nn.init_senet_skip(cnn_kernel=1), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 62: ptraining_fn(nn.init_senet_skip(cnn_kernel=3), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 63: ptraining_fn(nn.init_senet_skip(cnn_kernel=7), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 64: ptraining_fn(nn.init_senet_skip(cnn_kernel=9), experiment_num=args.exp, model_name='senet_skip')
+
+	# ACTIVATION TUNING
+	if args.exp == 65: ptraining_fn(nn.init_senet_skip(activation='relu'), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 66: ptraining_fn(nn.init_senet_skip(activation='tanh'), experiment_num=args.exp, model_name='senet_skip')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Exp Control")

@@ -173,8 +173,8 @@ def log_format_plot(log, formant_dir, save_csv_dir, label_name):
 	utils.export_format_csv(label_name, formant_dir ,sel_point = sel_point)
 
 # Add to main log file
-def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, total_time, 
-	model_name, stop_at, val_y_pred, val_result, val_r2):
+def log_experiment_csv_train(experiment_num, X_train, y_train, test_results, train_results, 
+		total_time, model_name,stop_at,val_y_pred,val_results):
 
 	os.makedirs('result', exist_ok=True)
 	log_file = join('..',cf.LOG_SHEET)
@@ -187,15 +187,15 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, train
 				'Date':datetime.now().strftime("%Y-%B-%d %H:%M"),
 				'Dataset': cf.DATASET_DIR[5:],
 				'Model':model_name,
-				'Train Loss': training_result[0],
-				'Train RMSE': training_result[1],
-				'Train R2': training_r2,
-				'Validate Loss':val_result[0],
-				'Validate RMSE':val_result[1],
-				'Validate R2':val_r2,
-				'Test Loss':result[0],
-				'Test RMSE':result[1],
-				'Test R2':r2,
+				'Train Loss': train_results[0],
+				'Train RMSE': train_results[1],
+				'Train R2': train_results[2],
+				'Validate Loss':val_results[0],
+				'Validate RMSE':val_results[1],
+				'Validate R2':val_results[2],
+				'Test Loss':test_results[0],
+				'Test RMSE':test_results[1],
+				'Test R2':test_results[2],
 				'Eval RMSE':np.NaN,
 				'Eval R2':np.NaN,
 				'Training_time': total_time,
@@ -245,9 +245,10 @@ def log_experiment_csv_eval(experiment_num, result, r2):
 		print('Main log not found!')
 		print('Need to create main log in training file first!')
 
-def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test,y_pred, 
-	result, r2, history, model, training_y_pred, training_result, training_r2, total_time, model_name, early,
-	val_y_pred, val_result, val_r2):
+def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_test, 
+			y_pred, test_results, history, model, 
+			training_y_pred, train_results, total_time, model_name, early, 
+			val_y_pred, val_results):
 
 	# create log directory
 	log_dir = join('result','training_'+str(experiment_num))
@@ -262,10 +263,10 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	else:
 		stop_at = np.NaN
 
-	log_experiment_csv_train(experiment_num, X_train, y_train, result, r2, training_result, training_r2, 
-		total_time, model_name,stop_at,val_y_pred, val_result, val_r2)
+	log_experiment_csv_train(experiment_num, X_train, y_train, test_results, train_results, 
+		total_time, model_name,stop_at,val_y_pred,val_results)
 
-	with open(join(log_dir,'performance_history.pickle'), 'wb') as file:
+	with open(join(log_dir,'performance_history'), 'wb') as file:
 		pickle.dump(history.history, file)
 
 	log = utils.get_log()
@@ -302,9 +303,6 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	log.write('Epochs: %s\n'%cf.EPOCHS)
 	log.write('Checkpoint period: %s\n'%cf.CHECKPOINT_PEROID)
 	log.write('--------------------------------------------------------\n')
-	log.write('TEST RESULT\n')
-	log.write('Loss: %.5f\nRMSE: %.5f\n'%(result[0],result[1]))
-	log.write('Result R2: %.5f\n'%(r2))
 	log.write('Training Time:  %.3fs'%total_time)
 	log.write('--------------------------------------------------------\n')
 	log_performance(log, history, log_dir)
@@ -327,8 +325,8 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	log.close()
 
 	# save y pred from testing subset for eda
-	print('[INFO] Export y pred')
-	np.save(arr=y_pred, file=join(log_dir,'y_pred.npy'))
+	np.save(arr=val_y_pred, file=join(log_dir,'validating_pred.npy'))
+	np.save(arr=y_pred, file=join(log_dir,'testing_pred.npy'))
 
 def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimated_sound, exp_num):
 

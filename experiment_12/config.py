@@ -47,4 +47,4 @@ LABEL_MODE = 3 #1:standardized 2:minmax
 #----------------------------------
 # Praat config
 PRAAT_EXE = r"G:\Praat.exe"
-LOG_SHEET = 'thesis_log_2.csv'
+LOG_SHEET = 'thesis_log_tuning.csv'
