@@ -35,7 +35,7 @@ def predict(features, model_file):
 	Load model and predict the vocaltract parameter from given audio
 	'''
 	#Load model for evaluated
-	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse})
+	model = models.load_model(model_file, custom_objects={'rmse': nn.rmse, 'R2': nn.R2})
 	model.summary()
 	y_pred = model.predict(features)
 	return y_pred
