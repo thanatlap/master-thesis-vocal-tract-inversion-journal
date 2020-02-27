@@ -154,7 +154,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
 		x = Activation('relu')(x)
-		outputs = layers.Concatenate()([x, input_x])
+		outputs = layers.Add()([x, input_x])
 		return outputs
 
 	def senet_nn(input_shape_1,input_shape_2):
@@ -164,7 +164,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-		cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
+		cnn_block(input_x, cnn_unit=cnn_unit//2, kernel_size=1)
 		if bilstm:
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
