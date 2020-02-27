@@ -36,6 +36,8 @@ ORINIAL_SAMPLE_RATE = 16000
 np_load_old = partial(np.load)
 np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
+np.random.seed(seed=42)
+
 def load_audio(audio_paths):
 	# force to load audio on 44100 sample rate, this rate can be resample down
 	return np.array([ librosa.load(file, sr=ORINIAL_SAMPLE_RATE)[0] for file in audio_paths ])

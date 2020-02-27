@@ -99,7 +99,7 @@ def init_resnet(res_layers=2):
 		return model
 	return resnet
 
-def init_res_bilstm(feature_layer=3, bilstm_layer=3):
+def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 
 	def res_bilstm(input_shape_1,input_shape_2):
 
@@ -121,62 +121,68 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=3):
 	return res_bilstm
 
 
-def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, bilstm = 2, bilstm_unit=128, dense=False, reduction_ratio = 2):
+def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
+	bilstm = 2, bilstm_unit=128, 
+	se_activation='sigmoid',
+	dense=False, 
+	dropout_rate=0.4,
+	reduction_ratio = 2):
 
-	
+
+	def cnn_block(input_x, cnn_unit, kernel_size):
+		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
+		x = BatchNormalization()(x)
+		outputs = Activation('elu')(x)
+		return outputs
 
 	def se_block(input_x):
 		x = layers.GlobalAveragePooling1D()(input_x)
 		channel_shape = getattr(x, '_shape_val')[-1]
 		x = Reshape((1, channel_shape))(x)
-		x = Dense(channel_shape // reduction_ratio, activation='elu', kernel_initializer='he_normal')(x)
-		outputs = Dense(channel_shape, activation='sigmoid', kernel_initializer='he_normal')(x)
+		x = Dense(channel_shape // reduction_ratio, activation='selu', kernel_initializer='lecun_normal')(x)
+		outputs = Dense(channel_shape, activation=se_activation, kernel_initializer='lecun_normal')(x)
 		return outputs
 
 	def residual_block(input_x):
-		
-		x = pConv1D(cnn_unit, kernel_size=3)(input_x)
-		x = BatchNormalization()(x)
-		x = Activation('elu')(x)
-		x = pConv1D(cnn_unit, kernel_size=3)(x)
-		x = BatchNormalization()(x)
-		outputs = Activation('elu')(x)
+		x = cnn_block(input_x, cnn_unit,kernel_size=3)
+		outputs = pConv1D(cnn_unit, kernel_size=3)(x)
 		return outputs
 
 	def se_res_block(input_x):
-
 		res_x = residual_block(input_x)
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
-		outputs = layers.Add()([x, input_x])
-		return outputs
-
-	def res(input_shape_1,input_shape_2):
-
-		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-		x = pConv1D(cnn_unit, kernel_size=cnn_kernel)(input_x)
 		x = BatchNormalization()(x)
 		x = Activation('elu')(x)
+		outputs = layers.Concatenate()([x, input_x])
+		return outputs
+
+	def senet_nn(input_shape_1,input_shape_2):
+
+		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
+
+		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-
+		cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
 		if bilstm:
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
-				x = layers.SpatialDropout1D(rate=0.4)(x)
+				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 			x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-			x = layers.Dropout(rate=0.4)(x)
+			# x = BatchNormalization()(x)
+			x = layers.Dropout(rate=dropout_rate)(x)
 		else:
 			x = layers.GlobalAveragePooling1D()(x)
 		if dense: 
 			x = pDense(1024, activation='elu')(x)
-			x = layers.Dropout(rate=0.4)(x)
+			x = layers.Dropout(rate=dropout_rate)(x)
 		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		# model.summary()
 		return model
-	return res
 
+	return senet_nn
 
 
 def init_senet_skip(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
