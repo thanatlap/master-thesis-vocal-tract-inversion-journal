@@ -190,6 +190,7 @@ def main(args):
 
 	if args.exp == 6: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
+	if args.exp == 7: ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
 	
 	
 

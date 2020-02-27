@@ -132,7 +132,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 	def cnn_block(input_x, cnn_unit, kernel_size):
 		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
 		x = BatchNormalization()(x)
-		outputs = Activation('elu')(x)
+		outputs = Activation('relu')(x)
 		return outputs
 
 	def se_block(input_x):
@@ -145,15 +145,15 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 
 	def residual_block(input_x):
 		x = cnn_block(input_x, cnn_unit,kernel_size=3)
-		outputs = pConv1D(cnn_unit, kernel_size=3)(x)
+		x = pConv1D(cnn_unit, kernel_size=3)(x)
+		outputs = BatchNormalization()(x)
 		return outputs
 
 	def se_res_block(input_x):
 		res_x = residual_block(input_x)
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
-		x = BatchNormalization()(x)
-		x = Activation('elu')(x)
+		x = Activation('relu')(x)
 		outputs = layers.Concatenate()([x, input_x])
 		return outputs
 
@@ -170,7 +170,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
 				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 			x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-			# x = BatchNormalization()(x)
+			x = BatchNormalization()(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
 		else:
 			x = layers.GlobalAveragePooling1D()(x)
