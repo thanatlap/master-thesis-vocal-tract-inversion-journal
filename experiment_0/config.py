@@ -13,7 +13,7 @@ LOAD_FROM_CHECKPOINT = None
 #---------------------------------
 #Experiment setting
 #Model compile setting
-LEARNING_RATE = 0.1  
+LEARNING_RATE = 0.001  
 BETA1 = 0.9
 BETA2 = 0.999
 EPS = None
@@ -21,11 +21,11 @@ SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
 OPT = 'NAG' # for record only
-OPT_NUM = 4
+OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 120
+EPOCHS = 30
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve

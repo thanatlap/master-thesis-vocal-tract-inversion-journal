@@ -13,7 +13,7 @@ The predict dataset does not have the label
 
 '''
 import numpy as np
-import librosa, os, math, random, itertools, argparse
+import librosa, os, math, random, itertools, argparse, pickle
 from librosa import feature
 import matplotlib.pyplot as plt
 from os.path import join
@@ -135,16 +135,61 @@ def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
 	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (max(0,audio_length - data.shape[0]),0), "constant") for data in audio_data])
 
+def get_audio_max_length(feature, is_train):
+	'''
+	get max length of list item in array of array
+	'''
+	max_length_file_path = join('vars','mode_4_max_length_di.txt') if is_disyllable else join('vars','mode_4_max_length_mono.txt')
+
+	if is_train:
+		os.makedirs('vars', exist_ok = True)
+		max_length = max([item.shape[0] for item in feature])
+		f = open(max_length_file_path, 'w')
+		f.write(str(max_length))
+		f.close()
+	else:
+		if not os.path.exists(max_length_file_path):
+			raise ValueError('segment max_length_file_path not found')
+		with open(max_length_file_path, "r") as max_length:
+			max_length = list(map(int, max_length.readlines()))[0]
+	return max_length
+
+
+def zero_padd_mfcc(feature, is_train):
+	'''
+	This function take mfcc with (datasize, timeframe, feature) 
+	and padd zero 
+	'''
+	# save for inference
+	max_length = get_audio_max_length(feature, is_train)
+	def pad_data(vector, pad_width, iaxis, kwargs):
+		vector[:pad_width[0]] = kwargs.get('padder', 0)
+
+	return np.array([np.pad(item, [(max(0, max_length-item.shape[0]),0),(0,0)], pad_data) for item in feature])
+
+
+def transform_audio_to_mfcc(audio_data, sample_rate, max_n_mfcc = 13):
+
+	outputs = []
+	for data in audio_data:
+		mfcc = feature.mfcc(data, sr=sample_rate, n_mfcc = max_n_mfcc)
+		outputs.append(np.swapaxes(np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=0),0,1))
+	return outputs
+
 def transfrom_mfcc(audio_data, sample_rate):
 	'''
 	Transform audio feature into mfcc
 	'''
 	def wav2mfcc(data):
 		max_n_mfcc = 13
+		# reshape mfcc ndarray from (c,t) to (t,c)
 		mfcc = librosa.feature.mfcc(data, sr=sample_rate, n_mfcc = max_n_mfcc)[:max_n_mfcc] # experiment with first mfcc features
 		return mfcc
 
-	return np.array([wav2mfcc(data) for data in audio_data])
+	wav = [wav2mfcc(data) for data in audio_data]
+	print(np.array(wav))
+	return np.array(wav)
+	 
 
 def transform_delta(mfcc):
 	'''
@@ -188,25 +233,35 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 			print('[INFO] Min Max Scale using it own min max, not a predefined')
 			labels = utils.min_max_scale_transform(labels, is_train, is_disyllable)
 
-	print('[INFO] Padding audio length')
-	features = zero_padding_audio(features, mode, is_disyllable, is_train)
-	# get mfcc
-	print('[INFO] Transforming audio data to MFCC')
-	features = transfrom_mfcc(features, sample_rate=sample_rate)
-	# get delta and delta-delta
-	print('[INFO] Adding delta and delta-delta')
-	features = transform_delta(features)
+	if feat_prep_mode != 4:
+		print('[INFO] Padding audio length')
+		features = zero_padding_audio(features, mode, is_disyllable, is_train)
+		# get mfcc
+		print('[INFO] Transforming audio data to MFCC')
+		features = transfrom_mfcc(features, sample_rate=sample_rate)
+		# get delta and delta-delta
+		print('[INFO] Adding delta and delta-delta')
+		features = transform_delta(features)
 
-	if feat_prep_mode == 1:
-		# Normalize MFCCs 
-		print('[INFO] Normalization in each timestep')
-		features = utils.standardize_mfcc(features, is_train, is_disyllable)
-	elif feat_prep_mode == 3:
-		print('[INFO] Normalization using self-centering')
-		features = utils.standardize_mfcc(features, is_train, is_disyllable, self_centering=True)
-	# swap dimension to (data, timestamp, features)
-	print('[INFO] Swap axis to (data, timestamp, features)')
-	features = np.swapaxes(features ,1,2)
+	if feat_prep_mode == 4:
+		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
+		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
+		print('[INFO] Normalization in each cepstral + self-normalized')
+		features = utils.normalize_mfcc_by_mean_cepstral(features)
+		print('[INFO] Padding MFCC length')
+		features = zero_padd_mfcc(feature)
+
+	else:
+		if feat_prep_mode == 1:
+			# Normalize MFCCs 
+			print('[INFO] Normalization in each timestep')
+			features = utils.standardize_mfcc(features, is_train, is_disyllable)
+		elif feat_prep_mode == 3:
+			print('[INFO] Normalization using self-centering')
+			features = utils.standardize_mfcc(features, is_train, is_disyllable, self_centering=True)
+		# swap dimension to (data, timestamp, features)
+		print('[INFO] Swap axis to (data, timestamp, features)')
+		features = np.swapaxes(features ,1,2)
 
 	if mode == TRAIN_MODE:
 		#shuffle training subset after preprocess
@@ -235,7 +290,7 @@ def main(args):
 	# check label_normalize 
 	if args.label_normalize not in [1,2,3,4,5]:
 		raise ValueError('[ERROR] Target Preprocess mode %s is not match Choice: [1,2,3,4,5]'%args.label_normalize)
-	if args.feature_normalize not in [1,2, 3]:
+	if args.feature_normalize not in [1,2,3,4]:
 		raise ValueError('[ERROR] Feature Preprocess mode %s is not match [1: standardized, 2: None]'%args.label_normalize)
 	# if output path is not specify
 	if args.output_path == None:
@@ -253,6 +308,10 @@ def main(args):
 	print('[INFO] Importing data')
 	audio_data, labels = import_data(args.data_path, mode=args.mode)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
+
+	print('[INFO] Reduce length for testing')
+	audio_data = audio_data[:20]
+	labels = labels[:20]
 
 	if args.resample_rate != ORINIAL_SAMPLE_RATE:
 		print('[INFO] Resample audio sample rate')
@@ -362,7 +421,7 @@ if __name__ == '__main__':
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
-	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering]", type=int, default=1)
+	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering, 4:Cepstral Norm]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
 	parser.add_argument('--is_export_sample', dest='is_export_sample', default='False', help='export sample data', type=str)
 	args = parser.parse_args()

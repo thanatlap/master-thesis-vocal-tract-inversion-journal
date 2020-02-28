@@ -41,6 +41,11 @@ def delete_params(params):
 	'''
 	return np.delete(params,DEL_PARAMS_LIST , axis=1)
 
+def normalize_mfcc_by_mean_cepstral(mfcc):
+    ceps_mean = np.mean([np.mean(item, axis=0) for item in mfcc], axis=0)
+    ceps_std = np.mean([np.std(item, axis=0) for item in mfcc], axis=0)
+    return np.array([(item-ceps_mean)/(ceps_std+1e-8) for item in mfcc])
+
 def standardize_mfcc(features, is_train, is_disyllable, self_centering=False):
 
 	if not self_centering:
