@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3/aug_data'
+DATASET_DIR = '../data/d_dataset_t3/prep_data_v2'
 
 #---------------------------------
 
@@ -20,12 +20,12 @@ EPS = None
 SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
-OPT = 'NAG' # for record only
+OPT = 'AMSgrad' # for record only
 OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 30
+EPOCHS = 50
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve

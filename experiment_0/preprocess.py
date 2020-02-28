@@ -135,7 +135,7 @@ def zero_padding_audio(audio_data, mode, is_disyllable, is_train):
 	audio_length = get_audio_max_length(audio_data, mode, is_train, is_disyllable)
 	return np.array([data[:audio_length] if data.shape[0] > audio_length else np.pad(data, (max(0,audio_length - data.shape[0]),0), "constant") for data in audio_data])
 
-def get_audio_max_length(feature, is_train):
+def get_audio_max_length(feature, is_train,is_disyllable):
 	'''
 	get max length of list item in array of array
 	'''
@@ -155,20 +155,20 @@ def get_audio_max_length(feature, is_train):
 	return max_length
 
 
-def zero_padd_mfcc(feature, is_train):
+def zero_pad_mfcc(feature, is_train, is_disyllable):
 	'''
 	This function take mfcc with (datasize, timeframe, feature) 
 	and padd zero 
 	'''
 	# save for inference
-	max_length = get_audio_max_length(feature, is_train)
+	max_length = get_audio_max_length(feature, is_train, is_disyllable)
 	def pad_data(vector, pad_width, iaxis, kwargs):
 		vector[:pad_width[0]] = kwargs.get('padder', 0)
 
 	return np.array([np.pad(item, [(max(0, max_length-item.shape[0]),0),(0,0)], pad_data) for item in feature])
 
 
-def transform_audio_to_mfcc(audio_data, sample_rate, max_n_mfcc = 13):
+def transform_audio_to_mfcc(audio_data, sample_rate, max_n_mfcc):
 
 	outputs = []
 	for data in audio_data:
@@ -243,15 +243,6 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		print('[INFO] Adding delta and delta-delta')
 		features = transform_delta(features)
 
-	if feat_prep_mode == 4:
-		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
-		print('[INFO] Normalization in each cepstral + self-normalized')
-		features = utils.normalize_mfcc_by_mean_cepstral(features)
-		print('[INFO] Padding MFCC length')
-		features = zero_padd_mfcc(feature)
-
-	else:
 		if feat_prep_mode == 1:
 			# Normalize MFCCs 
 			print('[INFO] Normalization in each timestep')
@@ -262,6 +253,14 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 		# swap dimension to (data, timestamp, features)
 		print('[INFO] Swap axis to (data, timestamp, features)')
 		features = np.swapaxes(features ,1,2)
+
+	elif feat_prep_mode == 4:
+		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
+		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 15)
+		print('[INFO] Normalization in each cepstral + self-normalized')
+		features = utils.normalize_mfcc_by_mean_cepstral(features)
+		print('[INFO] Padding MFCC length')
+		features = zero_pad_mfcc(features, is_train, is_disyllable)
 
 	if mode == TRAIN_MODE:
 		#shuffle training subset after preprocess
@@ -309,9 +308,9 @@ def main(args):
 	audio_data, labels = import_data(args.data_path, mode=args.mode)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
 
-	print('[INFO] Reduce length for testing')
-	audio_data = audio_data[:20]
-	labels = labels[:20]
+	# print('[INFO] Reduce length for testing')
+	# audio_data = audio_data[:20]
+	# labels = labels[:20]
 
 	if args.resample_rate != ORINIAL_SAMPLE_RATE:
 		print('[INFO] Resample audio sample rate')

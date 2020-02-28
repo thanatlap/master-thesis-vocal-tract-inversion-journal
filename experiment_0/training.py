@@ -185,12 +185,17 @@ def main(args):
 		y_train=y_train, 
 		y_val=y_val, 
 		y_test=y_test,
-		experiment_num=0, 
+		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 10: ptraining_fn(nn.init_senet(), experiment_num=args.exp, model_name='senet')
-	if args.exp == 5: ptraining_fn(nn.init_baseline(), experiment_num=args.exp, model_name='baseline')
-	if args.exp == 7: ptraining_fn(nn.init_senet_skip(), experiment_num=args.exp, model_name='senet_skip')
+	if args.exp == 16: ptraining_fn(nn.init_senet(),
+		model_name='senet_data_2_fix_mfcc_20')
+	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
+		model_name='baseline')
+	if args.exp == 13: ptraining_fn(nn.init_senet_skip(), 
+		model_name='senet_skip')
+	if args.exp == 14: ptraining_fn(nn.init_LTRCNN(drop_rate=0.3), 
+		model_name='LTRCNN')
 	
 	
 

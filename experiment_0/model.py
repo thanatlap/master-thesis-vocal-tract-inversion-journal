@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
+from tensorflow.keras import regularizers
 from tensorflow.keras.layers import Reshape, GRU, InputLayer, AlphaDropout, Activation, BatchNormalization, Dropout, Flatten, Dense, Bidirectional, LSTM, Conv1D
 import config as cf
 from functools import partial
@@ -164,7 +165,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-		cnn_block(input_x, cnn_unit=cnn_unit//2, kernel_size=1)
+		x = cnn_block(x, cnn_unit=cnn_unit//2, kernel_size=1)
 		if bilstm:
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
@@ -254,16 +255,16 @@ def init_LTRCNN(drop_rate=None):
 
 	def LTRCNN(input_shape_1,input_shape_2):
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-		x1 = pConv1D(128, kernel_size=3, activation='relu')(input_x)
+		x1 = pConv1D(128, kernel_size=3, activation='relu', kernel_regularizer=regularizers.l2(0.0005))(input_x)
 		if drop_rate: x1 = Dropout(rate=drop_rate)(x1)
-		x2 = pConv1D(128, kernel_size=3, activation='relu')(x1)
+		x2 = pConv1D(128, kernel_size=3, activation='relu', kernel_regularizer=regularizers.l2(0.0005))(x1)
 		if drop_rate: x2 = Dropout(rate=drop_rate)(x2)
 		x = layers.Concatenate()([x1, x2])
 		x = pLSTM(1024, return_sequences=False)(x)
 		if drop_rate: x = Dropout(rate=drop_rate)(x)
-		x = pDense(1024, activation='relu')(x)
+		x = pDense(1024, activation='relu', kernel_regularizer=regularizers.l2(0.0005))(x)
 		if drop_rate: x = Dropout(rate=drop_rate)(x)
-		outputs = pDense(N_OUTPUTS, activation='linear')(x)
+		outputs = pDense(N_OUTPUTS, activation='linear', kernel_regularizer=regularizers.l2(0.0005))(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		# model.summary()
 		return model
