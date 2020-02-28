@@ -9,3 +9,4 @@ data/*
 temp/*
 *.h5
 *checkpoint.ipynb
+*/run.bat
