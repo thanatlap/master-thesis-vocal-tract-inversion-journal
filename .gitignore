@@ -8,3 +8,4 @@ data/*
 *.wav
 temp/*
 *.h5
+*checkpoint.ipynb
