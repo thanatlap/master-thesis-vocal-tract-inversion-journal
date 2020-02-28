@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3/prep_data_v2'
+DATASET_DIR = '../data/d_dataset_t3/prep_data_v3'
 
 #---------------------------------
 

@@ -125,7 +125,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='sigmoid',
-	dense=False, 
+	dense=None, 
 	dropout_rate=0.4,
 	reduction_ratio = 2):
 
@@ -176,7 +176,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		else:
 			x = layers.GlobalAveragePooling1D()(x)
 		if dense: 
-			x = pDense(1024, activation='elu')(x)
+			x = pDense(dense, activation='elu')(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
 		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
