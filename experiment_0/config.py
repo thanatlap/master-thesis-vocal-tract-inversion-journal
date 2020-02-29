@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3/prep_data_v3'
+DATASET_DIR = '../data/d_dataset_t3/prep_data_v4'
 
 #---------------------------------
 
@@ -13,7 +13,7 @@ LOAD_FROM_CHECKPOINT = None
 #---------------------------------
 #Experiment setting
 #Model compile setting
-LEARNING_RATE = 0.001  
+LEARNING_RATE = 0.01  
 BETA1 = 0.9
 BETA2 = 0.999
 EPS = None
@@ -21,11 +21,11 @@ SDECAY = 0.0
 AMSGRAD = True
 LOSS_FN = 'mse'
 OPT = 'AMSgrad' # for record only
-OPT_NUM = 1
+OPT_NUM = 2
 
 # Training
 BATCH_SIZE = 128
-EPOCHS = 50
+EPOCHS = 20
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve

@@ -256,7 +256,7 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 	elif feat_prep_mode == 4:
 		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 15)
+		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
 		print('[INFO] Normalization in each cepstral + self-normalized')
 		features = utils.normalize_mfcc_by_mean_cepstral(features)
 		print('[INFO] Padding MFCC length')

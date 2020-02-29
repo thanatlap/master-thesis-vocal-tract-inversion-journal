@@ -188,8 +188,8 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 18: ptraining_fn(nn.init_senet(),
-		model_name='senet_data_2_fix_mfcc_15')
+	if args.exp == 21: ptraining_fn(nn.init_senet(),
+		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
 	if args.exp == 13: ptraining_fn(nn.init_senet_skip(), 
