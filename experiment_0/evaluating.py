@@ -44,7 +44,7 @@ def evaluating(features, labels):
 	if not os.path.exists(model_path):
 		raise ValueError('Model %s not found!'%model_path)
 
-	model = models.load_model(model_path, custom_objects={'rmse': nn.rmse})
+	model = models.load_model(model_path, custom_objects={'rmse': nn.rmse, 'R2':nn.R2})
 	model.summary()
 	#Evaluate and predict
 	eval_result = model.evaluate(features, labels)

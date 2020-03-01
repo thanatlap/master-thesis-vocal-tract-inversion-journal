@@ -39,7 +39,7 @@ TENSORBOARD = False
 PREP_EVAL_FOLDER = 'prep_data_13'
 
 EVALSET_DIR = '../data/d_eval'
-MODEL_FILE = '33_senet.h5'
+MODEL_FILE = '35_senet.h5'
 
 LABEL_MODE = 3 #1:standardized 2:minmax
 

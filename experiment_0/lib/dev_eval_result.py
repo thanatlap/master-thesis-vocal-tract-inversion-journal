@@ -74,15 +74,21 @@ def set_datapoint_index(df):
 
 def plot_formant_chart(df, reindex_fn, dir_path, is_disyllable, note=None):
 
-	filled_markers = ('o', 'v', "s", "P", "*", "D", "^", "X", "<")
+	filled_markers = ['o', 'v', "s", "P", "*", "D", "^", "X", "<", "d", "x", "+"]
 
-	actual = reindex_fn(df[df['Target']==1].copy()).reset_index()
+	actual = reindex_fn(df[df['Target']==1].copy())
+	# filled_markers = actual.index
+	actual = actual.reset_index()
 	estimated = reindex_fn(df[df['Target']==0].copy()).reset_index()
 
 	fig, ax = plt.subplots()
 
-	for idx, mark in enumerate(filled_markers):
-		ax.scatter(actual['F2'][idx], actual['F1'][idx], marker=mark, color='red', label=actual['Label'][idx])
+	for idx, data in enumerate(actual.index):
+		mark = filled_markers[idx]
+		# mark = '${}$'.format(filled_markers[idx])
+		# s=150
+		# linewidth='0.5'
+		ax.scatter(actual['F2'][idx], actual['F1'][idx], marker=mark,  color='red', label=actual['Label'][idx])
 		ax.scatter(estimated['F2'][idx], estimated['F1'][idx], marker=mark, color='blue')
 
 	ax.set_xticks(np.arange(400, 2400+1, 200))
@@ -135,6 +141,10 @@ def change_label_set_1(datapoint_df):
 	datapoint_df.at['i', 'Label']= 'i:'
 	datapoint_df.at['e', 'Label']= 'e:'
 	datapoint_df.at['u', 'Label']= 'u:'
+	datapoint_df.at['A', 'Label']= 'ɑ:'
+	datapoint_df.at['2', 'Label']= 'ø:'
+	datapoint_df.at['U', 'Label']= 'ʊ:'
+
 	return datapoint_df
 
 def change_label_set_2(datapoint_df):
