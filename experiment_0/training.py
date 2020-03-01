@@ -51,6 +51,7 @@ def get_model(model_fn, input_shape):
 	'''
 	# load from save if save is defined in config file
 	if cf.LOAD_FROM_SAVE is not None:
+		print('[INFO] Load from save: %s'%cf.LOAD_FROM_SAVE)
 		return tf.keras.models.load_model(join('model',cf.LOAD_FROM_SAVE), custom_objects={'rmse': nn.rmse, 'R2':nn.R2})
 	else:
 		# initialize model
@@ -188,7 +189,7 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 21: ptraining_fn(nn.init_senet(),
+	if args.exp == 35: ptraining_fn(nn.init_senet(),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')

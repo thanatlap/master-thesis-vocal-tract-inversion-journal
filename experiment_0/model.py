@@ -124,7 +124,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 
 def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
-	se_activation='sigmoid',
+	se_activation='tanh',
 	dense=None, 
 	dropout_rate=0.4,
 	reduction_ratio = 2):
@@ -133,15 +133,15 @@ def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5,
 	def cnn_block(input_x, cnn_unit, kernel_size):
 		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
 		x = BatchNormalization()(x)
-		outputs = Activation('relu')(x)
+		outputs = Activation('elu')(x)
 		return outputs
 
 	def se_block(input_x):
 		x = layers.GlobalAveragePooling1D()(input_x)
 		channel_shape = getattr(x, '_shape_val')[-1]
 		x = Reshape((1, channel_shape))(x)
-		x = Dense(channel_shape // reduction_ratio, activation='relu', kernel_initializer='he_normal')(x)
-		outputs = Dense(channel_shape, activation=se_activation, kernel_initializer='he_normal')(x)
+		x = Dense(channel_shape // reduction_ratio, activation='selu', kernel_initializer='lecun_normal')(x)
+		outputs = Dense(channel_shape, activation=se_activation, kernel_initializer='lecun_normal')(x)
 		return outputs
 
 	def residual_block(input_x):
@@ -154,7 +154,7 @@ def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5,
 		res_x = residual_block(input_x)
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
-		x = Activation('relu')(x)
+		x = Activation('elu')(x)
 		x = layers.Concatenate()([x, input_x])
 		outputs = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
 		return outputs
@@ -166,13 +166,12 @@ def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5,
 		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-		
+			x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		if bilstm:
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
 				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 			x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-			x = BatchNormalization()(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
 		else:
 			x = layers.GlobalAveragePooling1D()(x)

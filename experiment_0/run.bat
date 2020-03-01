@@ -2,28 +2,21 @@ rem cd ../data_generator
 rem python generating_data.py
 rem cd ../experiment_0
 
-rem python preprocess.py training ..\data\d_dataset_t3 di --output_path=aug_data --augment_samples=0.25 --resample_rate=16000 --label_normalize=5 --feature_normalize=1 --split_size=0.15
-rem python training.py 8
-rem python training.py 5
+rem python preprocess.py training ..\data\d_dataset_t3_20k di --output_path=prep_data_13 --augment_samples=0.25 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
+rem python preprocess.py eval ..\data\d_eval di --output_path=prep_data_13 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
+rem python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data --resample_rate=16000 --feature_normalize=4
+rem python training.py 34
+rem python predicting.py ..\data\d_records\d_record_set_2 prep_data_3 34_senet.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data --resample_rate=16000 --feature_normalize=1
-rem python training.py 7
-
-rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 10_senet.h5 di --label_normalize=3
-rem python training.py 10
-
-rem python preprocess.py training ..\data\d_dataset_t3 di --output_path=prep_data_v4 --augment_samples=0.25 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
-rem python training.py 12
-rem python training.py 13
-rem python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data_2 --resample_rate=16000 --feature_normalize=4
-rem python predicting.py ..\data\d_records\d_record_set_2 prep_data_2 13_senet_skip.h5 di --label_normalize=3
-rem python training.py 18
-rem python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data_2 --resample_rate=16000 --feature_normalize=4
-rem python predicting.py ..\data\d_records\d_record_set_2 prep_data_2 18_senet_data_2_fix_mfcc_15.h5 di --label_normalize=3
 rem cd ../data_generator
-rem python generating_data.py
+rem python ..\templates\predefined_param.csv di 
 rem cd ../experiment_0
-rem python preprocess.py training ..\data\d_dataset_t3 di --output_path=prep_data_v3 --augment_samples=0.25 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
-python training.py 21
-python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data_3 --resample_rate=16000 --feature_normalize=4
-python predicting.py ..\data\d_records\d_record_set_2 prep_data_3 21_senet.h5 di --label_normalize=3
+rem preprocess.py eval ..\data\d_eval di --output_path=prep_data_13 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
+
+cd ../data_generator
+python generating_data.py
+cd ../experiment_0
+python preprocess.py training ..\data\d_dataset_t3_40k_c di --output_path=prep_data_13 --augment_samples=0.25 --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
+python training.py 35
+python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data --resample_rate=16000 --feature_normalize=4
+python predicting.py ..\data\d_records\d_record_set_2 prep_data_3 35_senet.h5 di --label_normalize=3
