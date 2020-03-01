@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13'
+DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13_s'
 
 #---------------------------------
 
@@ -25,7 +25,7 @@ OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 64
-EPOCHS = 300
+EPOCHS = 100
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
@@ -39,7 +39,7 @@ TENSORBOARD = False
 PREP_EVAL_FOLDER = 'prep_data_13'
 
 EVALSET_DIR = '../data/d_eval'
-MODEL_FILE = '35_senet.h5'
+MODEL_FILE = '37_senet.h5'
 
 LABEL_MODE = 3 #1:standardized 2:minmax
 

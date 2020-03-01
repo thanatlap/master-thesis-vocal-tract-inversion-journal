@@ -126,7 +126,7 @@ def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5,
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='tanh',
 	dense=None, 
-	dropout_rate=0.4,
+	dropout_rate=0.3,
 	reduction_ratio = 2):
 
 
@@ -155,6 +155,7 @@ def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5,
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
 		x = Activation('elu')(x)
+		input_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.Concatenate()([x, input_x])
 		outputs = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
 		return outputs

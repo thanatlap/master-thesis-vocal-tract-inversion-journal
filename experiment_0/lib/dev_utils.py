@@ -171,8 +171,10 @@ def transform_VO(labels):
 	'''
 	Use this function after addd param function
 	'''
+	VO = [-1.0, -0.1, 0.05]
+
 	for item in labels:
-		item[7:8] = [-1.0] if item[7] > -0.5 else [0.05]
+		item[7:8] = VO[np.argmin([abs(VO[0]-item[7]), abs(VO[1]-item[7]), abs(VO[2]-item[7])])]
 	return labels
 
 def label_imputation(params_descale, params):

@@ -21,7 +21,7 @@ def custome_reindex(df):
 	return df.reindex(["a:", "i:", "u:","e:","E","@","9","o","O"])
 
 def custome_reindex_type2(df):
-	return df.reindex(["a:", "i:", "u:","e:",'ɛ:','ə:','œ:','o:','ɔ:'])
+	return df.reindex(["a:", "i:", "u:","e:",'ɛ:','ə:','œ:','o:','ɔ:', 'ɑ:','ø:','ʊ:'])
 
 def custome_reindex_type3(df):
 	return df.reindex(["a:", "i:", "u:","e:",'ɛ:','ɯ:','ɤ:','o:','ɔ:'])
