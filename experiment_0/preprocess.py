@@ -303,11 +303,18 @@ def main(args):
 	print('--Resample rate: %s'%str(args.resample_rate))
 	print('--Feauture normalize mode: %s'%str(args.feature_normalize))
 	print('--Label normalize mode: %s'%str(args.label_normalize))
+	print('--Sampling data size: %s'%str(args.sample_data_size))
 
 	print('[INFO] Importing data')
 	audio_data, labels = import_data(args.data_path, mode=args.mode)
 	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
 
+	if args.sample_data_size:
+		print('[INFO] Sampling Data of size: {}'.format(args.sample_data_size))
+		idx = np.random.choice(range(0,audio_data.shape[0]), size=args.sample_data_size, replace =False)
+		audio_data = audio_data[idx]
+		labels = labels[idx]
+		print('[DEBUG] Feature: {}, Label: {}'.format(str(audio_data.shape, labels.shape)))
 	# print('[INFO] Reduce length for testing')
 	# audio_data = audio_data[:20]
 	# labels = labels[:20]
@@ -419,6 +426,7 @@ if __name__ == '__main__':
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
 	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
+	parser.add_argument("--sample_data_size", help="sample data size", type=int, default=None)
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering, 4:Cepstral Norm]", type=int, default=1)
 	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
