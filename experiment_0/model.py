@@ -125,7 +125,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='tanh',
-	dense=None, 
+	dense=256, 
 	dropout_rate=0.3,
 	reduction_ratio = 2):
 
@@ -176,10 +176,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
 				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
-			x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-			x = layers.Dropout(rate=dropout_rate)(x)
-		else:
-			x = layers.GlobalAveragePooling1D()(x)
+		x = layers.GlobalAveragePooling1D()(x)
 		if dense: 
 			x = pDense(dense, activation='elu')(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
