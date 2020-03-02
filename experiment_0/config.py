@@ -28,7 +28,7 @@ BATCH_SIZE = 64
 EPOCHS = 100
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 7 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 10 # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False

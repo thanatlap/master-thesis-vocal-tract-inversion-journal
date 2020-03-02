@@ -122,7 +122,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 	return res_bilstm
 
 
-def init_senet(feature_layer=3, cnn_unit=64, cnn_kernel=5, 
+def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='tanh',
 	dense=None, 
@@ -132,23 +132,23 @@ def init_senet(feature_layer=3, cnn_unit=64, cnn_kernel=5,
 
 	def cnn_block(input_x, cnn_unit, kernel_size):
 		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
-		x = BatchNormalization()(x)
-		outputs = Activation('elu')(x)
-		return outputs
+		#x = BatchNormalization()(x)
+		x = Activation('elu')(x)
+		return x
 
 	def se_block(input_x):
 		x = layers.GlobalAveragePooling1D()(input_x)
 		channel_shape = getattr(x, '_shape_val')[-1]
 		x = Reshape((1, channel_shape))(x)
 		x = Dense(channel_shape // reduction_ratio, activation='selu', kernel_initializer='lecun_normal')(x)
-		outputs = Dense(channel_shape, activation=se_activation, kernel_initializer='lecun_normal')(x)
-		return outputs
+		x = Dense(channel_shape, activation=se_activation, kernel_initializer='lecun_normal')(x)
+		return x
 
 	def residual_block(input_x):
 		x = cnn_block(input_x, cnn_unit,kernel_size=3)
 		x = pConv1D(cnn_unit, kernel_size=3)(x)
-		outputs = BatchNormalization()(x)
-		return outputs
+		#x = BatchNormalization()(x)
+		return x
 
 	def se_res_block(input_x):
 		res_x = residual_block(input_x)
@@ -164,10 +164,14 @@ def init_senet(feature_layer=3, cnn_unit=64, cnn_kernel=5,
 
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
 
-		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
+		pre_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
+		pre_x = layers.SpatialDropout1D(rate=dropout_rate)(pre_x)
+		x = cnn_block(pre_x, cnn_unit=cnn_unit, kernel_size=3)
 		for i in range(feature_layer):
 			x = se_res_block(x)
 			x = layers.SpatialDropout1D(rate=dropout_rate)(x)
+		x = layers.Concatenate()([x, pre_x])
+		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
 		if bilstm:
 			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)

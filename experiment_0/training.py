@@ -189,7 +189,13 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 41: ptraining_fn(nn.init_senet(),
+	if args.exp == 43: ptraining_fn(nn.init_senet(),
+		model_name='senet')
+	if args.exp == 44: ptraining_fn(nn.init_senet(bilstm_unit=256),
+		model_name='senet')
+	if args.exp == 45: ptraining_fn(nn.init_senet(bilstm = 1, bilstm_unit=256),
+		model_name='senet')
+	if args.exp == 46: ptraining_fn(nn.init_senet(bilstm_unit=256),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
