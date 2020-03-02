@@ -195,7 +195,7 @@ def main(args):
 		model_name='senet')
 	if args.exp == 45: ptraining_fn(nn.init_senet(bilstm = 1, bilstm_unit=256),
 		model_name='senet')
-	if args.exp == 47: ptraining_fn(nn.init_senet(bilstm_unit=256),
+	if args.exp == 48: ptraining_fn(nn.init_senet(bilstm_unit=256),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')

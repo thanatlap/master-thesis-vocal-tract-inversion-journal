@@ -173,7 +173,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		x = layers.Concatenate()([x, pre_x])
 		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
 		if bilstm:
-			for i in range(bilstm-1):
+			for i in range(bilstm):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
 				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		x = layers.GlobalAveragePooling1D()(x)
