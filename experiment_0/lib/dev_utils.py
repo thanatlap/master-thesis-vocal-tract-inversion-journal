@@ -171,7 +171,7 @@ def transform_VO(labels):
 	'''
 	Use this function after addd param function
 	'''
-	VO = [-1.0, -0.1, 0.05]
+	VO = [-1.0, -0.10, 0.050]
 
 	for item in labels:
 		item[7:8] = VO[np.argmin([abs(VO[0]-item[7]), abs(VO[1]-item[7]), abs(VO[2]-item[7])])]
@@ -181,8 +181,8 @@ def label_imputation(params_descale, params):
 	# Add JX
 	params_descale[:,2] = 0
 	# adjust VO
-	params_descale[params[:,7] > -0.5,7] = 0.05 
-	params_descale[params[:,7] <= -0.5,7] = -1.0
+	# params_descale[params[:,7] > -0.5,7] = 0.05 
+	# params_descale[params[:,7] <= -0.5,7] = -1.0
 	# WC param
 	params_descale[:,8] = 0
 	# TRX param
@@ -201,7 +201,7 @@ def detransform_label(label_mode, y_pred, is_disyllable):
 	elif label_mode == 2:
 		params = transform_VO(add_params(descale_labels(y_pred)))
 	elif label_mode == 3:
-		params = transform_VO(add_params(y_pred))
+		params = add_params(y_pred)
 		params_descale = min_max_descale_labels(params, is_disyllable)
 		params = label_imputation(params_descale, params)
 

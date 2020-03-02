@@ -92,9 +92,9 @@ def training(features, labels, val_features, val_labels, model, model_name=None,
 
 	if cf.EARLY_STOP_PATIENCE:
 		# Early stop
-		early = callbacks.EarlyStopping(monitor='val_loss', 
+		early = callbacks.EarlyStopping(monitor='val_R2', 
 			min_delta=0, patience=cf.EARLY_STOP_PATIENCE, 
-			verbose=1, mode='min', baseline=None, restore_best_weights=False)
+			verbose=1, mode='max', baseline=None, restore_best_weights=False)
 		
 		callback_list = [checkpoint, early]
 	else:
@@ -189,11 +189,11 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 37: ptraining_fn(nn.init_senet(),
+	if args.exp == 41: ptraining_fn(nn.init_senet(),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
-	if args.exp == 13: ptraining_fn(nn.init_senet_skip(), 
+	if args.exp == 42: ptraining_fn(nn.init_senet_skip(), 
 		model_name='senet_skip')
 	if args.exp == 14: ptraining_fn(nn.init_LTRCNN(drop_rate=0.3), 
 		model_name='LTRCNN')

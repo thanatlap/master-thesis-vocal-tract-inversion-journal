@@ -122,7 +122,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 	return res_bilstm
 
 
-def init_senet(feature_layer=2, cnn_unit=64, cnn_kernel=5, 
+def init_senet(feature_layer=3, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='tanh',
 	dense=None, 
