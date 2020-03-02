@@ -125,7 +125,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
 	bilstm = 2, bilstm_unit=128, 
 	se_activation='tanh',
-	dense=256, 
+	dense=None, 
 	dropout_rate=0.3,
 	reduction_ratio = 2):
 
