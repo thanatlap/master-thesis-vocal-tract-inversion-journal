@@ -184,7 +184,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		if dense: 
 			x = pDense(dense, activation='elu')(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
-		outputs = pDense(N_OUTPUTS, activation='linear')(x)
+		outputs = pLSTM(N_OUTPUTS, return_sequences=False)(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		# model.summary()
 		return model

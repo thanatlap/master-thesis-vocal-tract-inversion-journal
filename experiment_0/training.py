@@ -203,7 +203,7 @@ def main(args):
 		model_name='senet')
 	if args.exp == 53: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
 		model_name='senet')
-	if args.exp == 55: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
+	if args.exp == 56: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
