@@ -24,11 +24,11 @@ OPT = 'AMSgrad' # for record only
 OPT_NUM = 1
 
 # Training
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 EPOCHS = 100
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 10 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 7 # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False
