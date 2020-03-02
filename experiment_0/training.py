@@ -197,6 +197,14 @@ def main(args):
 		model_name='senet')
 	if args.exp == 50: ptraining_fn(nn.init_senet(bilstm_unit=256),
 		model_name='senet')
+	if args.exp == 51: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
+		model_name='senet')
+	if args.exp == 52: ptraining_fn(nn.init_senet(feature_layer=2,cnn_unit=128, bilstm_unit=256),
+		model_name='senet')
+	if args.exp == 53: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
+		model_name='senet')
+	if args.exp == 55: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
+		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
 	if args.exp == 42: ptraining_fn(nn.init_senet_skip(), 

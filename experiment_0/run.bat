@@ -26,7 +26,5 @@ rem python preprocess.py predict ..\data\m_record_set mono --output_path=prep_da
 
 rem python training.py 47
 rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 47_senet.h5 di --label_normalize=3
-python training.py 49
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 49_senet.h5 di --label_normalize=3
-python training.py 50
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 50_senet.h5 di --label_normalize=3
+python training.py 55
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 55_senet.h5 di --label_normalize=3

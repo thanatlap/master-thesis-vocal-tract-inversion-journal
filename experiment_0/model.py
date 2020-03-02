@@ -132,7 +132,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 
 	def cnn_block(input_x, cnn_unit, kernel_size):
 		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
-		#x = BatchNormalization()(x)
+		x = BatchNormalization()(x)
 		x = Activation('elu')(x)
 		return x
 
@@ -147,7 +147,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 	def residual_block(input_x):
 		x = cnn_block(input_x, cnn_unit,kernel_size=3)
 		x = pConv1D(cnn_unit, kernel_size=3)(x)
-		#x = BatchNormalization()(x)
+		x = BatchNormalization()(x)
 		return x
 
 	def se_res_block(input_x):
@@ -165,18 +165,22 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
 
 		pre_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
-		pre_x = layers.SpatialDropout1D(rate=dropout_rate)(pre_x)
-		x = cnn_block(pre_x, cnn_unit=cnn_unit, kernel_size=3)
+		x = layers.SpatialDropout1D(rate=dropout_rate)(pre_x)
+		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=3)
 		for i in range(feature_layer):
 			x = se_res_block(x)
 			x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		x = layers.Concatenate()([x, pre_x])
 		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
+		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		if bilstm:
-			for i in range(bilstm):
+			for i in range(bilstm-1):
 				x = Bidirectional(pLSTM(bilstm_unit))(x)
 				x = layers.SpatialDropout1D(rate=dropout_rate)(x)
-		x = layers.GlobalMaxPool1D()(x)
+			x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
+			x = layers.Dropout(rate=dropout_rate)(x)
+		else:
+			x = layers.GlobalAveragePooling1D()(x)
 		if dense: 
 			x = pDense(dense, activation='elu')(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
