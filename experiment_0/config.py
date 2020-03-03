@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13_s'
+DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13'
 
 #---------------------------------
 
@@ -25,7 +25,7 @@ OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 64
-EPOCHS = 100
+EPOCHS = 1000
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
 EARLY_STOP_PATIENCE = 10 # should increase earlystop since it seen can be improve

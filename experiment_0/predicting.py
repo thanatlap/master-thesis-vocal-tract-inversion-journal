@@ -93,8 +93,8 @@ def main(args):
 	estimated_sound = np.array([join(output_path, 'sound', file) for file in np.load(join(output_path,'testset.npz'))['sound_sets']])
 
 	# visualize spectrogram and wave plot
-	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
-	utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
+	# utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
+	# utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
 
 	# log result
 	res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)

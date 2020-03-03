@@ -9,6 +9,7 @@ import sys
 import lib.dev_utils as utils
 import scipy.stats
 import pickle
+import tensorflow as tf
 
 import model as nn
 import config as cf
@@ -327,6 +328,11 @@ def log_result_train(experiment_num, X_train, X_val, X_test, y_train, y_val, y_t
 	# save y pred from testing subset for eda
 	np.save(arr=val_y_pred, file=join(log_dir,'validating_pred.npy'))
 	np.save(arr=y_pred, file=join(log_dir,'testing_pred.npy'))
+
+	try:
+		tf.keras.utils.plot_model(model, to_file=join(log_dir,'model.png'), show_shapes=True, show_layer_names=True,rankdir='TB', expand_nested=True, dpi=96)
+	except:
+		print('[ERROR] plot model fail!')
 
 def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimated_sound, exp_num):
 

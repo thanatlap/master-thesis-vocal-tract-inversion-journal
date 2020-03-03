@@ -6,7 +6,6 @@ from os.path import join
 import tensorflow as tf
 from tensorflow import keras
 
-
 from tensorflow.keras import models
 from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
@@ -189,21 +188,7 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 43: ptraining_fn(nn.init_senet(),
-		model_name='senet')
-	if args.exp == 44: ptraining_fn(nn.init_senet(bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 45: ptraining_fn(nn.init_senet(bilstm = 1, bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 50: ptraining_fn(nn.init_senet(bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 51: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 52: ptraining_fn(nn.init_senet(feature_layer=2,cnn_unit=128, bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 53: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
-		model_name='senet')
-	if args.exp == 56: ptraining_fn(nn.init_senet(cnn_unit=128, bilstm_unit=256),
+	if args.exp == 74: ptraining_fn(nn.init_senet(),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')

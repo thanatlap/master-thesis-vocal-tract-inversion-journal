@@ -122,9 +122,8 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 	return res_bilstm
 
 
-def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, 
-	bilstm = 2, bilstm_unit=128, 
-	se_activation='tanh',
+def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
+	bilstm = 2, bilstm_unit=256, 
 	dense=None, 
 	dropout_rate=0.3,
 	reduction_ratio = 2):
@@ -141,12 +140,12 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		channel_shape = getattr(x, '_shape_val')[-1]
 		x = Reshape((1, channel_shape))(x)
 		x = Dense(channel_shape // reduction_ratio, activation='selu', kernel_initializer='lecun_normal')(x)
-		x = Dense(channel_shape, activation=se_activation, kernel_initializer='lecun_normal')(x)
+		x = Dense(channel_shape, activation='tanh', kernel_initializer='lecun_normal')(x)
 		return x
 
 	def residual_block(input_x):
-		x = cnn_block(input_x, cnn_unit,kernel_size=3)
-		x = pConv1D(cnn_unit, kernel_size=3)(x)
+		x = cnn_block(input_x, res_unit,kernel_size=3)
+		x = pConv1D(res_unit, kernel_size=3)(x)
 		x = BatchNormalization()(x)
 		return x
 
@@ -155,22 +154,24 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
 		x = Activation('elu')(x)
-		input_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
+		# input_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.Concatenate()([x, input_x])
-		outputs = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
+		outputs = cnn_block(x, cnn_unit=res_unit, kernel_size=1)
 		return outputs
 
 	def senet_nn(input_shape_1,input_shape_2):
 
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
 
-		pre_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=cnn_kernel)
-		x = layers.SpatialDropout1D(rate=dropout_rate)(pre_x)
+		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=7)
+		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
+		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=5)
+		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=3)
+		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		for i in range(feature_layer):
 			x = se_res_block(x)
 			x = layers.SpatialDropout1D(rate=dropout_rate)(x)
-		x = layers.Concatenate()([x, pre_x])
 		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		if bilstm:
@@ -184,7 +185,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5,
 		if dense: 
 			x = pDense(dense, activation='elu')(x)
 			x = layers.Dropout(rate=dropout_rate)(x)
-		outputs = pLSTM(N_OUTPUTS, return_sequences=False)(x)
+		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		# model.summary()
 		return model
