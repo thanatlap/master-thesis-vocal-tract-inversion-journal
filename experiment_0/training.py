@@ -188,8 +188,33 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 77: ptraining_fn(nn.init_senet(),
-		model_name='senet')
+	if args.exp == 78: 
+		cf.EARLY_STOP_PATIENCE = None
+		cf.EPOCHS = 50
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 79: 
+		cf.BATCH_SIZE = 128
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 80: 
+		cf.BATCH_SIZE = 256
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 81: 
+		cf.BATCH_SIZE = 32
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 82: 
+		cf.DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13_s'
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 83: 
+		cf.LEARNING_RATE = 0.0001
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 84: 
+		cf.LEARNING_RATE = 0.01
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 85: 
+		ptraining_fn(nn.init_senet(),model_name='senet')
+
+
+
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
 	if args.exp == 42: ptraining_fn(nn.init_senet_skip(), 
