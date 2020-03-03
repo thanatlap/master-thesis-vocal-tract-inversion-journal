@@ -123,7 +123,7 @@ def init_res_bilstm(feature_layer=3, bilstm_layer=2):
 
 
 def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
-	bilstm = 2, bilstm_unit=256, 
+	bilstm = 1, bilstm_unit=256, 
 	dense=None, 
 	dropout_rate=0.3,
 	reduction_ratio = 2):
@@ -162,12 +162,10 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
 	def senet_nn(input_shape_1,input_shape_2):
 
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-
-		x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=7)
-		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
-		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=5)
-		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
-		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=3)
+		pre_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=9)
+		x = cnn_block(pre_x, cnn_unit=cnn_unit, kernel_size=7)
+		x = layers.Concatenate()([x, pre_x])
+		x = cnn_block(pre_x, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		for i in range(feature_layer):
 			x = se_res_block(x)

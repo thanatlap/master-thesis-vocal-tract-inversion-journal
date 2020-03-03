@@ -25,6 +25,6 @@ rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 41_senet.h5 
 rem python preprocess.py predict ..\data\m_record_set mono --output_path=prep_data --resample_rate=16000 --feature_normalize=4
 
 rem python preprocess.py training ..\data\d_dataset_t3_40k_c di --output_path=prep_data_13_noaug --is_augment=False --resample_rate=16000 --label_normalize=5 --feature_normalize=4 --split_size=0.15
-rem python training.py 74
+python training.py 76
 rem python preprocess.py predict ..\data\d_records\d_record_set_2 di --output_path=prep_data --resample_rate=16000 --feature_normalize=4
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 74_senet.h5 di --label_normalize=3
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 76_senet.h5 di --label_normalize=3

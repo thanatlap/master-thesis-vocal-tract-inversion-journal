@@ -188,7 +188,7 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 74: ptraining_fn(nn.init_senet(),
+	if args.exp == 76: ptraining_fn(nn.init_senet(),
 		model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
