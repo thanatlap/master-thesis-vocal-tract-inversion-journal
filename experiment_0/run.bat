@@ -25,15 +25,7 @@ rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 41_senet.h5 
 rem python preprocess.py predict ..\data\m_record_set mono --output_path=prep_data --resample_rate=16000 --feature_normalize=4
 
 
-python training.py 103
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 103_densenet.h5 di --label_normalize=3
-"result\predict_103\formant\formant_chart_disyllable FirstSyllable.png"
-"result\predict_103\formant\formant_chart_disyllable SecondSyllable.png"
-python training.py 104
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 104_densenet.h5 di --label_normalize=3
-"result\predict_104\formant\formant_chart_disyllable FirstSyllable.png"
-"result\predict_104\formant\formant_chart_disyllable SecondSyllable.png"
-python training.py 105
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 105_densenet.h5 di --label_normalize=3
-"result\predict_105\formant\formant_chart_disyllable FirstSyllable.png"
-"result\predict_105\formant\formant_chart_disyllable SecondSyllable.png"
+python training.py 106
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 106_densenet.h5 di --label_normalize=3
+"result\predict_106\formant\formant_chart_disyllable FirstSyllable.png"
+"result\predict_106\formant\formant_chart_disyllable SecondSyllable.png"
