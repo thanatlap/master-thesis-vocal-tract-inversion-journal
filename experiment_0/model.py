@@ -283,7 +283,7 @@ def init_LTRCNN(drop_rate=None):
 
 
 def init_densenet(feature_layer=1, cnn_unit=64, cnn_concat_unit = 128,
-	bilstm = 1, bilstm_unit=256, 
+	bilstm = 2, bilstm_unit=256, 
 	dense=None, 
 	dropout_rate=0.3,
 	reduction_ratio = 2):
@@ -308,7 +308,7 @@ def init_densenet(feature_layer=1, cnn_unit=64, cnn_concat_unit = 128,
 		x9 = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=5)
 		x8 = cnn_block(x9, cnn_unit=cnn_unit, kernel_size=3)
 		x98 = layers.Concatenate()([x9, x8])
-		x7 = cnn_block(x98, cnn_unit=cnn_unit, kernel_size=1)
+		x7 = cnn_block(x98, cnn_unit=cnn_unit, kernel_size=3)
 		x987 = layers.Concatenate()([x9, x8, x7])
 		x_l = cnn_block(x987, cnn_unit=cnn_concat_unit, kernel_size=1)
 
