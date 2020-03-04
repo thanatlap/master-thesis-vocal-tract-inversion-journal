@@ -190,8 +190,8 @@ def main(args):
 
 	if args.exp == 88: 
 		ptraining_fn(nn.init_senet(),model_name='senet')
-	if args.exp == 96: 
-		ptraining_fn(nn.init_densenet(dropout_rate=0.5),model_name='densenet')
+	if args.exp == 97: 
+		ptraining_fn(nn.init_densenet(),model_name='densenet')
 	if args.exp == 89: 
 		cf.BATCH_SIZE = 128
 		ptraining_fn(nn.init_senet(),model_name='senet')
