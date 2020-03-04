@@ -193,13 +193,7 @@ def main(args):
 	if args.exp == 89: 
 		cf.BATCH_SIZE = 128
 		ptraining_fn(nn.init_senet(),model_name='senet')
-	if args.exp == 90: 
-		ptraining_fn(nn.init_senet(),model_name='senet')
-	if args.exp == 91: 
-		cf.OPT_NUM = 4
-		cf.LEARNING_RATE = 0.001
-		cf.EPOCHS = 300
-		cf.EARLY_STOP_PATIENCE = None
+	if args.exp == 92: 
 		ptraining_fn(nn.init_senet(),model_name='senet')
 
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
