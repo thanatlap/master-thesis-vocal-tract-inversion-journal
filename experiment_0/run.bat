@@ -25,6 +25,11 @@ rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 41_senet.h5 
 rem python preprocess.py predict ..\data\m_record_set mono --output_path=prep_data --resample_rate=16000 --feature_normalize=4
 
 
-python training.py 86
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 86_senet.h5 di --label_normalize=3
-"result\predict_86\formant\formant_chart_disyllable FirstSyllable.png"
+rem python training.py 88
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 88_senet.h5 di --label_normalize=3
+rem "result\predict_87\formant\formant_chart_disyllable FirstSyllable.png"
+rem "result\predict_87\formant\formant_chart_disyllable SecondSyllable.png"
+python training.py 89
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 89_senet.h5 di --label_normalize=3
+python training.py 90
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 90_senet.h5 di --label_normalize=3

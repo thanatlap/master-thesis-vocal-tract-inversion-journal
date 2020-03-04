@@ -188,7 +188,18 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 86: 
+	if args.exp == 88: 
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 89: 
+		cf.BATCH_SIZE = 128
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 90: 
+		ptraining_fn(nn.init_senet(),model_name='senet')
+	if args.exp == 91: 
+		cf.OPT_NUM = 4
+		cf.LEARNING_RATE = 0.001
+		cf.EPOCHS = 300
+		cf.EARLY_STOP_PATIENCE = None
 		ptraining_fn(nn.init_senet(),model_name='senet')
 
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 

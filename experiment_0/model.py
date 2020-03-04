@@ -162,10 +162,14 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
 	def senet_nn(input_shape_1,input_shape_2):
 
 		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-		pre_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=13)
-		x = cnn_block(pre_x, cnn_unit=cnn_unit, kernel_size=11)
-		x = layers.Concatenate()([x, pre_x, input_x])
-		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
+		x1 = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=13)
+		x2 = cnn_block(x1, cnn_unit=cnn_unit, kernel_size=11)
+		x12 = layers.Concatenate()([x1, x2])
+		x3 = cnn_block(x12, cnn_unit=cnn_unit, kernel_size=9)
+		x123 = layers.Concatenate()([x1, x2, x3])
+		# x4 = cnn_block(x123, cnn_unit=cnn_unit, kernel_size=7)
+		# x1234 = layers.Concatenate()([x1, x2, x3, x4])
+		x = cnn_block(x123, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		for i in range(feature_layer):
 			x = se_res_block(x)
@@ -185,7 +189,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
 			x = layers.Dropout(rate=dropout_rate)(x)
 		outputs = pDense(N_OUTPUTS, activation='linear')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
-		# model.summary()
+		model.summary()
 		return model
 
 	return senet_nn
