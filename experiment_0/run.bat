@@ -25,5 +25,5 @@ rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 41_senet.h5 
 rem python preprocess.py predict ..\data\m_record_set mono --output_path=prep_data --resample_rate=16000 --feature_normalize=4
 
 
-python training.py 92
-python predicting.py ..\data\d_records\d_record_set_2 prep_data 92_senet.h5 di --label_normalize=3
+rem python training.py 93
+python predicting.py ..\data\d_records\d_record_set_2 prep_data 93_densenet.h5 di --label_normalize=3
