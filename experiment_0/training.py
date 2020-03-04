@@ -192,11 +192,17 @@ def main(args):
 		ptraining_fn(nn.init_senet(),model_name='senet')
 	if args.exp == 97: 
 		ptraining_fn(nn.init_densenet(),model_name='densenet')
-	if args.exp == 89: 
-		cf.BATCH_SIZE = 128
-		ptraining_fn(nn.init_senet(),model_name='senet')
-	if args.exp == 92: 
-		ptraining_fn(nn.init_senet(),model_name='senet')
+
+	if args.exp == 98: 
+		ptraining_fn(nn.init_densenet(bilstm_unit=128),model_name='densenet')
+	if args.exp == 99: 
+		ptraining_fn(nn.init_densenet(bilstm_unit=256),model_name='densenet')
+	if args.exp == 103: 
+		ptraining_fn(nn.init_densenet(),model_name='densenet')
+	if args.exp == 104: 
+		ptraining_fn(nn.init_densenet(bilstm = 2),model_name='densenet')
+	if args.exp == 105: 
+		ptraining_fn(nn.init_densenet(bilstm = 3, bilstm_unit=128),model_name='densenet')
 
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
 		model_name='baseline')
