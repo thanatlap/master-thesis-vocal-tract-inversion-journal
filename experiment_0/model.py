@@ -305,15 +305,15 @@ def init_densenet(feature_layer=1, cnn_unit=64, cnn_concat_unit = 128,
 		x123 = layers.Concatenate()([x1, x2, x3])
 		x_u = cnn_block(x123, cnn_unit=cnn_concat_unit, kernel_size=1)
 		
-		x9 = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=3)
-		x8 = cnn_block(x9, cnn_unit=cnn_unit, kernel_size=5)
+		x9 = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=5)
+		x8 = cnn_block(x9, cnn_unit=cnn_unit, kernel_size=3)
 		x98 = layers.Concatenate()([x9, x8])
-		x7 = cnn_block(x98, cnn_unit=cnn_unit, kernel_size=7)
+		x7 = cnn_block(x98, cnn_unit=cnn_unit, kernel_size=1)
 		x987 = layers.Concatenate()([x9, x8, x7])
 		x_l = cnn_block(x987, cnn_unit=cnn_concat_unit, kernel_size=1)
 
 		x = layers.Concatenate()([x_u, x_l])
-		x = cnn_block(x, cnn_unit=cnn_unit, kernel_size=1)
+		x = cnn_block(x, cnn_unit=cnn_concat_unit, kernel_size=1)
 		x = layers.SpatialDropout1D(rate=dropout_rate)(x)
 		if bilstm:
 			for i in range(bilstm-1):
