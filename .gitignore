@@ -10,3 +10,16 @@ temp/*
 *.h5
 *checkpoint.ipynb
 */run.bat
+experiment_0/thesis_log.csv
+experiment_0/experiment_book.xlsx
+experiment_1/generator/assets/default_param_draft1.csv
+experiment_1/generator/assets/default_param_previous.csv
+experiment_1/generator/assets/VTL/msvcp120.dll
+experiment_1/generator/assets/VTL/msvcr120.dll
+experiment_1/generator/assets/VTL/vccorlib120.dll
+experiment_1/generator/assets/VTL/VocalTractLabApi.dll
+experiment_1/generator/assets/VTL/VocalTractLabApi.h
+experiment_1/generator/assets/VTL/VocalTractLabApi.lib
+experiment_book.xlsx
+misc/Untitled4.ipynb
+test.py
