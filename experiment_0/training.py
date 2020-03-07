@@ -201,7 +201,7 @@ def main(args):
 		ptraining_fn(nn.init_densenet(),model_name='densenet')
 	if args.exp == 104: 
 		ptraining_fn(nn.init_densenet(bilstm = 2),model_name='densenet')
-	if args.exp == 106: 
+	if args.exp == 109: 
 		ptraining_fn(nn.init_densenet(bilstm = 1, bilstm_unit=128),model_name='densenet')
 
 	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
