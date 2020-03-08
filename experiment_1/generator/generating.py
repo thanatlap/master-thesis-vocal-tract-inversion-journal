@@ -40,8 +40,6 @@ def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggreg
 		batch_phonetic.extend(random_phonetics)
 		if batch_size > 0: print('[INFO] Re-Generated %s data'%batch_size)
 
-		print(batch_param)
-
 	return batch_param, batch_phonetic
 
 def save_state(speaker_idx, ges_idx, sound_idx, total_speaker_sid, 
@@ -70,6 +68,7 @@ def load_state():
 		total_speaker_sid = data['total_speaker_sid'].tolist()
 		total_aggregate_sound = data['total_aggregate_sound'].tolist()
 		total_aggregate_param = data['total_aggregate_param'].tolist()
+		total_phonetic = data['total_phonetic'].tolist()
 		print('[INFO] Load from previous state')
 		
 	except:
@@ -237,7 +236,7 @@ def main():
 	print('[INFO] Loading audio data for filtering')
 	batch_ns_audio, batch_ns_param, batch_ns_sid, batch_ns_phonetic, silent_count = gen.filter_nonsound(
 		total_aggregate_sound, total_aggregate_param, total_speaker_sid, total_phonetic,
-		cf.AUDIO_SAMPLE_RATE, cf.NJOB, cf.DATASET_DIR)
+		cf.AUDIO_SAMPLE_RATE, cf.NJOB, cf.DATASET_DIR, cf.FILTER_THRES)
 	
 	if prev_export_status:
 		ns_audio_data, ns_aggregate_param, ns_aggregate_phonetic, ns_sid = import_dataset()
@@ -280,6 +279,7 @@ def main():
 	log.write('Data size: %s\n'%cf.DATASIZE)
 	log.write('Epoch/Split: %s/%s\n'%(split_counter,cf.N_SPLIT))
 	log.write('Non silent param: %s\n'%str(np.array(ns_aggregate_param).shape))
+	log.write('Non silent phonetic: %s\n'%str(np.array(ns_aggregate_phonetic).shape))
 	log.write('Non audio data: %s\n'%str(np.array(ns_audio_data).shape))
 	log.write('Non speaker id: %s\n'%str(np.array(ns_sid).shape))
 	log.write('Silent sound count: %s\n'%silent_count)

@@ -198,6 +198,9 @@ def create_ges(ges_file, is_disyllable, gesture_header_file):
 	initial_f0_duration = np.random.choice([0.01,0.05])
 	duration = [initial_f0_duration, a_duration-initial_f0_duration, b_duration] if is_disyllable else [initial_f0_duration, a_duration-initial_f0_duration]
 		
+
+	pressure = np.random.uniform(cf.MIN_MAX_PRESSURE[0], high=cf.MIN_MAX_PRESSURE[1])
+
 	# create gesture file
 	f = open(ges_file, 'w')
 	f.write('<gestural_score>\n<gesture_sequence type="vowel-gestures" unit="">\n>')
@@ -219,9 +222,9 @@ def create_ges(ges_file, is_disyllable, gesture_header_file):
 	f.write('</gesture_sequence>\n')
 	f.write('<gesture_sequence type="lung-pressure-gestures" unit="dPa">\n')
 	f.write('<gesture value="0.000000" slope="0.000000" duration_s="0.010000" time_constant_s="0.005000" neutral="0" />\n')
-	f.write('<gesture value="8000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%a_duration)
+	f.write('<gesture value="%.5f" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%(pressure, a_duration))
 	if is_disyllable:
-		f.write('<gesture value="8000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%b_duration)
+		f.write('<gesture value="%.5f" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%(pressure, b_duration))
 	f.write('</gesture_sequence> \n')
 	f.write('</gestural_score>\n')
 	f.close()

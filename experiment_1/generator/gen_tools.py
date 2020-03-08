@@ -209,21 +209,21 @@ def generate_sound(speaker_filenames, ges_filenames, sound_idx, vtl_file_path, o
 def load_audio_from_list(file_set, sample_rate):
 	return [librosa.load(file, sr=sample_rate)[0] for file in file_set]
 
-def is_nonsilent(audio_data):
+def is_nonsilent(audio_data, threshold):
 	'''
 	Çheck if the sound is silent sound. return a list of index of non silent audio sound.
 	threshold is constant at 0.9
 	'''
 	# if audio consist mostly non zero, indicating non silent sound
-	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > 0.9*data.shape[0])]
+	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > threshold*data.shape[0])]
 	
 
-def filter_nonsound(sound_sets, total_aggregate_param, total_speaker_sid, total_phonetic, sample_rate, njob, output_parent_dir):
+def filter_nonsound(sound_sets, total_aggregate_param, total_speaker_sid, total_phonetic, sample_rate, njob, output_parent_dir, threshold=0.9):
 
 	file_set = [join(output_parent_dir, 'sound', file) for file in sound_sets]
 
 	audio_data = load_audio_from_list(file_set, sample_rate)
-	idx_list = is_nonsilent(audio_data)
+	idx_list = is_nonsilent(audio_data, threshold)
 	batch_ns_audio = np.array(audio_data)[idx_list].tolist()
 	batch_ns_param = np.array(total_aggregate_param)[idx_list].tolist()
 	batch_ns_sid = np.array(total_speaker_sid)[idx_list].tolist()
