@@ -21,21 +21,31 @@ np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 PARAM = 'PARAM'
 
-def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggregate_param):
+def generate_vocaltract_parameter(batch_size, predefined_syllables, total_aggregate_param, syllable_labels):
 
-	batch_gen_param = []
+	batch_param = []
+	batch_phonetic = []
 
 	while(batch_size > 0):
-		random_param = [ rparam.randomly_select_syllable_pair(predefined_syllables, cf.DI_SYLLABLE, cf.MIN_MAX_PERCENT_CHANGE) for i in range(batch_size)]
+		random_syllables = []
+		random_phonetics = []
+		for i in range(batch_size):
+			random_syllable, random_phonetic = rparam.randomly_select_syllable_pair(predefined_syllables, syllable_labels,cf.DI_SYLLABLE, cf.MIN_MAX_PERCENT_CHANGE)
+			random_syllables.append(random_syllable)
+			random_phonetics.append(random_phonetic)
+
 		print('[INFO] Check Duplicated Item')
-		random_param, batch_size = rparam.check_duplicate_and_remove(random_param, total_aggregate_param)
-		batch_gen_param.extend(random_param)
+		random_syllables, batch_size, random_phonetics = rparam.check_duplicate_and_remove(random_syllables, total_aggregate_param, random_phonetics)
+		batch_param.extend(random_syllables)
+		batch_phonetic.extend(random_phonetics)
 		if batch_size > 0: print('[INFO] Re-Generated %s data'%batch_size)
 
-	return batch_gen_param
+		print(batch_param)
+
+	return batch_param, batch_phonetic
 
 def save_state(speaker_idx, ges_idx, sound_idx, total_speaker_sid, 
-	total_aggregate_sound, total_aggregate_param, prev_export_status):
+	total_aggregate_sound, total_aggregate_param, prev_export_status, total_phonetic):
 	'''
 	Save state for continuous data generation
 	'''
@@ -45,7 +55,8 @@ def save_state(speaker_idx, ges_idx, sound_idx, total_speaker_sid,
 		state = np.array([speaker_idx, ges_idx, sound_idx, prev_export_status]),
 		total_speaker_sid=np.array(total_speaker_sid), 
 		total_aggregate_sound=np.array(total_aggregate_sound),
-		total_aggregate_param = np.array(total_aggregate_param))
+		total_aggregate_param = np.array(total_aggregate_param),
+		total_phonetic = np.array(total_phonetic))
 
 def load_state():
 	'''
@@ -68,16 +79,18 @@ def load_state():
 		sound_idx = 0
 		prev_export_status = 0
 		total_speaker_sid = []
+		total_phonetic = []
 		total_aggregate_sound = []
 		total_aggregate_param = []
 		
-	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status
+	return speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status, total_phonetic
 
-def export_dataset(ns_audio_data, ns_aggregate_param, ns_sid):
+def export_dataset(ns_audio_data, ns_aggregate_param, ns_aggregate_phonetic, ns_sid):
 
 	np.savez(join(cf.DATASET_DIR,'dataset.npz'), 
 		ns_audio_data=np.array(ns_audio_data), 
 		ns_aggregate_param=np.array(ns_aggregate_param),
+		ns_aggregate_phonetic=np.array(ns_aggregate_phonetic),
 		ns_sid = np.array(ns_sid))
 
 def import_dataset():
@@ -86,12 +99,14 @@ def import_dataset():
 		data = np.load(join(cf.DATASET_DIR,'dataset.npz'))
 		ns_audio_data = data['ns_audio_data'].tolist()
 		ns_aggregate_param = data['ns_aggregate_param'].tolist()
+		ns_aggregate_phonetic = data['ns_aggregate_phonetic'].tolist()
 		ns_sid = data['ns_sid'].tolist()
 	except:
 		ns_audio_data = []
 		ns_aggregate_param = []
+		ns_aggregate_phonetic = []
 		ns_sid = []
-	return ns_audio_data, ns_aggregate_param, ns_sid
+	return ns_audio_data, ns_aggregate_param, ns_aggregate_phonetic, ns_sid
 
 def reset(*args):
 	try: 
@@ -172,7 +187,7 @@ def main():
 
 	# load state if exist
 	print('[INFO] Loading program states')
-	speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status = load_state()
+	speaker_idx, ges_idx, sound_idx, total_speaker_sid, total_aggregate_sound, total_aggregate_param, prev_export_status, total_phonetic = load_state()
 
 	if prev_export_status == 1:
 		prev_ns_aggregate_param = np.load(join(cf.DATASET_DIR,'dataset.npz'))['ns_aggregate_param'].tolist()
@@ -185,7 +200,7 @@ def main():
 		print('[INFO] Step %s/%d'%(split_counter,cf.N_SPLIT))		
 		# main generator algorithm
 		print('[INFO] Generating random parameters')
-		batch_gen_param = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefined_syllables, total_aggregate_param+prev_ns_aggregate_param)	
+		batch_gen_param, batch_phonetic = generate_vocaltract_parameter(int(cf.DATASIZE/cf.N_SPLIT), predefined_syllables, total_aggregate_param+prev_ns_aggregate_param, syllable_labels)	
 		print('[INFO] Generating list of speaker id')
 		speaker_sid = gen.get_speaker_sid(batch_gen_param, n_speaker=len(cf.SPEAKER_N))
 		print('[INFO] Adjusting vocaltract parameters')
@@ -201,6 +216,7 @@ def main():
 		total_aggregate_param += batch_gen_param
 		total_speaker_sid += speaker_sid
 		total_aggregate_sound += sound_sets
+		total_phonetic += batch_phonetic
  
 		# save data
 		print('[INFO] Saving state')
@@ -210,28 +226,35 @@ def main():
 			total_speaker_sid, 
 			total_aggregate_sound, 
 			total_aggregate_param,
-			prev_export_status)
+			prev_export_status, 
+			total_phonetic)
 		
 		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
+
+		print(total_phonetic)
+		print(len(total_phonetic))
 		
 	print('[INFO] Loading audio data for filtering')
-	batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count = gen.filter_nonsound(total_aggregate_sound, total_aggregate_param, total_speaker_sid,
+	batch_ns_audio, batch_ns_param, batch_ns_sid, batch_ns_phonetic, silent_count = gen.filter_nonsound(
+		total_aggregate_sound, total_aggregate_param, total_speaker_sid, total_phonetic,
 		cf.AUDIO_SAMPLE_RATE, cf.NJOB, cf.DATASET_DIR)
 	
 	if prev_export_status:
-		ns_audio_data, ns_aggregate_param, ns_sid = import_dataset()
+		ns_audio_data, ns_aggregate_param, ns_aggregate_phonetic, ns_sid = import_dataset()
 		ns_audio_data += batch_ns_audio
 		ns_aggregate_param += batch_ns_param
+		ns_aggregate_phonetic += batch_ns_phonetic
 		ns_sid += batch_ns_sid
 	else:
 		ns_audio_data = batch_ns_audio
 		ns_aggregate_param = batch_ns_param
+		ns_aggregate_phonetic = batch_ns_phonetic
 		ns_sid = batch_ns_sid
 
 	print('[INFO] Export dataset')
-	export_dataset(ns_audio_data, ns_aggregate_param, ns_sid)
+	export_dataset(ns_audio_data, ns_aggregate_param, ns_aggregate_phonetic, ns_sid)
 	# total_* is not required to continue generated data
-	save_state(speaker_idx,ges_idx,sound_idx,[],[],[], prev_export_status=1) 
+	save_state(speaker_idx,ges_idx,sound_idx,[],[],[], prev_export_status=1, total_phonetic=[]) 
 	clean_up_file()
 	print('[INFO] Successfully generated audio data')
 	print('[INFO] Silent sound found: %s'%silent_count)

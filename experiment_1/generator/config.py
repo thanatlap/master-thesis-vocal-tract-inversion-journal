@@ -1,17 +1,17 @@
 # Data generator control
 DI_SYLLABLE = True
-CONT = True
+CONT = False
 REPLACE_FOLDER = False
 N_SPLIT = 1
-CLEAN_FILE = True
-CLEAN_SOUND = True
+CLEAN_FILE = False
+CLEAN_SOUND = False
 NJOB = 2
 DATASIZE = 10
 
 # Data generator hyperparameter
 FILTER_THRES = 0.9
 SAMPLING_STEP = 0.01
-MIN_MAX_PERCENT_CHANGE = [0.01, 0.40] # min max
+MIN_MAX_PERCENT_CHANGE = [0.01, 0.30] # min max
 RAMDOM_PARAM_NOISE_PROB = 0.00
 SPEAKER_N = [0.0, 0.1, 0.2, 0.3, -0.1, -0.2, -0.3]
 AUDIO_SAMPLE_RATE = 16000

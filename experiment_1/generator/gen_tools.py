@@ -20,7 +20,7 @@ def transform_param_data_to_npy(param_sets, param_col = 'PARAM'):
 	syllable_labels = param_sets[param_col].values
 	param_sets = param_sets.drop([param_col], axis=1)
 	syllable_params = param_sets.values
-	param_names = param_sets.columns.values
+	# param_names = param_sets.columns.values
 	return syllable_params, syllable_labels
 
 def load_predefined_adult(file):
@@ -216,78 +216,21 @@ def is_nonsilent(audio_data):
 	'''
 	# if audio consist mostly non zero, indicating non silent sound
 	return [idx for idx,data in enumerate(audio_data) if (np.count_nonzero(data) > 0.9*data.shape[0])]
-
-def filter_fn(file_set,
-	in_param,
-	in_speaker_id,
-	sample_rate,
-	out_batch_ns_audio, 
-	out_batch_ns_param,
-	out_batch_ns_sid,
-	out_silent_count):
-
-	print('[INFO] Load audio')
-	audio_data = load_audio_from_list(file_set, sample_rate)
-	print('[INFO] Filter')
-	idx_list = is_nonsilent(audio_data)
-	print('[INFO] indexing list')
-	batch_ns_audio = np.array(audio_data)[idx_list].tolist()
-	batch_ns_param = np.array(in_param)[idx_list].tolist()
-	batch_ns_sid = np.array(in_speaker_id)[idx_list].tolist()
-	# count silent sound
-	silent_count = len(audio_data) - len(idx_list)
-
-	print('[INFO] out')
-	out_batch_ns_audio.put(batch_ns_audio)
-	out_batch_ns_param.put(batch_ns_param)
-	out_batch_ns_sid.put(batch_ns_sid)
-	out_silent_count.put(silent_count)
 	
 
-def filter_nonsound(sound_sets, total_aggregate_param, total_speaker_sid, sample_rate, njob, output_parent_dir):
+def filter_nonsound(sound_sets, total_aggregate_param, total_speaker_sid, total_phonetic, sample_rate, njob, output_parent_dir):
 
 	file_set = [join(output_parent_dir, 'sound', file) for file in sound_sets]
 
-	out_batch_ns_audio = mp.Queue()
-	out_batch_ns_param = mp.Queue()
-	out_batch_ns_sid = mp.Queue()
-	out_silent_count = mp.Queue()
-
-	processes = []
-	for i in range(njob):
-		start = i*int(len(file_set)/njob)
-		end = (i+1)*int(len(file_set)/njob) if i != njob-1 else len(file_set)
-		# Setup a list of processes that we want to run
-		processes.append(mp.Process(target=filter_fn, args=(file_set[start:end], 
-			total_aggregate_param[start:end],
-			total_speaker_sid[start:end],
-			sample_rate,
-			out_batch_ns_audio, 
-			out_batch_ns_param,
-			out_batch_ns_sid,
-			out_silent_count)))
-
-	# Run processes
-	for p in processes:
-		p.start()
-
-	# Exit the completed processes
-	for p in processes:
-		p.join()
-
-	batch_ns_audio = []
-	batch_ns_param = []
-	batch_ns_sid = []
-	silent_count = 0
-
-	for p in processes:
-		batch_ns_audio.extend(out_batch_ns_audio.get())
-		batch_ns_param.extend(out_batch_ns_param.get())
-		batch_ns_sid.extend(out_batch_ns_sid.get())
-
-		silent_count +=  out_silent_count.get()
-
-	return batch_ns_audio, batch_ns_param, batch_ns_sid, silent_count
+	audio_data = load_audio_from_list(file_set, sample_rate)
+	idx_list = is_nonsilent(audio_data)
+	batch_ns_audio = np.array(audio_data)[idx_list].tolist()
+	batch_ns_param = np.array(total_aggregate_param)[idx_list].tolist()
+	batch_ns_sid = np.array(total_speaker_sid)[idx_list].tolist()
+	batch_ns_phonetic = np.array(total_phonetic)[idx_list].tolist()
+	# count silent sound
+	silent_count = len(audio_data) - len(idx_list)
+	return batch_ns_audio, batch_ns_param, batch_ns_sid, batch_ns_phonetic, silent_count
 
 def error_check(param_set):
 
