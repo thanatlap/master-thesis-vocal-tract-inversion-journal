@@ -299,7 +299,7 @@ def split_dataset(audio_data, labels, phonetic, val_test_split_ratio):
 	test_labels = np.array([labels[i] for i in test_idx])
 	test_phonetic = np.array([phonetic[i] for i in test_idx])
 	
-	val_data_idx = [i for i in data_idx if (i not in idx) or (i not in test_idx)]
+	val_data_idx = [i for i in data_idx if (i not in idx) and (i not in test_idx)]
 	val_audio = np.array([audio_data[i] for i in val_data_idx])
 	val_labels = np.array([labels[i] for i in val_data_idx])
 	val_phonetic = np.array([phonetic[i] for i in val_data_idx])
@@ -310,6 +310,7 @@ def main(args):
 
 	start_time = time()
 	timestamp = datetime.now().strftime("%Y %B %d %H:%M")
+	print('[INFO] {}'.format(start_time))
 	# check if data path is existed or not
 	if not os.path.exists(args.data_path):
 		raise ValueError('[ERROR] Data path %s is not exist'%args.data_path)
