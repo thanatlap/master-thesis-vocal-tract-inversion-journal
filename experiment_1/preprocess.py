@@ -48,12 +48,13 @@ def import_data(data_path, mode):
 		data = np.load(join(data_path,'dataset.npz'))
 		audio_data = data['ns_audio_data']
 		labels = data['ns_aggregate_param']
+		phonetic = data['ns_aggregate_phonetic']
 	else:
-
+		phonetic = []
 		if mode == PREDICT_MODE:
 			data = []
 			with open(join(data_path,'sound_set.txt'), 'r') as f:
-			    data = np.array(f.read().split(','))
+				data = np.array(f.read().split(','))
 			audio_paths = [join(data_path, file+'.wav') for file in data]
 			labels = []
 		elif mode == EVAL_MODE:
@@ -62,7 +63,7 @@ def import_data(data_path, mode):
 			labels = data['syllable_params']
 
 		audio_data = load_audio(audio_paths)
-	return audio_data, labels
+	return audio_data, labels, phonetic
 
 # function to scale param
 def speaker_minmax_scale(params, data_path, sid, mode):
@@ -88,16 +89,18 @@ def scale_speaker_syllable(labels, data_path, mode):
 		speaker_sid = [0 for i in labels]
 	return np.array([ speaker_minmax_scale(label, data_path, speaker_sid[n], mode) for n, label in enumerate(labels) ])
 
-def split_audio(audio_data, labels, mode):
+def split_audio(audio_data, labels, phonetic, mode):
 	'''
 	For disyllabic data, the audio is being splited by half
 	the label is being split
 	'''
 	# split audio
-	split_audio = np.array([data[:math.ceil(0.5*len(data))] if j == 0 else data[math.floor(0.5*len(data)):] for i, data in enumerate(audio_data) for j in range(2)])
+	split_audio_data = np.array([data[:math.ceil(0.5*len(data))] if j == 0 else data[math.floor(0.5*len(data)):] for i, data in enumerate(audio_data) for j in range(2)])
 	# split labels for training set and eval set, for predicting data, it return empty set []
-	repeat_labels = np.array([x for item in labels for x in item]) if mode in [TRAIN_MODE, EVAL_MODE] else []
-	return split_audio, repeat_labels
+	split_labels = np.array([x for item in labels for x in item]) if mode in [TRAIN_MODE, EVAL_MODE] else []
+	split_phonetic = np.array([x for item in phonetic for x in item]) if mode in [TRAIN_MODE] else []
+
+	return split_audio_data, split_labels, split_phonetic
 
 def get_audio_max_length(audio_data, mode, is_train, is_disyllable):
 	'''
@@ -197,28 +200,39 @@ def transform_delta(mfcc):
 	'''
 	return np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=1)
 
-def augmentation(audio_data, labels, augment_samples, func, is_export_sample):
+def shuffle(audio_data, labels, phonetic):
+
+	shuffle_idx = np.random.permutation(phonetic.shape[0])
+
+	audio_data_shuffle = np.array([audio_data[i] for i in shuffle_idx])
+	labels_shuffle = np.array([labels[i] for i in shuffle_idx])
+	phonetic_shuffle = np.array([phonetic[i] for i in shuffle_idx])
+
+	return audio_data_shuffle, labels_shuffle, phonetic_shuffle
+
+def augmentation(audio_data, labels, phonetic, augment_samples, func, is_export_sample):
 	'''
 	the function to perform data augmentation
 	First, the data is being sampling both labels and audio data
 	Next, the augmentation is performed
 	Then, the data is being concated to original data (both audio and labels)
 	'''
-	audio_data_sub, labels_sub = dev_aug.random_sampling_data(audio_data, labels, random_n_sample=augment_samples)
+	audio_data_sub, labels_sub, phonetic_sub = dev_aug.random_sampling_data(audio_data, labels, phonetic, random_n_sample=augment_samples)
 	aug_data = func(audio_data_sub)
 	audio_data = np.concatenate((audio_data, aug_data), axis=0)
 	labels = np.concatenate((labels, labels_sub), axis=0)
+	phonetic = np.concatenate((phonetic, phonetic_sub), axis=0)
 
 	if is_export_sample: export_sample(aug_data, labels_sub, 'data_prep_samples', filename=str(func)[10:15])
 
-	return audio_data, labels
+	return audio_data, labels, phonetic
 
-def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
+def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
 
 	if is_disyllable:
 		# split audio data for disyllable, note that if mode=predict, labels is [].
 		print('[INFO] Spliting audio data for disyllabic')
-		features, labels = split_audio(features, labels, mode=mode)
+		features, labels, phonetic = split_audio(features, labels, phonetic, mode=mode)
 
 	if mode != 'predict':
 
@@ -264,9 +278,33 @@ def preprocess_pipeline(features, labels, mode, is_disyllable, sample_rate, is_t
 
 	if mode == TRAIN_MODE:
 		#shuffle training subset after preprocess
-		features, labels = shuffle(features, labels)
+		features, labels, phonetic = shuffle(features, labels, phonetic)
 
-	return features, labels
+	return features, labels, phonetic
+
+def split_dataset(audio_data, labels, phonetic, val_test_split_ratio=0.3):
+	
+	total_size = len(phonetic)
+	train_size = int((1-val_test_split_ratio)*total_size)
+	data_idx = range(len(phonetic)) 
+	
+	idx = np.random.choice(data_idx, size=train_size, replace = False)
+	train_audio = np.array([audio_data[i] for i in idx])
+	train_labels = np.array([labels[i] for i in idx])
+	train_phonetic = np.array([phonetic[i] for i in idx])
+	
+	test_data_idx = [i for i in data_idx if i not in idx]
+	test_idx = np.random.choice(test_data_idx, size=int((total_size - train_size)/2), replace = False)
+	test_audio = np.array([audio_data[i] for i in test_idx])
+	test_labels = np.array([labels[i] for i in test_idx])
+	test_phonetic = np.array([phonetic[i] for i in test_idx])
+	
+	val_data_idx = [i for i in data_idx if (i not in idx) or (i not in test_data_idx)]
+	val_audio = np.array([audio_data[i] for i in val_data_idx])
+	val_labels = np.array([labels[i] for i in val_data_idx])
+	val_phonetic = np.array([phonetic[i] for i in val_data_idx])
+	
+	return train_audio, train_labels, train_phonetic, test_audio, test_labels, test_phonetic, val_audio, val_labels, val_phonetic
 
 def main(args):
 
@@ -306,15 +344,20 @@ def main(args):
 	print('--Sampling data size: %s'%str(args.sample_data_size))
 
 	print('[INFO] Importing data')
-	audio_data, labels = import_data(args.data_path, mode=args.mode)
-	print('[INFO] Audio Shape: %s'%str(audio_data.shape))
+	audio_data, labels, phonetic = import_data(args.data_path, mode=args.mode)
+	print('[INFO]\n--- Audio Shape: %s'%str(audio_data.shape))
+	print('--- Labels Shape: %s'%str(labels.shape))
+	print('--- Phonetic Shape: %s'%str(phonetic.shape))
 
-	if args.sample_data_size:
-		print('[INFO] Sampling Data of size: {}'.format(args.sample_data_size))
-		idx = np.random.choice(range(0,audio_data.shape[0]), size=args.sample_data_size, replace =False)
-		audio_data = audio_data[idx]
-		labels = labels[idx]
-		print('[DEBUG] Feature: {}, Label: {}'.format(str(audio_data.shape, labels.shape)))
+
+	if args.mode == TRAIN_MODE: 
+		if args.sample_data_size:
+			print('[INFO] Sampling Data of size: {}'.format(args.sample_data_size))
+			idx = np.random.choice(range(0,audio_data.shape[0]), size=args.sample_data_size, replace =False)
+			audio_data = audio_data[idx]
+			labels = labels[idx]
+			phonetic = phonetic[idx]
+			print('[DEBUG] Feature: {}, Label: {}'.format(str(audio_data.shape, labels.shape)))
 	# print('[INFO] Reduce length for testing')
 	# audio_data = audio_data[:20]
 	# labels = labels[:20]
@@ -345,12 +388,8 @@ def main(args):
 	# split data into train, test, validate subset if mode = TRAIN_MODE, else, evaluate and test
 	if args.mode == TRAIN_MODE:
 
-		# compute testing and validating size
-		split_size = int(args.split_size*audio_data.shape[0])
-
 		print('[INFO] Split audio data into different subset')
-		X_train, X_test, y_train, y_test = train_test_split(audio_data, labels, test_size = split_size, random_state=0)
-		X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size =split_size, random_state=0)
+		X_train, y_train, z_train, X_test, y_test, z_test, X_val, y_val, z_val = split_dataset(audio_data, labels, phonetic, val_test_split_ratio=args.split_size)
 		# perform augmentation for training dataset (only X_train)
 		if is_augment:
 			print('[INFO] Augmenting audio data')
@@ -358,17 +397,17 @@ def main(args):
 			augment_samples = int(args.augment_samples*X_train.shape[0])
 			p_augmentation = partial(augmentation, augment_samples=augment_samples, is_export_sample=is_export_sample)
 
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.init_change_pitch(args.resample_rate))
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.amplify_value)
-			X_train, y_train = p_augmentation(audio_data=X_train, labels=y_train, func=dev_aug.add_white_noise)
+			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.init_change_pitch(args.resample_rate))
+			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.amplify_value)
+			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.add_white_noise)
 
-		X_train, y_train = p_preprocess_pipeline(features=X_train, labels=y_train, is_train=True)
-		X_test, y_test = p_preprocess_pipeline(features=X_test, labels=y_test)
-		X_val, y_val = p_preprocess_pipeline(features=X_val, labels=y_val)
+		X_train, y_train, z_train = p_preprocess_pipeline(features=X_train, labels=y_train, phonetic = z_train,is_train=True)
+		X_test, y_test, z_test = p_preprocess_pipeline(features=X_test, labels=y_test, phonetic = z_test)
+		X_val, y_val, z_val = p_preprocess_pipeline(features=X_val, labels=y_val, phonetic = z_val)
 
 	else:
 		# for evaluated and predict dataset
-		features, labels = p_preprocess_pipeline(features=audio_data, labels=labels)
+		features, labels, _ = p_preprocess_pipeline(features=audio_data, labels=labels, phonetic=phonetic)
 		
 	output_path = join(args.data_path, args.output_path) 
 	# create output file
@@ -384,10 +423,13 @@ def main(args):
 		np.savez(join(output_path, 'training_subsets.npz'), 
 			X_train = X_train,
 			y_train= y_train, 
+			z_train=z_train,
 			X_val = X_val,
 			y_val = y_val,
+			z_val = z_val,
 			X_test = X_test,
-			y_test = y_test)
+			y_test = y_test,
+			z_test = z_test)
 	elif args.mode == EVAL_MODE:
 		np.savez(join(output_path,'eval_dataset.npz'),
 			labels= labels,

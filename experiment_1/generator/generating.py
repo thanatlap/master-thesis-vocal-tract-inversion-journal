@@ -229,9 +229,6 @@ def main():
 			total_phonetic)
 		
 		print('[INFO] End of step %s/%d'%(split_counter,cf.N_SPLIT))
-
-		print(total_phonetic)
-		print(len(total_phonetic))
 		
 	print('[INFO] Loading audio data for filtering')
 	batch_ns_audio, batch_ns_param, batch_ns_sid, batch_ns_phonetic, silent_count = gen.filter_nonsound(
