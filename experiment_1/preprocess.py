@@ -282,7 +282,7 @@ def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_
 
 	return features, labels, phonetic
 
-def split_dataset(audio_data, labels, phonetic, val_test_split_ratio=0.3):
+def split_dataset(audio_data, labels, phonetic, val_test_split_ratio):
 	
 	total_size = len(phonetic)
 	train_size = int((1-val_test_split_ratio)*total_size)
@@ -299,7 +299,7 @@ def split_dataset(audio_data, labels, phonetic, val_test_split_ratio=0.3):
 	test_labels = np.array([labels[i] for i in test_idx])
 	test_phonetic = np.array([phonetic[i] for i in test_idx])
 	
-	val_data_idx = [i for i in data_idx if (i not in idx) or (i not in test_data_idx)]
+	val_data_idx = [i for i in data_idx if (i not in idx) or (i not in test_idx)]
 	val_audio = np.array([audio_data[i] for i in val_data_idx])
 	val_labels = np.array([labels[i] for i in val_data_idx])
 	val_phonetic = np.array([phonetic[i] for i in val_data_idx])
@@ -466,12 +466,12 @@ if __name__ == '__main__':
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
 	parser.add_argument('--is_augment', dest='is_augment', default='True', help='proceed data augmentation', type=str)
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
-	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.6)
+	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.25)
 	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
 	parser.add_argument("--sample_data_size", help="sample data size", type=int, default=None)
-	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=1)
-	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering, 4:Cepstral Norm]", type=int, default=1)
-	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.05)
+	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=5)
+	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering, 4:Cepstral Norm]", type=int, default=4)
+	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.3)
 	parser.add_argument('--is_export_sample', dest='is_export_sample', default='False', help='export sample data', type=str)
 	args = parser.parse_args()
 	main(args)
