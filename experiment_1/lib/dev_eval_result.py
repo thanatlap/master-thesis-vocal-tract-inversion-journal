@@ -183,6 +183,55 @@ def formant_chart(datapoint_df,  dir_path, experiment_num, is_disyllable, label_
 	else:
 		plot_formant_chart(datapoint_df, custome_reindex, dir_path, is_disyllable)
 
+def plot_each_syllable_formant(input_df, position, dir_path):
+	
+	syl_df = input_df[input_df['Position'] == str(position)]
+	unique_labels = set(syl_df['Label'].copy())
+	
+	if len(unique_labels) == 9:
+		fig, ax = plt.subplots(3,3, figsize=(20,15))
+	elif unique_labels == 12:
+		fig, ax = plt.subplots(4,3, figsize=(20,15))
+	else:
+		fig, ax = plt.subplots(5,5, figsize=(20,15))
+
+	colors = ['blue', 'red']
+	target_label = ['estimated','original']
+
+	for idx, label in enumerate(unique_labels):
+		axs = ax[idx//3][idx%3]
+		for jdx, target in enumerate([0.0, 1.0]):
+			df = syl_df[syl_df['Target'] == target]
+			axs.scatter(df[df['Label'] == label]['F2'], df[df['Label'] == label]['F1'], c=colors[jdx], label=target_label[jdx])
+		axs.title.set_text(label)
+		axs.set_xticks(np.arange(400, 2400+1, 200))
+		axs.set_yticks(np.arange(100, 800+1, 100))
+		axs.set_xlabel('F2')
+		axs.set_ylabel('F1')
+		axs.invert_xaxis()
+		axs.invert_yaxis()
+		axs.legend()
+		
+	for file_type in ['.png','.pdf']:
+		plt.savefig(join(dir_path, 'formant_pos_'+str(position)+'_each'+file_type), dpi=300)
+
+def formant_each_syllable_chart(datapoint_df,  dir_path, is_disyllable, label_set):
+
+	datapoint_df = prep_df(datapoint_df, is_disyllable)
+	datapoint_df = set_datapoint_index(datapoint_df)
+
+	if label_set == 1:
+		datapoint_df = change_label_set_1(datapoint_df)
+	elif label_set == 2: 
+		datapoint_df = change_label_set_2(datapoint_df) 
+
+	if is_disyllable:
+		plot_each_syllable_formant(datapoint_df, 1, dir_path)
+		plot_each_syllable_formant(datapoint_df, 2, dir_path)
+	else:
+		datapoint_df['Position'] = '1'
+		plot_each_syllable_formant(datapoint_df, 1, dir_path)
+
 def generate_eval_result(experiment_num, is_disyllable, mode='eval', label_set=1, output_path=None):
 
 	if label_set not in [1,2]:
@@ -202,4 +251,7 @@ def generate_eval_result(experiment_num, is_disyllable, mode='eval', label_set=1
 	compute_formant_ttest(datapoint_df, dir_path, experiment_num, is_disyllable)
 	print('[INFO] generate formant chart')
 	formant_chart(datapoint_df,  dir_path, experiment_num, is_disyllable, label_set)
+	print('[INFO] generate formant chart for each syllable')
+	datapoint_df = pd.read_csv(join(dir_path,'data_point.csv'))
+	formant_each_syllable_chart(datapoint_df,  dir_path, is_disyllable, label_set)
 	
