@@ -1,12 +1,12 @@
 # Data generator control
 DI_SYLLABLE = True
-CONT = True
+CONT = False
 REPLACE_FOLDER = False
-N_SPLIT = 1
+N_SPLIT = 10
 CLEAN_FILE = True
 CLEAN_SOUND = True
 NJOB = 8
-DATASIZE = 100
+DATASIZE = 21000
 
 # Data generator hyperparameter
 FILTER_THRES = 0.95
@@ -24,14 +24,14 @@ GES_F0_INIT_MIN_MAX = [80, 81] # min max
 GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_0'
+DATASET_NAME = 'd_dataset_p2'
 DATA_DESCRIPTION = 'Try new generator algorithm'
 DATASET_DIR = '../../data/'+DATASET_NAME
 
 # required file
 TEMPLATE_DIR = 'assets'
 VTL_FILE = TEMPLATE_DIR+'/VTL/VocalTractLabApi.dll'
-PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_draft1.csv'
+PREDEFINE_PARAM_FILE = TEMPLATE_DIR+'/default_param_draft2.csv'
 ADULT_SPEAKER_HEADER_FILE = TEMPLATE_DIR+'/adult_speaker_header.txt'
 INFANT_SPEAKER_HEADER_FILE = TEMPLATE_DIR+'/infant_speaker_header.txt'
 TAIL_SPEAKER = TEMPLATE_DIR+'/speaker_tail.txt'

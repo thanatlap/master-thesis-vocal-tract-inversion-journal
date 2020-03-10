@@ -132,15 +132,15 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
 	def cnn_block(input_x, cnn_unit, kernel_size):
 		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
 		x = BatchNormalization()(x)
-		x = Activation('elu')(x)
+		x = Activation('relu')(x)
 		return x
 
 	def se_block(input_x):
 		x = layers.GlobalAveragePooling1D()(input_x)
 		channel_shape = getattr(x, '_shape_val')[-1]
 		x = Reshape((1, channel_shape))(x)
-		x = Dense(channel_shape // reduction_ratio, activation='selu', kernel_initializer='lecun_normal')(x)
-		x = Dense(channel_shape, activation='tanh', kernel_initializer='lecun_normal')(x)
+		x = Dense(channel_shape // reduction_ratio, activation='relu', kernel_initializer='he_uniform')(x)
+		x = Dense(channel_shape, activation='tanh', kernel_initializer='he_uniform')(x)
 		return x
 
 	def residual_block(input_x):
@@ -153,7 +153,7 @@ def init_senet(feature_layer=1, cnn_unit=64, cnn_kernel=5, res_unit=128,
 		res_x = residual_block(input_x)
 		se_x = se_block(res_x)
 		x = layers.Multiply()([res_x, se_x])
-		x = Activation('elu')(x)
+		x = Activation('relu')(x)
 		# input_x = cnn_block(input_x, cnn_unit=cnn_unit, kernel_size=1)
 		x = layers.Concatenate()([x, input_x])
 		outputs = cnn_block(x, cnn_unit=res_unit, kernel_size=1)

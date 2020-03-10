@@ -21,7 +21,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from time import time
 from datetime import datetime
-from sklearn.utils import shuffle
 from functools import partial
 from joblib import dump, load
 
@@ -200,15 +199,16 @@ def transform_delta(mfcc):
 	'''
 	return np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=1)
 
-def shuffle(audio_data, labels, phonetic):
+def shuffle(mfcc, labels, phonetic, audio_feature):
 
 	shuffle_idx = np.random.permutation(phonetic.shape[0])
 
-	audio_data_shuffle = np.array([audio_data[i] for i in shuffle_idx])
+	mfcc_shuffle = np.array([mfcc[i] for i in shuffle_idx])
 	labels_shuffle = np.array([labels[i] for i in shuffle_idx])
 	phonetic_shuffle = np.array([phonetic[i] for i in shuffle_idx])
+	audio_shuffle = np.array([audio_feature[i] for i in shuffle_idx])
 
-	return audio_data_shuffle, labels_shuffle, phonetic_shuffle
+	return mfcc_shuffle, labels_shuffle, phonetic_shuffle, audio_shuffle
 
 def augmentation(audio_data, labels, phonetic, augment_samples, func, is_export_sample):
 	'''
@@ -270,17 +270,20 @@ def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_
 
 	elif feat_prep_mode == 4:
 		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-		features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
+		mfcc_features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
 		print('[INFO] Normalization in each cepstral + self-normalized')
-		features = utils.normalize_mfcc_by_mean_cepstral(features)
+		mfcc_features = utils.normalize_mfcc_by_mean_cepstral(mfcc_features)
 		print('[INFO] Padding MFCC length')
-		features = zero_pad_mfcc(features, is_train, is_disyllable)
+		mfcc_features = zero_pad_mfcc(mfcc_features, is_train, is_disyllable)
 
 	if mode == TRAIN_MODE:
 		#shuffle training subset after preprocess
-		features, labels, phonetic = shuffle(features, labels, phonetic)
+		mfcc_features, labels, phonetic, features = shuffle(mfcc_features, labels, phonetic, features)
+	else: 
+		features = []
+		phonetic = []
 
-	return features, labels, phonetic
+	return mfcc_features, labels, phonetic, features
 
 def split_dataset(audio_data, labels, phonetic, val_test_split_ratio):
 	
@@ -308,9 +311,11 @@ def split_dataset(audio_data, labels, phonetic, val_test_split_ratio):
 
 def main(args):
 
+	rand_seed = np.random.randint(10, size=5)
+	print('[DEBUG] Check random seed {}'.format(rand_seed))
 	start_time = time()
 	timestamp = datetime.now().strftime("%Y %B %d %H:%M")
-	print('[INFO] {}'.format(start_time))
+	print('[INFO] {}'.format(timestamp))
 	# check if data path is existed or not
 	if not os.path.exists(args.data_path):
 		raise ValueError('[ERROR] Data path %s is not exist'%args.data_path)
@@ -347,8 +352,8 @@ def main(args):
 	print('[INFO] Importing data')
 	audio_data, labels, phonetic = import_data(args.data_path, mode=args.mode)
 	print('[INFO]\n--- Audio Shape: %s'%str(audio_data.shape))
-	print('--- Labels Shape: %s'%str(labels.shape))
-	print('--- Phonetic Shape: %s'%str(phonetic.shape))
+	if args.mode == TRAIN_MODE: print('--- Labels Shape: %s'%str(labels.shape))
+	if args.mode == TRAIN_MODE: print('--- Phonetic Shape: %s'%str(phonetic.shape))
 
 
 	if args.mode == TRAIN_MODE: 
@@ -402,13 +407,13 @@ def main(args):
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.amplify_value)
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.add_white_noise)
 
-		X_train, y_train, z_train = p_preprocess_pipeline(features=X_train, labels=y_train, phonetic = z_train,is_train=True)
-		X_test, y_test, z_test = p_preprocess_pipeline(features=X_test, labels=y_test, phonetic = z_test)
-		X_val, y_val, z_val = p_preprocess_pipeline(features=X_val, labels=y_val, phonetic = z_val)
+		X_train, y_train, z_train, _ = p_preprocess_pipeline(features=X_train, labels=y_train, phonetic = z_train,is_train=True)
+		X_test, y_test, z_test, audio_test = p_preprocess_pipeline(features=X_test, labels=y_test, phonetic = z_test)
+		X_val, y_val, z_val, audio_val = p_preprocess_pipeline(features=X_val, labels=y_val, phonetic = z_val)
 
 	else:
 		# for evaluated and predict dataset
-		features, labels, _ = p_preprocess_pipeline(features=audio_data, labels=labels, phonetic=phonetic)
+		features, labels, _, _ = p_preprocess_pipeline(features=audio_data, labels=labels, phonetic=phonetic)
 		
 	output_path = join(args.data_path, args.output_path) 
 	# create output file
@@ -430,7 +435,9 @@ def main(args):
 			z_val = z_val,
 			X_test = X_test,
 			y_test = y_test,
-			z_test = z_test)
+			z_test = z_test,
+			audio_test = audio_test,
+			audio_val = audio_val)
 	elif args.mode == EVAL_MODE:
 		np.savez(join(output_path,'eval_dataset.npz'),
 			labels= labels,
@@ -458,6 +465,7 @@ def main(args):
 	log.write('Feature normalize mode: %s\n'%str(args.feature_normalize))
 	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
 	log.write('Total time used: %s\n'%total_time)
+	log.write('[DEBUG] Random Code: {}\n'.format(rand_seed))
 	log.close()
 
 if __name__ == '__main__':
