@@ -227,7 +227,7 @@ def augmentation(audio_data, labels, phonetic, augment_samples, func, is_export_
 
 	return audio_data, labels, phonetic
 
-def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, data_path=None): 
+def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_rate, is_train, feat_prep_mode, label_prep_mode, mfcc_n, data_path=None): 
 
 	if is_disyllable:
 		# split audio data for disyllable, note that if mode=predict, labels is [].
@@ -270,7 +270,7 @@ def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_
 
 	elif feat_prep_mode == 4:
 		print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-		mfcc_features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = 13)
+		mfcc_features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = mfcc_n)
 		print('[INFO] Normalization in each cepstral + self-normalized')
 		mfcc_features = utils.normalize_mfcc_by_mean_cepstral(mfcc_features)
 		print('[INFO] Padding MFCC length')
@@ -348,6 +348,9 @@ def main(args):
 	print('--Feauture normalize mode: %s'%str(args.feature_normalize))
 	print('--Label normalize mode: %s'%str(args.label_normalize))
 	print('--Sampling data size: %s'%str(args.sample_data_size))
+	print('--MFCC coefficient number: {}'%.format(args.mfcc_coef))
+
+	
 
 	print('[INFO] Importing data')
 	audio_data, labels, phonetic = import_data(args.data_path, mode=args.mode)
@@ -389,7 +392,8 @@ def main(args):
 		is_train=False,
 		label_prep_mode = args.label_normalize,
 		feat_prep_mode = args.feature_normalize,
-		data_path = args.data_path)
+		data_path = args.data_path,
+		mfcc_n = args.mfcc_coef)
 
 	# split data into train, test, validate subset if mode = TRAIN_MODE, else, evaluate and test
 	if args.mode == TRAIN_MODE:
@@ -464,6 +468,7 @@ def main(args):
 	log.write('Test size (in percent): %s\n'%str(args.split_size))
 	log.write('Feature normalize mode: %s\n'%str(args.feature_normalize))
 	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
+	log.write('--MFCC coefficient number: {}\n'%.format(args.mfcc_coef))
 	log.write('Total time used: %s\n'%total_time)
 	log.write('[DEBUG] Random Code: {}\n'.format(rand_seed))
 	log.close()
@@ -476,11 +481,12 @@ if __name__ == '__main__':
 	parser.add_argument('--is_augment', dest='is_augment', default='True', help='proceed data augmentation', type=str)
 	parser.add_argument("--output_path", help="output directory", type=str, default=None)
 	parser.add_argument("--augment_samples", help="data augmentation fraction from 0 to 1", type=float, default=0.25)
-	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=44100)
+	parser.add_argument("--resample_rate", help="audio sample rate", type=int, default=16000)
 	parser.add_argument("--sample_data_size", help="sample data size", type=int, default=None)
 	parser.add_argument("--label_normalize", help="label normalize mode [1: standardized, 2: min-max, 3:None, 4: norm and standardized, 5: norm and min-max]", type=int, default=5)
 	parser.add_argument("--feature_normalize", help="label normalize mode [1: standardized, 2: None, 3:Self-Centering, 4:Cepstral Norm]", type=int, default=4)
-	parser.add_argument("--split_size", help="size of test dataset in percent (applied to both val and test)", type=float, default=0.3)
+	parser.add_argument("--split_size", help="size of test and validate from training dataset in percent", type=float, default=0.3)
+	parser.add_argument("--mfcc_coef", help="number of mfcc_coef", type=int, default=13)
 	parser.add_argument('--is_export_sample', dest='is_export_sample', default='False', help='export sample data', type=str)
 	args = parser.parse_args()
 	main(args)

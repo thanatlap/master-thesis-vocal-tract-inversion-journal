@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import sys
 from os.path import join
 import tensorflow as tf
 from tensorflow import keras
@@ -173,8 +174,10 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 def main(args):
 	
 	tf.random.set_seed(42)
-
-	print('%s'%str(datetime.now()))
+	rand_seed = np.random.randint(10, size=5)
+	print('[DEBUG] Check random seed code: {}'.format(rand_seed))
+	print('[DEBUG] Time: {}'%.format(datetime.now()))
+	print('[DEBUG] Data: {}'%.format(cf.DATASET_DIR))
 
 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
@@ -188,29 +191,44 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
-	if args.exp == 88: 
-		ptraining_fn(nn.init_senet(),model_name='senet')
-	if args.exp == 97: 
-		ptraining_fn(nn.init_densenet(),model_name='densenet')
+	if args.exp == 73: ptraining_fn(nn.init_baseline(), model_name='baseline')
+	if args.exp == 74: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
+	if args.exp == 75: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	if args.exp == 76: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
 
-	if args.exp == 98: 
-		ptraining_fn(nn.init_densenet(bilstm_unit=128),model_name='densenet')
-	if args.exp == 99: 
-		ptraining_fn(nn.init_densenet(bilstm_unit=256),model_name='densenet')
-	if args.exp == 103: 
-		ptraining_fn(nn.init_densenet(),model_name='densenet')
-	if args.exp == 104: 
-		ptraining_fn(nn.init_densenet(bilstm = 2),model_name='densenet')
-	if args.exp == 109: 
-		ptraining_fn(nn.init_densenet(bilstm = 1, bilstm_unit=128),model_name='densenet')
+	# === ARCHITECTURE SEARCH ===
+	# hyperparam = [low, high]
+	FEATURE_LAYERS = [1, 3]
+	BILSTM_LAYERS = [1, 5]
+	SE_ENABLE = [False, True]
+	CNN_UNIT = [32, 128]
+	BILSTM_UNIT = [64, 256]
+	DROPOUT = [None, 0.3]
+	exp_count = 1
 
-	if args.exp == 5: ptraining_fn(nn.init_baseline(), 
-		model_name='baseline')
-	if args.exp == 42: ptraining_fn(nn.init_senet_skip(), 
-		model_name='senet_skip')
-	if args.exp == 14: ptraining_fn(nn.init_LTRCNN(drop_rate=0.3), 
-		model_name='LTRCNN')
-	
+	for fl in FEATURE_LAYERS:
+		for bl in BILSTM_LAYERS:
+			for se in SE_ENABLE:
+				for cu in  CNN_UNIT:
+					for bu in BILSTM_UNIT:
+						for do in DROPOUT:
+							if args.exp == exp_count: 
+								print('[DEBUG] EXP {}, FL: {}, BL: {}, SE: {}, CU: {}, BU: {}, DO: {},'.format(exp_count, fl, bl, se, cu, bu, do))
+								ptraining_fn(nn.init_senet(feature_layer=fl,
+															bilstm = bl, 
+															se_enable = se, 
+															cnn_unit=cu, 
+															bilstm_unit=bu, 
+															dropout_rate=do),
+									model_name='senet')
+							exp_count += 1
+
+	# === LEARNING SEARCH ===
+	# hyperparam = [low, high]
+	# LR = [0.001, 0.01]
+	# BS = [16, 128]
+	# MF = [13, 20]
+	# exp_count = 65
 	
 
 if __name__ == '__main__':

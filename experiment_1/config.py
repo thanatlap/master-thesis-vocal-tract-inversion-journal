@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_t3_40k_c/prep_data_13'
+DATASET_DIR = '../data/d_dataset_p2/prep_data_20'
 #---------------------------------
 
 LOAD_FROM_SAVE = None
@@ -19,15 +19,15 @@ EPS = None
 SDECAY = 0.0
 AMSGRAD = False
 LOSS_FN = 'mse'
-OPT = 'AMSgrad' # for record only
+OPT = 'Adam' # for record only
 OPT_NUM = 1
 
 # Training
 BATCH_SIZE = 64
-EPOCHS = 1000
-MODEL_VERBOSE = 1
+EPOCHS = 150
+MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 10 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False
@@ -45,4 +45,4 @@ LABEL_MODE = 3 #1:standardized 2:minmax
 #----------------------------------
 # Praat config
 PRAAT_EXE = r"G:\Praat.exe"
-LOG_SHEET = 'thesis_log.csv'
+LOG_SHEET = 'experiment_1/thesis_log.csv'
