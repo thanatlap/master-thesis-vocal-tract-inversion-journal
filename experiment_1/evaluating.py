@@ -53,7 +53,12 @@ def evaluating(features, labels):
 	r2 = utils.compute_R2(labels,y_pred,multioutput='uniform_average')
 	return y_pred, eval_result, r2
 
-def main():	
+def main(args):	
+
+	if args.model:
+		cf.MODEL_FILE = args.model
+
+	print('[DEBUG] Model in used: {}'.format(cf.MODEL_FILE))
 
 	exp_num = int(re.search(r'\d+', cf.MODEL_FILE).group())
 	if exp_num is None:
@@ -98,4 +103,7 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser("Model to eval")
+	parser.add_argument("--model", help="file of the model (hdf5)", type=str, default=None)
+	args = parser.parse_args()
+	main(args)
