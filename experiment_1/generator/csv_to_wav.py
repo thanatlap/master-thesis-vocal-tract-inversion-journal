@@ -64,8 +64,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser("CSV to wav file")
 	parser.add_argument("csv_path", help="csv file path", type=str)
 	parser.add_argument("syllable", help="is data disyllable or monosyllable ['mono','di']", type=str)
-	parser.add_argument('--head_filepath', dest='speaker_template_head', default='templates/speaker_head.speaker', help='speaker head template file path', type=str)
-	parser.add_argument('--tail_filepath', dest='speaker_template_tail', default='templates/speaker_tail.txt', help='speaker tail template file path', type=str)
+	parser.add_argument('--head_filepath', dest='speaker_template_head', default='assets/speaker_head.speaker', help='speaker head template file path', type=str)
+	parser.add_argument('--tail_filepath', dest='speaker_template_tail', default='assets/speaker_tail.txt', help='speaker tail template file path', type=str)
 
 	parser.add_argument("--output_path", help="output directory", default=None, type=str)
 	args = parser.parse_args()

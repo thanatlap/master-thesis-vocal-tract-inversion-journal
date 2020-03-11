@@ -170,8 +170,7 @@ def log_formant(log, target_sound, target_label, estimated_sound, formant_dir):
 
 # plot formant plot
 def log_format_plot(log, formant_dir, save_csv_dir, label_name):
-	sel_point = 20 if cf.DI_SYLLABLE else 13
-	utils.export_format_csv(label_name, formant_dir ,sel_point = sel_point)
+	utils.export_format_csv(label_name, formant_dir)
 
 # Add to main log file
 def log_experiment_csv_train(experiment_num, X_train, y_train, test_results, train_results, 

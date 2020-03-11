@@ -35,7 +35,7 @@ TENSORBOARD = False
 # --------------------------------
 # Evaluation
 # --------------------------------
-PREP_EVAL_FOLDER = 'prep_data_13'
+PREP_EVAL_FOLDER = 'prep_data_20'
 
 EVALSET_DIR = '../data/d_eval'
 MODEL_FILE = '39_senet.h5'

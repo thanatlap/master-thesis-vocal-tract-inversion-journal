@@ -13,7 +13,7 @@ import re
 import model as nn
 import config as cf
 import lib.dev_utils as utils
-import lib.dev_gen as gen
+import generator.gen_tools as gen
 import make_result as res
 import lib.dev_eval_result as evalresult
 
@@ -64,8 +64,7 @@ def main():
 	features, labels = prep_data()
 	# evaluated model using evalset
 	y_pred, eval_result, r2 = evaluating(features, labels)
-	print('Result Loss: %.4f\nRMSE: %.4f'%(eval_result[0],eval_result[1]))
-	print('Result R2: %.4f'%(r2))
+	print('Result LOSS: %.3f RMSE: %.3f R2:%.3f'%(eval_result[0],eval_result[1],eval_result[2]))
 	# invert param back to predefined speaker scale
 	print('[INFO] transform label')
 

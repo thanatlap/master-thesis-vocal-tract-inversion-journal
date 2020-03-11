@@ -251,3 +251,36 @@ def simulate_speaker_from_given_ratio(
 			dataset_folder=dataset_folder,
 			predefined_syllables=predefined_syllables, 
 			syllable_labels=syllable_labels)
+
+
+def create_ges_template_adjust_duration(ges_file, duration, is_disyllable):
+
+	if is_disyllable:
+		duration = duration/2
+
+	f = open(ges_file, 'w')
+	f.write('<gestural_score>\n<gesture_sequence type="vowel-gestures" unit="">\n>')
+	f.write('<gesture value="aaa" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="bbb" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence>\n<gesture_sequence type="lip-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="tongue-tip-gestures" unit="">\n')
+	f.write('</gesture_sequence>\n<gesture_sequence type="tongue-body-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="velic-gestures" unit="">\n')
+	f.write('</gesture_sequence>\n<gesture_sequence type="glottal-shape-gestures" unit="">\n')
+	f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence>\n')
+	f.write('<gesture_sequence type="f0-gestures" unit="st">\n')
+	f.write('<gesture value="83.00000" slope="0.000000" duration_s="0.01000" time_constant_s="0.030000" neutral="0"/>\n')
+	f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+	f.write('</gesture_sequence>\n')
+	f.write('<gesture_sequence type="lung-pressure-gestures" unit="dPa">\n')
+	f.write('<gesture value="0.000000" slope="0.000000" duration_s="0.010000" time_constant_s="0.005000" neutral="0" />\n')
+	f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+	if is_disyllable:
+		f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+	f.write('</gesture_sequence> \n')
+	f.write('</gestural_score>\n')
+	f.close()

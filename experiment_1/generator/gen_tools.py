@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 import multiprocessing as mp
 from shutil import copyfile
+from librosa import feature
+from time import time
 
 import simulate_speaker as ss
 
@@ -298,13 +300,77 @@ def create_speaker_from_template(syllable_params, param_names, output_path, spea
 
 	return speaker_filenames
 
-def create_ges_from_template(syllable_params, output_path, is_disyllable):
+
+def invert_to_predefine_scale(params):
+	s_param = np.load(join('lib', 'templates', 'speaker_param.npz'))
+	p_low = s_param['low']
+	p_high = s_param['high']
+	return [(param - p_low)/(p_high - p_low) for param in params]
+
+def read_audio_path(data_path):
+	data = []
+	with open(join(data_path,'sound_set.txt'), 'r') as f:
+		data = np.array(f.read().split(','))
+	# path to audio data
+	return np.array([join(data_path, file+'.wav') for file in data])
+
+def extract_duration(data_path):
+	'''
+	extract duration for data generating after prediction
+	return a list of list [[sound1.wav, 1.2], [sound2.wav, 0.92]]
+	'''
+
+	audio_paths = read_audio_path(data_path)
+	return np.array([ [file,librosa.get_duration(librosa.load(file)[0])] for file in audio_paths ])
+
+
+def convert_to_disyllabic_parameter(params):
+	'''
+	convert monosyllable to disyllable
+	used when convert the result from the model
+	'''
+	return params.reshape((int(params.shape[0]/2),2,24))
+
+def create_ges_from_template(syllable_params, output_path, is_disyllable, data_path = None, mode='others'):
 	
 	ges_path = join(output_path,'ges')
 	os.makedirs(ges_path, exist_ok=True)
 
-	ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
-	ges_filenames = [ges_file]*len(syllable_params)
-	shutil.copy('templates/'+ges_file, ges_path)
+	if mode == 'predict':
+		audio_duration = extract_duration(data_path)
+		ges_filenames = ["ges%s.speaker"%n for n, _ in enumerate(syllable_params)]
+
+		for idx, param in enumerate(syllable_params):
+			file_path = join(ges_path, ges_filenames[idx])
+			ss.ges_template_gen(file_path, float(audio_duration[idx][1]), is_disyllable)
+	else:
+		ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
+		ges_filenames = [ges_file]*len(syllable_params)
+		shutil.copy('assets/'+ges_file, ges_path)
 
 	return ges_filenames
+
+def convert_param_to_wav(syllable_params, output_path, is_disyllable, data_path=None, mode='others'):
+	'''
+	Take param set and create an audio data. The data is store in the output folder
+	The output folder consist of 1. sound, 2. speaker, 3. npy
+
+	'''
+	start = time()
+	param_name = np.load('assets/speaker_param.npz')['name']
+	speaker_filenames = create_speaker_from_template(syllable_params, param_names, 
+		output_path=output_path, 
+		speaker_header_file='assets/speaker_head.speaker', 
+		speaker_tail_file='assets/speaker_tail.txt', 
+		is_disyllable = is_disyllable)
+	ges_filenames = create_ges_from_template(syllable_params, output_path, data_path=data_path, is_disyllable=is_disyllable, mode=mode)
+
+	sound_sets = generate_sound(speaker_filenames, ges_filenames, 0, 'assets/VTL/VocalTractLabApi.dll', output_path, njob=4)
+
+	np.savez(join(output_path ,'testset.npz'), 
+		syllable_params = syllable_params,
+		speaker_filenames = speaker_filenames,
+		sound_sets = sound_sets)
+	print('Successfully convert label to sound [Time: %.3fs]'%(time()-start))
+
+
