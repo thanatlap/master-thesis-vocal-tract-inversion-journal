@@ -4,7 +4,6 @@ from tensorflow.keras import layers
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers
 from tensorflow.keras.layers import Reshape, GRU, InputLayer, AlphaDropout, Activation, BatchNormalization, Dropout, Flatten, Dense, Bidirectional, LSTM, Conv1D, SpatialDropout1D, Concatenate, Multiply, Add
-import config as cf
 from functools import partial
 
 N_OUTPUTS = 17
@@ -80,64 +79,64 @@ def init_senet(feature_layer, bilstm, se_enable, cnn_unit, bilstm_unit, dropout_
 	if embedded_path:
 		embedded_layers = tf.keras.Sequential()
 		for layer in embedded.layers[:-2]:
-		    layer.trainable = False
-		    embedded_layers.add(layer)
+			layer.trainable = False
+			embedded_layers.add(layer)
 		embedded_layers.summary()
 
 
-    def cnn_block(input_x, cnn_unit, kernel_size):
-        x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
-        x = BatchNormalization()(x)
-        x = Activation(activation_fn)(x)
-        return x
-    
-    def residual_block(input_x):
-        x = pConv1D(cnn_unit, kernel_size=res_kernel)(input_x)
-        x = BatchNormalization()(x)
-        x = Activation(activation_fn)(x)
-        x = pConv1D(cnn_unit, kernel_size=5)(x)
-        return x
+	def cnn_block(input_x, cnn_unit, kernel_size):
+		x = pConv1D(cnn_unit, kernel_size=kernel_size)(input_x)
+		x = BatchNormalization()(x)
+		x = Activation(activation_fn)(x)
+		return x
+	
+	def residual_block(input_x):
+		x = pConv1D(cnn_unit, kernel_size=res_kernel)(input_x)
+		x = BatchNormalization()(x)
+		x = Activation(activation_fn)(x)
+		x = pConv1D(cnn_unit, kernel_size=5)(x)
+		return x
 
-    def se_block(input_x):
-        x = layers.GlobalAveragePooling1D()(input_x)
-        channel_shape = getattr(x, '_shape_val')[-1]
-        x = Reshape((1, channel_shape))(x)
-        x = Dense(channel_shape // reduction_ratio, activation=activation_fn, kernel_initializer='he_uniform')(x)
-        x = Dense(channel_shape, activation='tanh', kernel_initializer='he_uniform')(x)
-        x = layers.Multiply()([x, input_x])
-        return x
+	def se_block(input_x):
+		x = layers.GlobalAveragePooling1D()(input_x)
+		channel_shape = getattr(x, '_shape_val')[-1]
+		x = Reshape((1, channel_shape))(x)
+		x = Dense(channel_shape // reduction_ratio, activation=activation_fn, kernel_initializer='he_uniform')(x)
+		x = Dense(channel_shape, activation='tanh', kernel_initializer='he_uniform')(x)
+		x = layers.Multiply()([x, input_x])
+		return x
 
-    def se_res_block(input_x):
-    	if se_enable:
-	        se_x = se_block(input_x)
-        	re_x = residual_block(se_x)
-        else:
-        	re_x = residual_block(input_x)
-        x = keras.layers.Add()([re_x, input_x])
-        x = BatchNormalization()(x)
-        output = Activation(activation_fn)(x)
-        return x
+	def se_res_block(input_x):
+		if se_enable:
+			se_x = se_block(input_x)
+			re_x = residual_block(se_x)
+		else:
+			re_x = residual_block(input_x)
+		x = keras.layers.Add()([re_x, input_x])
+		x = BatchNormalization()(x)
+		output = Activation(activation_fn)(x)
+		return x
 
-    def senet_nn(input_shape_1,input_shape_2):
+	def senet_nn(input_shape_1,input_shape_2):
 
-        input_x = keras.Input(shape=(input_shape_1,input_shape_2))
-        x = cnn_block(input_x, cnn_unit, first_kernel)
-        for i in range(feature_layer):
-            x = se_res_block(x)
-        x = SpatialDropout1D(rate=dropout_rate)(x)
-        for i in range(feature_layer):
-            x = se_res_block(x)
-            x = SpatialDropout1D(rate=dropout_rate)(x)
-        if embedded_path:
-        	embedded = embedded_layers(input_x)
-	        x = layers.Concatenate()([x, embedded])
-        for i in range(bilstm-1):
-            x = Bidirectional(pLSTM(bilstm_unit))(x)
-            x = SpatialDropout1D(rate=dropout_rate)(x)
-        x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-        x = Dropout(rate=dropout_rate)(x)
-        outputs = Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_uniform')(x)
-        model = keras.Model(inputs=input_x, outputs=outputs)
-        return model
+		input_x = keras.Input(shape=(input_shape_1,input_shape_2))
+		x = cnn_block(input_x, cnn_unit, first_kernel)
+		for i in range(feature_layer):
+			x = se_res_block(x)
+		x = SpatialDropout1D(rate=dropout_rate)(x)
+		for i in range(feature_layer):
+			x = se_res_block(x)
+			x = SpatialDropout1D(rate=dropout_rate)(x)
+		if embedded_path:
+			embedded = embedded_layers(input_x)
+			x = layers.Concatenate()([x, embedded])
+		for i in range(bilstm-1):
+			x = Bidirectional(pLSTM(bilstm_unit))(x)
+			x = SpatialDropout1D(rate=dropout_rate)(x)
+		x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
+		x = Dropout(rate=dropout_rate)(x)
+		outputs = Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_uniform')(x)
+		model = keras.Model(inputs=input_x, outputs=outputs)
+		return model
 
-    return senet_nn
+	return senet_nn

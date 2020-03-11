@@ -14,14 +14,14 @@ from time import time
 def param_to_wav(syllable_params, param_names, output_path, speaker_header_file, speaker_tail_file, is_disyllable):
 
 	start = time()
-	speaker_filenames = gen.create_speaker_file(syllable_params=syllable_params, 
+	speaker_filenames = gen.create_speaker_from_template(syllable_params=syllable_params, 
 		param_names=param_names, 
 		output_path=output_path, 
 		speaker_header_file=speaker_header_file, 
 		speaker_tail_file =speaker_tail_file, 
 		is_disyllable = is_disyllable)
-	ges_filenames = gen.create_ges_file(syllable_params, output_path, is_disyllable=is_disyllable)
-	sound_sets = gen.generate_sound(speaker_filenames, ges_filenames, output_path)
+	ges_filenames = gen.create_ges_from_template(syllable_params, output_path, is_disyllable=is_disyllable)
+	sound_sets = gen.generate_sound(speaker_filenames, ges_filenames, 0, 'assets/VTL/VocalTractLabApi.dll', output_path, njob=4)
 	print('Successfully convert label to sound [Time: %.3fs]'%(time()-start))
 	return sound_sets
 
@@ -40,7 +40,7 @@ def main(args):
 		disyllable = True if args.syllable.lower() == 'di' else False
 	if args.output_path == None:
 		# the default outputpath is set for an acoustic evaluation dataset
-		output_path = '../data/d_eval' if disyllable else '../data/m_eval'
+		output_path = '../../data/d_eval' if disyllable else '../../data/m_eval'
 	else:
 		output_path = join('..','data', args.output_path)
 	makedirs(output_path, exist_ok=True)

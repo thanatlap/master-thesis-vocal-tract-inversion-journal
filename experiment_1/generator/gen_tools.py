@@ -263,3 +263,48 @@ def convert_to_disyllabic(params):
 def export_syllable_name(syllable_labels, output_path):
 	with open(join(output_path, 'syllable_name.txt'), 'w', newline='') as file:
 		csv.writer(file).writerow(syllable_labels)
+
+def create_speaker_from_template(syllable_params, param_names, output_path, speaker_header_file, speaker_tail_file, is_disyllable = False):
+
+	# Create speaker folder
+	speaker_path = join(output_path,'speaker')
+	os.makedirs(speaker_path, exist_ok=True)
+
+	# Read speaker template
+	speaker_head = open(speaker_header_file,'r').read()
+	speaker_tail = open(speaker_tail_file,'r').read()
+
+	speaker_filenames = ["speaker%s.speaker"%n for n, _ in enumerate(syllable_params)]
+	syllable_placeholder = ['aaa','bbb']
+	# Loop through list
+	for kdx, params in enumerate(syllable_params):
+
+		file_path = join(speaker_path,speaker_filenames[kdx])
+		with open(file_path, 'w') as f:
+			f.write(speaker_head)
+			if is_disyllable:
+				# Loop through each parameter in the list
+				for idx, pair_param in enumerate(params):
+					f.write('<shape name="%s">\n'%syllable_placeholder[idx])
+					for jdx, param in enumerate(pair_param):
+						f.write('<param name="%s" value="%.2f"/>\n'%(param_names[jdx],param))
+					f.write('</shape>\n')
+			else:
+				f.write('<shape name="%s">\n'%syllable_placeholder[0])
+				for jdx, param in enumerate(params):
+					f.write('<param name="%s" value="%.2f"/>\n'%(param_names[jdx],param))
+				f.write('</shape>\n')
+			f.write(speaker_tail)
+
+	return speaker_filenames
+
+def create_ges_from_template(syllable_params, output_path, is_disyllable):
+	
+	ges_path = join(output_path,'ges')
+	os.makedirs(ges_path, exist_ok=True)
+
+	ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
+	ges_filenames = [ges_file]*len(syllable_params)
+	shutil.copy('templates/'+ges_file, ges_path)
+
+	return ges_filenames

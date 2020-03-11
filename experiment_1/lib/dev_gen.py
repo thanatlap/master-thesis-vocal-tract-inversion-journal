@@ -200,7 +200,7 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file,VTL_path, output
 	
 
 def generate_sound(speaker_filenames, ges_filenames, output_dir,
-	VTL_path = '../data_generator/VTL/VocalTractLabApi.dll',
+	VTL_path = 'generator/assets/VTL/VocalTractLabApi.dll',
 	njob = 4):
 
 	'''

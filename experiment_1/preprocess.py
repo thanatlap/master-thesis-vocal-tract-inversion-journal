@@ -348,7 +348,7 @@ def main(args):
 	print('--Feauture normalize mode: %s'%str(args.feature_normalize))
 	print('--Label normalize mode: %s'%str(args.label_normalize))
 	print('--Sampling data size: %s'%str(args.sample_data_size))
-	print('--MFCC coefficient number: {}'%.format(args.mfcc_coef))
+	print('--MFCC coefficient number: {}'.format(args.mfcc_coef))
 
 	
 
@@ -468,7 +468,7 @@ def main(args):
 	log.write('Test size (in percent): %s\n'%str(args.split_size))
 	log.write('Feature normalize mode: %s\n'%str(args.feature_normalize))
 	log.write('Label normalize mode: %s\n'%str(args.label_normalize))
-	log.write('--MFCC coefficient number: {}\n'%.format(args.mfcc_coef))
+	log.write('MFCC coefficient number: {}\n'.format(args.mfcc_coef))
 	log.write('Total time used: %s\n'%total_time)
 	log.write('[DEBUG] Random Code: {}\n'.format(rand_seed))
 	log.close()

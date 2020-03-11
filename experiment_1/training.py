@@ -176,8 +176,8 @@ def main(args):
 	tf.random.set_seed(42)
 	rand_seed = np.random.randint(10, size=5)
 	print('[DEBUG] Check random seed code: {}'.format(rand_seed))
-	print('[DEBUG] Time: {}'%.format(datetime.now()))
-	print('[DEBUG] Data: {}'%.format(cf.DATASET_DIR))
+	print('[DEBUG] Time: {}'.format(datetime.now()))
+	print('[DEBUG] Data: {}'.format(cf.DATASET_DIR))
 
 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 
