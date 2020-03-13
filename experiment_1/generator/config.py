@@ -1,17 +1,17 @@
 # Data generator control
-DI_SYLLABLE = True
-CONT = True
+DI_SYLLABLE = False
+CONT = False
 REPLACE_FOLDER = False
-N_SPLIT = 10
+N_SPLIT = 40
 CLEAN_FILE = True
 CLEAN_SOUND = True
 NJOB = 8
-DATASIZE = 11000
+DATASIZE = 44000
 
 # Data generator hyperparameter
 FILTER_THRES = 0.95
 SAMPLING_STEP = 0.01
-MIN_MAX_PERCENT_CHANGE = [0.01, 0.30] # min max
+MIN_MAX_PERCENT_CHANGE = [0.01, 0.40] # min max
 MIN_MAX_PRESSURE = [9000, 12000]
 RAMDOM_PARAM_NOISE_PROB = 0.00
 SPEAKER_N = [0.0, 0.1, 0.2, 0.3, -0.1, -0.2, -0.3]
@@ -24,7 +24,7 @@ GES_F0_INIT_MIN_MAX = [80, 81] # min max
 GES_F0_NEXT_MIN_MAX = [81, 83] # min max
 
 #Data
-DATASET_NAME = 'd_dataset_p2'
+DATASET_NAME = 'm_dataset_p2'
 DATA_DESCRIPTION = 'Try new generator algorithm'
 DATASET_DIR = '../../data/'+DATASET_NAME
 

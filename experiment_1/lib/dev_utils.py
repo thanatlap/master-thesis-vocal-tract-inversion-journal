@@ -392,7 +392,7 @@ def compute_formant_relative_error(target_sound, estimate_sound, formant_dir, pr
 
 	return F1_re, F2_re, F3_re
 
-def export_format_csv(label_name, formant_dir, sel_point = 13, disyllable = False):
+def export_format_csv(label_name, formant_dir, disyllable = False):
 
 	act_F1 = np.load(os.path.join(formant_dir,'actual_F1.npy'))
 	act_F2 = np.load(os.path.join(formant_dir,'actual_F2.npy'))

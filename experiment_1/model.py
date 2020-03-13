@@ -25,7 +25,7 @@ def init_baseline():
 		model = tf.keras.Sequential()
 		model.add(Flatten(input_shape=(input_shape_1,input_shape_2)))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
-		# model.summary()
+		model.summary()
 		return model
 	return baseline
 
@@ -38,7 +38,7 @@ def init_FCNN(unit_ff = 1024, layer_num = 5, drop_rate=0.5):
 			model.add(pDense(unit_ff))
 			if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
-		# model.summary()
+		model.summary()
 		return model
 	return FCNN
 
@@ -54,7 +54,7 @@ def init_bilstm(unit=128, bi_layer_num=5, drop_rate=0.5):
 		model.add(Bidirectional(pLSTM(unit, return_sequences=False)))
 		if drop_rate: model.add(Dropout(rate=drop_rate))
 		model.add(pDense(N_OUTPUTS, activation='linear'))
-		# model.summary()
+		model.summary()
 		return model
 	return bilstm
 
@@ -69,7 +69,7 @@ def init_LTRCNN():
 		x = pDense(1024, activation='relu', kernel_regularizer=regularizers.l2(0.0005))(x)
 		outputs = pDense(N_OUTPUTS, activation='linear', kernel_regularizer=regularizers.l2(0.0005))(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
-		# model.summary()
+		model.summary()
 		return model
 	return LTRCNN
 
@@ -103,7 +103,7 @@ def init_senet(feature_layer, bilstm, se_enable, cnn_unit, bilstm_unit, dropout_
 		x = Reshape((1, channel_shape))(x)
 		x = Dense(channel_shape // reduction_ratio, activation=activation_fn, kernel_initializer='he_uniform')(x)
 		x = Dense(channel_shape, activation='tanh', kernel_initializer='he_uniform')(x)
-		x = layers.Multiply()([x, input_x])
+		x = Multiply()([x, input_x])
 		return x
 
 	def se_res_block(input_x):
@@ -112,7 +112,7 @@ def init_senet(feature_layer, bilstm, se_enable, cnn_unit, bilstm_unit, dropout_
 			re_x = residual_block(se_x)
 		else:
 			re_x = residual_block(input_x)
-		x = keras.layers.Add()([re_x, input_x])
+		x = Add()([re_x, input_x])
 		x = BatchNormalization()(x)
 		output = Activation(activation_fn)(x)
 		return x
@@ -123,18 +123,18 @@ def init_senet(feature_layer, bilstm, se_enable, cnn_unit, bilstm_unit, dropout_
 		x = cnn_block(input_x, cnn_unit, first_kernel)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-		x = SpatialDropout1D(rate=dropout_rate)(x)
+		if dropout_rate: x = SpatialDropout1D(rate=dropout_rate)(x)
 		for i in range(feature_layer):
 			x = se_res_block(x)
-			x = SpatialDropout1D(rate=dropout_rate)(x)
+			if dropout_rate: x = SpatialDropout1D(rate=dropout_rate)(x)
 		if embedded_path:
 			embedded = embedded_layers(input_x)
-			x = layers.Concatenate()([x, embedded])
+			x = Concatenate()([x, embedded])
 		for i in range(bilstm-1):
 			x = Bidirectional(pLSTM(bilstm_unit))(x)
-			x = SpatialDropout1D(rate=dropout_rate)(x)
+			if dropout_rate: x = SpatialDropout1D(rate=dropout_rate)(x)
 		x = Bidirectional(pLSTM(bilstm_unit, return_sequences=False))(x)
-		x = Dropout(rate=dropout_rate)(x)
+		if dropout_rate: x = Dropout(rate=dropout_rate)(x)
 		outputs = Dense(N_OUTPUTS, activation='linear', kernel_initializer='he_uniform')(x)
 		model = keras.Model(inputs=input_x, outputs=outputs)
 		return model
