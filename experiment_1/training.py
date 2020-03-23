@@ -87,8 +87,8 @@ def training(features, labels, val_features, val_labels, model, model_name=None,
 	os.makedirs(join('model','checkpoint'), exist_ok=True)
 
 	# Checkpoint
-	checkpoint = callbacks.ModelCheckpoint(filepath=join('model','checkpoint','weights.{epoch:02d}-{val_rmse:.4f}.h5'), 
-		monitor='val_rmse', verbose=1, mode='min',save_best_only=True, period = cf.CHECKPOINT_PEROID)
+	# checkpoint = callbacks.ModelCheckpoint(filepath=join('model','checkpoint','weights.{epoch:02d}-{val_rmse:.4f}.h5'), 
+		# monitor='val_rmse', verbose=1, mode='min',save_best_only=True, period = cf.CHECKPOINT_PEROID)
 
 	if cf.EARLY_STOP_PATIENCE:
 		# Early stop
@@ -96,10 +96,12 @@ def training(features, labels, val_features, val_labels, model, model_name=None,
 			min_delta=0, patience=cf.EARLY_STOP_PATIENCE, 
 			verbose=1, mode='max', baseline=None, restore_best_weights=False)
 		
-		callback_list = [checkpoint, early]
+		# callback_list = [checkpoint, early]
+		callback_list = [early]
 	else:
 		early = None
-		callback_list = [checkpoint]
+		# callback_list = [checkpoint]
+		callback_list = []
 
 	if cf.TENSORBOARD:
 		log_dir = join('tf_log','log_'+str(experiment_num)+str(datetime.now().strftime("%Y%m%d-%H%M%S")))
@@ -219,7 +221,8 @@ def main(args):
 															se_enable = se, 
 															cnn_unit=cu, 
 															bilstm_unit=bu, 
-															dropout_rate=do),
+															dropout_rate=do,
+															embedded_path = None),
 									model_name='senet')
 							exp_count += 1
 

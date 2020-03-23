@@ -27,7 +27,7 @@ BATCH_SIZE = 64
 EPOCHS = 150
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 5 # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False
@@ -45,4 +45,4 @@ LABEL_MODE = 3 #1:standardized 2:minmax
 #----------------------------------
 # Praat config
 PRAAT_EXE = r"G:\Praat.exe"
-LOG_SHEET = 'experiment_1/thesis_log.csv'
+LOG_SHEET = 'experiment_1/thesis_log_2.csv'

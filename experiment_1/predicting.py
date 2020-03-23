@@ -14,7 +14,8 @@ import re
 import model as nn
 import lib.dev_utils as utils
 import make_result as res
-import generator.gen_tools as gen
+# import generator.gen_tools as gen
+import lib.dev_gen as gen
 import lib.dev_eval_result as evalresult
 
 from functools import partial

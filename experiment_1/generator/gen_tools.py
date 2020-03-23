@@ -342,11 +342,11 @@ def create_ges_from_template(syllable_params, output_path, is_disyllable, data_p
 
 		for idx, param in enumerate(syllable_params):
 			file_path = join(ges_path, ges_filenames[idx])
-			ss.ges_template_gen(file_path, float(audio_duration[idx][1]), is_disyllable)
+			ss.create_ges_template_adjust_duration(file_path, float(audio_duration[idx][1]), is_disyllable)
 	else:
 		ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'
 		ges_filenames = [ges_file]*len(syllable_params)
-		shutil.copy('assets/'+ges_file, ges_path)
+		shutil.copy('generator/assets/'+ges_file, ges_path)
 
 	return ges_filenames
 
@@ -357,15 +357,15 @@ def convert_param_to_wav(syllable_params, output_path, is_disyllable, data_path=
 
 	'''
 	start = time()
-	param_name = np.load('assets/speaker_param.npz')['name']
+	param_names = np.load('generator/assets/speaker_param.npz')['name']
 	speaker_filenames = create_speaker_from_template(syllable_params, param_names, 
 		output_path=output_path, 
-		speaker_header_file='assets/speaker_head.speaker', 
-		speaker_tail_file='assets/speaker_tail.txt', 
+		speaker_header_file='generator/assets/speaker_head.speaker', 
+		speaker_tail_file='generator/assets/speaker_tail.txt', 
 		is_disyllable = is_disyllable)
 	ges_filenames = create_ges_from_template(syllable_params, output_path, data_path=data_path, is_disyllable=is_disyllable, mode=mode)
 
-	sound_sets = generate_sound(speaker_filenames, ges_filenames, 0, 'assets/VTL/VocalTractLabApi.dll', output_path, njob=4)
+	sound_sets = generate_sound(speaker_filenames, ges_filenames, 0, 'generator/assets/VTL/VocalTractLabApi.dll', output_path, njob=4)
 
 	np.savez(join(output_path ,'testset.npz'), 
 		syllable_params = syllable_params,
