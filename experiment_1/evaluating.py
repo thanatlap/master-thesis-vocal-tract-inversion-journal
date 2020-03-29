@@ -9,15 +9,18 @@ from tensorflow.keras import optimizers
 from tensorflow.keras import regularizers
 from tensorflow.keras import callbacks
 import re
+import argparse
+from functools import partial
 
 import model as nn
 import config as cf
 import lib.dev_utils as utils
-import generator.gen_tools as gen
+import lib.dev_gen as gen
 import make_result as res
 import lib.dev_eval_result as evalresult
 
-
+np_load_old = partial(np.load)
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
 
 
 def prep_data():
@@ -58,6 +61,14 @@ def main(args):
 	if args.model:
 		cf.MODEL_FILE = args.model
 
+	if args.syllable:
+		if args.syllable == 'mono':
+			cf.DI_SYLLABLE = False
+			cf.EVALSET_DIR = '../data/m_eval'
+		else:
+			cf.DI_SYLLABLE = True
+			cf.EVALSET_DIR = '../data/d_eval'
+
 	print('[DEBUG] Model in used: {}'.format(cf.MODEL_FILE))
 
 	exp_num = int(re.search(r'\d+', cf.MODEL_FILE).group())
@@ -85,7 +96,7 @@ def main(args):
 	print('[INFO] generated wav')
 	gen.convert_param_to_wav(params, eval_dir, cf.DI_SYLLABLE)
 	# load sound for comparison
-	target_sound = np.array([join(cf.EVALSET_DIR, file) for file in np.load(join(cf.EVALSET_DIR, 'csv_dataset.npz'))['sound_sets']])
+	target_sound = np.array([join(cf.EVALSET_DIR, 'sound',file) for file in np.load(join(cf.EVALSET_DIR, 'csv_dataset.npz'))['sound_sets'][0]])
 	estimated_sound = np.array([join(eval_dir, 'sound', file) for file in np.load(join(eval_dir, 'testset.npz'))['sound_sets'] ])
 
 	# log the result
@@ -105,5 +116,6 @@ def main(args):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser("Model to eval")
 	parser.add_argument("--model", help="file of the model (hdf5)", type=str, default=None)
+	parser.add_argument("--syllable", help="[mono, di]", type=str, default=None)
 	args = parser.parse_args()
 	main(args)

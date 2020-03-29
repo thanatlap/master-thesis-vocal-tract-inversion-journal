@@ -190,7 +190,7 @@ def plot_each_syllable_formant(input_df, position, dir_path):
 	
 	if len(unique_labels) == 9:
 		fig, ax = plt.subplots(3,3, figsize=(20,15))
-	elif unique_labels == 12:
+	elif len(unique_labels) == 12:
 		fig, ax = plt.subplots(4,3, figsize=(20,15))
 	else:
 		fig, ax = plt.subplots(5,5, figsize=(20,15))

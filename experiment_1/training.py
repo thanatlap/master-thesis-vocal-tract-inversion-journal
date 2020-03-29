@@ -92,9 +92,9 @@ def training(features, labels, val_features, val_labels, model, model_name=None,
 
 	if cf.EARLY_STOP_PATIENCE:
 		# Early stop
-		early = callbacks.EarlyStopping(monitor='val_R2', 
+		early = callbacks.EarlyStopping(monitor='val_loss', 
 			min_delta=0, patience=cf.EARLY_STOP_PATIENCE, 
-			verbose=1, mode='max', baseline=None, restore_best_weights=False)
+			verbose=1, mode='min', baseline=None, restore_best_weights=False)
 		
 		# callback_list = [checkpoint, early]
 		callback_list = [early]
@@ -175,7 +175,7 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 
 def main(args):
 	
-	tf.random.set_seed(42)
+
 	rand_seed = np.random.randint(10, size=5)
 	print('[DEBUG] Check random seed code: {}'.format(rand_seed))
 	print('[DEBUG] Time: {}'.format(datetime.now()))
@@ -193,45 +193,321 @@ def main(args):
 		experiment_num=args.exp, 
 		model_name='undefined')
 
+	# if args.exp == 73: ptraining_fn(nn.init_baseline(), model_name='baseline')
+	# if args.exp == 74: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
+	# if args.exp == 75: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	# if args.exp == 76: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
+
+	# === ARCHITECTURE SEARCH ===
+	# hyperparam = [low, high]
+	# FEATURE_LAYERS = [1, 3]
+	# BILSTM_LAYERS = [1, 3]
+	# SE_ENABLE = [False, True]
+	# CNN_UNIT = [32, 128]
+	# BILSTM_UNIT = [64, 256]
+	# DROPOUT = [None, 0.3]
+	# exp_count = 1
+
+	# for fl in FEATURE_LAYERS:
+	# 	for bl in BILSTM_LAYERS:
+	# 		for se in SE_ENABLE:
+	# 			for cu in  CNN_UNIT:
+	# 				for bu in BILSTM_UNIT:
+	# 					for do in DROPOUT:
+	# 						if args.exp == exp_count: 
+	# 							print('[DEBUG] EXP {}, FL: {}, BL: {}, SE: {}, CU: {}, BU: {}, DO: {},'.format(exp_count, fl, bl, se, cu, bu, do))
+	# 							ptraining_fn(nn.init_senet(feature_layer=fl,
+	# 														bilstm = bl, 
+	# 														se_enable = se, 
+	# 														cnn_unit=cu, 
+	# 														bilstm_unit=bu, 
+	# 														dropout_rate=do,
+	# 														embedded_path = None),
+	# 								model_name='senet')
+	# 						exp_count += 1
+
+	# === LEARNING SEARCH ===
+	# hyperparam = [low, high]
+	LR = [0.001, 0.01]
+	BS = [16, 128]
+	OP = [1, 4]
+	exp_count = 65
+	for lr in LR:
+		for bs in BS:
+			for op in OP:
+				if args.exp == exp_count: 
+					print('---- EXP {} ---'.format(exp_count))
+					cf.LEARNING_RATE = lr
+					cf.BATCH_SIZE = bs
+					cf.OPT_NUM = op
+					training_fn(nn.init_senet(feature_layer=1,
+											bilstm = 3, 
+											se_enable = True, 
+											cnn_unit=128, 
+											bilstm_unit=256, 
+											dropout_rate=0.1,
+											embedded_path = None),
+						X_train=X_train, 
+						X_val=X_val, 
+						X_test=X_test, 
+						y_train=y_train, 
+						y_val=y_val, 
+						y_test=y_test,
+						experiment_num=args.exp, 
+						model_name='senet')
+				exp_count += 1
+
+	cf.LEARNING_RATE = 0.001
+	cf.BATCH_SIZE = 64
+	cf.OPT_NUM = 1
 	if args.exp == 73: ptraining_fn(nn.init_baseline(), model_name='baseline')
 	if args.exp == 74: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
 	if args.exp == 75: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
 	if args.exp == 76: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
+	if args.exp == 77: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 3, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+	if args.exp == 78: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 3, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
 
-	# === ARCHITECTURE SEARCH ===
-	# hyperparam = [low, high]
-	FEATURE_LAYERS = [1, 3]
-	BILSTM_LAYERS = [1, 5]
-	SE_ENABLE = [False, True]
-	CNN_UNIT = [32, 128]
-	BILSTM_UNIT = [64, 256]
-	DROPOUT = [None, 0.3]
-	exp_count = 1
+	if args.exp == 87: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
 
-	for fl in FEATURE_LAYERS:
-		for bl in BILSTM_LAYERS:
-			for se in SE_ENABLE:
-				for cu in  CNN_UNIT:
-					for bu in BILSTM_UNIT:
-						for do in DROPOUT:
-							if args.exp == exp_count: 
-								print('[DEBUG] EXP {}, FL: {}, BL: {}, SE: {}, CU: {}, BU: {}, DO: {},'.format(exp_count, fl, bl, se, cu, bu, do))
-								ptraining_fn(nn.init_senet(feature_layer=fl,
-															bilstm = bl, 
-															se_enable = se, 
-															cnn_unit=cu, 
-															bilstm_unit=bu, 
-															dropout_rate=do,
-															embedded_path = None),
-									model_name='senet')
-							exp_count += 1
+	if args.exp == 88: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
 
-	# === LEARNING SEARCH ===
-	# hyperparam = [low, high]
-	# LR = [0.001, 0.01]
-	# BS = [16, 128]
-	# MF = [13, 20]
-	# exp_count = 65
+	if args.exp == 89: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=32, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
+
+	
+
+	if args.exp in range(79,87):
+		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+
+	if args.exp == 79: ptraining_fn(nn.init_baseline(), model_name='baseline')
+	if args.exp == 80: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
+	if args.exp == 81: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	if args.exp == 82: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
+	if args.exp == 83: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 3, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+	if args.exp == 84: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 3, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
+	if args.exp == 85: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+	if args.exp == 86: training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
+
+
+	if args.exp == 90: 
+		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+		training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=32, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
+
+
+	if args.exp == 91: training_fn(nn.init_senet(feature_layer=1,
+									bilstm = 1, 
+									se_enable = True, 
+									cnn_unit=128, 
+									bilstm_unit=256, 
+									dropout_rate=0.1,
+									embedded_path = None),
+						X_train=X_train, 
+						X_val=X_val, 
+						X_test=X_test, 
+						y_train=y_train, 
+						y_val=y_val, 
+						y_test=y_test,
+						experiment_num=args.exp, 
+						model_name='senet')
+
+	if args.exp == 92: training_fn(nn.init_senet(feature_layer=1,
+									bilstm = 1, 
+									se_enable = True, 
+									cnn_unit=128, 
+									bilstm_unit=256, 
+									dropout_rate=0.1,
+									embedded_path = 'model/between_embedded.hdf5'),
+						X_train=X_train, 
+						X_val=X_val, 
+						X_test=X_test, 
+						y_train=y_train, 
+						y_val=y_val, 
+						y_test=y_test,
+						experiment_num=args.exp, 
+						model_name='senet_em')
+
+	if args.exp == 93: 
+		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+		training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+
+	if args.exp == 94: 
+		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+		training_fn(nn.init_senet(feature_layer=1,
+										bilstm = 1, 
+										se_enable = True, 
+										cnn_unit=128, 
+										bilstm_unit=256, 
+										dropout_rate=0.1,
+										embedded_path = 'model/between_embedded.hdf5'),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet_em')
+
+
+
+
 	
 
 if __name__ == '__main__':

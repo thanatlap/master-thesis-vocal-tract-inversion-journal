@@ -3,7 +3,7 @@ EXP_DESCRIPTION = 'EXP'
 # DI_SYLLABLE = False
 DI_SYLLABLE = True
 #---------------------------------
-DATASET_DIR = '../data/d_dataset_p2/prep_data_20'
+DATASET_DIR = '../data/d_dataset_p2/prep_data_13'
 #---------------------------------
 
 LOAD_FROM_SAVE = None
@@ -23,11 +23,11 @@ OPT = 'Adam' # for record only
 OPT_NUM = 1
 
 # Training
-BATCH_SIZE = 64
-EPOCHS = 150
+BATCH_SIZE = 128
+EPOCHS = 100
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = 50
-EARLY_STOP_PATIENCE = 5 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = None # should increase earlystop since it seen can be improve
 
 # Tensorboard
 TENSORBOARD = False
@@ -35,9 +35,9 @@ TENSORBOARD = False
 # --------------------------------
 # Evaluation
 # --------------------------------
-PREP_EVAL_FOLDER = 'prep_data_20'
+PREP_EVAL_FOLDER = 'prep_data_13'
 
-EVALSET_DIR = '../data/d_eval'
+EVALSET_DIR = '../data/m_eval'
 MODEL_FILE = '39_senet.h5'
 
 LABEL_MODE = 3 #1:standardized 2:minmax

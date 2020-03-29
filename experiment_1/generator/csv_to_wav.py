@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from os import makedirs
 from os.path import join, exists
-import gen_utils as gen
+import gen_tools as gen
 import argparse
 import csv
 from time import time

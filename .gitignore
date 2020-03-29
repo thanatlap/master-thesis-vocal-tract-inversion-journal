@@ -1,6 +1,7 @@
 */tf_log/*
 */data_prep_samples/*
 */result/*
+*/sample_data/*
 data/*
 */model/*
 */archives/*
@@ -24,3 +25,6 @@ experiment_book.xlsx
 misc/Untitled4.ipynb
 test.py
 *.hdf5
+*.PNG
+experiment_1/thesis_log_2 - Copy.csv
+*.png

@@ -58,7 +58,7 @@ def import_data(data_path, mode):
 			labels = []
 		elif mode == EVAL_MODE:
 			data = np.load(join(data_path, 'csv_dataset.npz'))
-			audio_paths = [join(data_path, file) for file in data['sound_sets']]
+			audio_paths = [join(data_path, 'sound',file) for file in data['sound_sets'][0]]
 			labels = data['syllable_params']
 
 		audio_data = load_audio(audio_paths)
