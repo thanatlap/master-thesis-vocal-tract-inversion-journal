@@ -54,7 +54,6 @@ def import_data(data_path, mode, sample_rate):
 			labels = data['syllable_params']
 		# load audio
 		audio_data = np.array([ librosa.load(file, sr=sample_rate)[0] for file in audio_paths ])
-	print(labels)
 	return audio_data, labels, phonetic
 
 # function to scale param
@@ -154,7 +153,7 @@ def zero_pad_mfcc(feature, is_train, is_disyllable):
 	return np.array([item[:max_length] if item.shape[0] > max_length else np.pad(item, [(max(0, max_length-item.shape[0]),0),(0,0)], pad_data) for item in feature])
 
 
-def transform_audio_to_mfcc(audio_data, sample_rate, max_n_mfcc):
+def transform_audio_to_mfcc(audio_data, max_n_mfcc):
 
 	outputs = []
 	for data in audio_data:
@@ -189,7 +188,7 @@ def augmentation(audio_data, labels, phonetic, augment_samples, func):
 
 	return audio_data, labels, phonetic
 
-def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_rate, is_train, mfcc_n, X_shape=None): 
+def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_train, mfcc_n, X_shape=None): 
 
 	if is_disyllable:
 		print('[INFO] Spliting audio data for disyllabic')
@@ -200,7 +199,7 @@ def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, sample_
 		labels = utils.min_max_scale_transform(labels, is_train, is_disyllable)
 
 	print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-	mfcc_features = transform_audio_to_mfcc(features, sample_rate, max_n_mfcc = mfcc_n)
+	mfcc_features = transform_audio_to_mfcc(features, max_n_mfcc = mfcc_n)
 	print('[INFO] Normalization in each cepstral + self-normalized')
 	mfcc_features = utils.normalize_mfcc_by_mean_cepstral(mfcc_features, is_train, is_disyllable, mode, X_shape=X_shape)
 	print('[INFO] Padding MFCC length')
@@ -261,15 +260,15 @@ def main(args):
 	is_augment = utils.str2bool(args.is_augment)
 
 	print('[INFO] CONFIG DETAIL')
+	print('--Sample rate: %s'%str(args.sample_rate))
 	print('--Test size: %s'%str(args.split_size))
 	print('--Applied augment: %s'%str(is_augment))
 	print('--Augment ratio sample: %s'%str(args.augment_samples))
-	print('--Resample rate: %s'%str(args.resample_rate))
 	print('--Sampling data size: %s'%str(args.subsampling))
 	print('--MFCC coefficient number: {}'.format(args.mfcc_coef))
 
 	print('[INFO] Importing data')
-	audio_data, labels, phonetic = import_data(args.data_path, mode=args.mode)
+	audio_data, labels, phonetic = import_data(args.data_path, mode=args.mode, sample_rate=args.sample_rate)
 
 	print('[INFO]\n--- Audio Shape: %s'%str(audio_data.shape))
 	if args.mode == TRAIN_MODE: print('--- Labels Shape: %s'%str(labels.shape))
@@ -300,7 +299,6 @@ def main(args):
 	p_preprocess_pipeline = partial(preprocess_pipeline,
 		mode=args.mode, 
 		is_disyllable=disyllable, 
-		sample_rate=args.resample_rate,
 		is_train=False,
 		data_path = args.data_path,
 		mfcc_n = args.mfcc_coef,
@@ -320,7 +318,7 @@ def main(args):
 			augment_samples = int(args.augment_samples*num_X_train)
 			p_augmentation = partial(augmentation, augment_samples=augment_samples)
 
-			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.init_change_pitch(args.resample_rate))
+			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.init_change_pitch(args.sample_rate))
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.amplify_value)
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.add_white_noise)
 
@@ -369,7 +367,6 @@ def main(args):
 	log.write('Used Augmentation: %s\n'%str(is_augment))
 	log.write('Output_path: %s\n'%str(args.output_path))
 	log.write('Augment_Frac: %s\n'%str(args.augment_samples))
-	log.write('Sample_Rate: %s\n'%str(args.resample_rate))
 	log.write('Test size (in percent): %s\n'%str(args.split_size))
 	log.write('MFCC coefficient number: {}\n'.format(args.mfcc_coef))
 	log.write('Total time used: %s\n'%total_time)
