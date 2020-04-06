@@ -1,0 +1,68 @@
+<speaker>
+<vocal_tract_model>
+<anatomy>
+<palate>
+<p0 x="0.2" z="-2.3" teeth_height="0.5" top_teeth_width="1.05" bottom_teeth_width="1.05" palate_height="1.3" palate_angle_deg="39.5"/>
+<p1 x="0.9" z="-2.2" teeth_height="0.5" top_teeth_width="1.05" bottom_teeth_width="1.05" palate_height="1.15" palate_angle_deg="39.5"/>
+<p2 x="1.8" z="-2.0" teeth_height="0.5" top_teeth_width="1.0" bottom_teeth_width="1.0" palate_height="1.425" palate_angle_deg="60.8"/>
+<p3 x="2.8" z="-1.8" teeth_height="0.5" top_teeth_width="1.0" bottom_teeth_width="1.0" palate_height="1.6" palate_angle_deg="60.8"/>
+<p4 x="3.5" z="-1.6" teeth_height="0.6" top_teeth_width="0.8" bottom_teeth_width="0.8" palate_height="1.4" palate_angle_deg="60.8"/>
+<p5 x="4.15" z="-1.4" teeth_height="0.7" top_teeth_width="0.7" bottom_teeth_width="0.7" palate_height="0.7" palate_angle_deg="38.0"/>
+<p6 x="4.55" z="-1.1" teeth_height="0.8" top_teeth_width="0.65" bottom_teeth_width="0.3" palate_height="0.15" palate_angle_deg="23.4"/>
+<p7 x="4.7" z="-0.6" teeth_height="0.8" top_teeth_width="0.8" bottom_teeth_width="0.2" palate_height="0.0" palate_angle_deg="0.0"/>
+<p8 x="4.7" z="0.0" teeth_height="0.8" top_teeth_width="0.85" bottom_teeth_width="0.2" palate_height="0.0" palate_angle_deg="0.0"/>
+</palate>
+<jaw fulcrum_x="-6.5" fulcrum_y="2.0" rest_pos_x="0.0" rest_pos_y="-1.2" tooth_root_length="0.8">
+<p0 x="0.2" z="-2.3" teeth_height="0.5" top_teeth_width="1.05" bottom_teeth_width="1.05" jaw_height="1.5" jaw_angle_deg="69.5"/>
+<p1 x="1.2" z="-2.2" teeth_height="0.5" top_teeth_width="1.1" bottom_teeth_width="1.1" jaw_height="1.5" jaw_angle_deg="69.5"/>
+<p2 x="2.2" z="-1.9" teeth_height="0.5" top_teeth_width="1.05" bottom_teeth_width="1.05" jaw_height="1.5" jaw_angle_deg="69.5"/>
+<p3 x="3.2" z="-1.6" teeth_height="0.5" top_teeth_width="0.9" bottom_teeth_width="0.9" jaw_height="1.5" jaw_angle_deg="69.5"/>
+<p4 x="3.9" z="-1.4" teeth_height="0.5" top_teeth_width="0.75" bottom_teeth_width="0.75" jaw_height="1.0" jaw_angle_deg="42.2"/>
+<p5 x="4.3" z="-1.1" teeth_height="0.55" top_teeth_width="0.6" bottom_teeth_width="0.7" jaw_height="0.4" jaw_angle_deg="35.8"/>
+<p6 x="4.5" z="-0.7" teeth_height="0.6" top_teeth_width="0.3" bottom_teeth_width="0.8" jaw_height="0.13" jaw_angle_deg="31.4"/>
+<p7 x="4.55" z="-0.5" teeth_height="0.7" top_teeth_width="0.2" bottom_teeth_width="0.9" jaw_height="0.0" jaw_angle_deg="0.0"/>
+<p8 x="4.55" z="0.0" teeth_height="0.7" top_teeth_width="0.2" bottom_teeth_width="0.9" jaw_height="0.0" jaw_angle_deg="0.0"/>
+</jaw>
+<lips width="1.3"/>
+<tongue>
+<tip radius="0.2"/>
+<body radius_x="1.8" radius_y="1.8"/>
+<root automatic_calc="0" trx_slope="0.938" trx_intercept="-5.11" try_slope="0.831" try_intercept="-3.03"/>
+ </tongue>
+<velum uvula_width="0.7" uvula_height="0.9" uvula_depth="0.7" max_nasal_port_area="2.0" >
+<low points="-1.25 -0.7 1.0 -0.3 -0.7 0.0 -0.3 0.35 0.0 0.55 "/>
+<mid points="-1.75 0.0 -1.55 0.3 -1.15 0.5 -0.6 0.7 0.0 0.87 "/>
+<high points="-1.75 0.5 -1.5 0.95 -1.1 1.2 -0.6 1.25 0.0 1.3 "/>
+</velum>
+<pharynx fulcrum_x="-2.372" fulcrum_y="1.214" rotation_angle_deg="-98.0" top_rib_y="-1.4" upper_depth="3.8" lower_depth="3.4" back_side_width="1.5"/><larynx upper_depth="1.0" lower_depth="1.0" epiglottis_width="0.5" epiglottis_height="1.6" epiglottis_depth="1.4" epiglottis_angle_deg="100.0"><narrow points="1.8 0.0 1.05 -0.2 1.55 -1.2 2.68 -3.2 1.48 -3.2 1.1 -1.2 0.0 -1.0 0.0 0.0 "/>
+<wide points="3.3 0.0 2.13 -0.2 1.9 -1.2 2.68 -3.2 1.48 -3.2 1.45 -1.2 0.0 -1.0 0.0 0.0 "/>
+</larynx>
+<piriform_fossa length="3.0" volume="2.0"/>
+<subglottal_cavity length="23.0"/>
+<nasal_cavity length="11.4"/>
+<param index="0"  name="HX"  min="0.0"  max="1.0"  neutral="1.0" />
+<param index="1"  name="HY"  min="-6.0"  max="-3.5"  neutral="-4.75" />
+<param index="2"  name="JX"  min="-0.5"  max="0.0"  neutral="0.0" />
+<param index="3"  name="JA"  min="-7.0"  max="0.0"  neutral="-2.0" />
+<param index="4"  name="LP"  min="-1.0"  max="1.0"  neutral="-0.07" />
+<param index="5"  name="LD"  min="-2.0"  max="4.0"  neutral="0.95" />
+<param index="6"  name="VS"  min="0.0"  max="1.0"  neutral="0.0" />
+<param index="7"  name="VO"  min="-0.1"  max="1.0"  neutral="-0.1" />
+<param index="8"  name="WC"  min="0.0"  max="1.0"  neutral="0.0" />
+<param index="9"  name="TCX"  min="-3.0"  max="4.0"  neutral="-0.4" />
+<param index="10"  name="TCY"  min="-3.0"  max="1.0"  neutral="-1.46" />
+<param index="11"  name="TTX"  min="1.5"  max="5.5"  neutral="3.5" />
+<param index="12"  name="TTY"  min="-3.0"  max="2.5"  neutral="-1.0" />
+<param index="13"  name="TBX"  min="-3.0"  max="4.0"  neutral="2.0" />
+<param index="14"  name="TBY"  min="-3.0"  max="5.0"  neutral="0.5" />
+<param index="15"  name="TRX"  min="-4.0"  max="2.0"  neutral="0.0" />
+<param index="16"  name="TRY"  min="-6.0"  max="0.0"  neutral="0.0" />
+<param index="17"  name="TS1"  min="-1.4"  max="1.4"  neutral="0.0" />
+<param index="18"  name="TS2"  min="-1.4"  max="1.4"  neutral="0.06" />
+<param index="19"  name="TS3"  min="-1.4"  max="1.4"  neutral="0.15" />
+<param index="20"  name="TS4"  min="-1.4"  max="1.4"  neutral="0.15" />
+<param index="21"  name="MA1"  min="-0.05"  max="0.3"  neutral="-0.05" />
+<param index="22"  name="MA2"  min="-0.05"  max="0.3"  neutral="-0.05" />
+<param index="23"  name="MA3"  min="-0.05"  max="0.3"  neutral="-0.05" />
+</anatomy>
+<shapes>
