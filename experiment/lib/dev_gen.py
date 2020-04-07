@@ -200,7 +200,7 @@ def ges_to_wav(output_file_set, speaker_file_list, gesture_file,VTL_path, output
 	
 
 def generate_sound(speaker_filenames, ges_filenames, output_dir,
-	VTL_path = '../data_generator/VTL/VocalTractLabApi.dll',
+	VTL_path = 'generator/assets/VTL/VocalTractLabApi.dll',
 	njob = 4):
 
 	'''
@@ -256,3 +256,41 @@ def convert_param_to_wav(param_sets, output_dir, is_disyllable, data_path=None, 
 		sound_sets = sound_sets)
 	print('Successfully convert label to sound [Time: %.3fs]'%(time()-start))
 
+
+
+def average_parameter_vocaltract(param, syllable_name, output_path):
+
+	param = param.reshape((param.shape[0]*param.shape[1],24))
+	df = pd.DataFrame(param)
+	df['phonetic'] = syllable_name
+	df['phonetic'], df['position'] = df['phonetic'].str.split(';', 1).str
+	df = df.groupby(['phonetic','position']).mean().reset_index()
+
+	def create_speaker_file_from_dataframe(df, file_path):
+							
+		speaker_header_file = 'lib/templates/speaker_template_head.txt'
+		speaker_tail_file = 'lib/templates/speaker_template_tail.txt'
+
+		# Read speaker template
+		speaker_head = open(speaker_header_file,'r').read()
+		speaker_tail = open(speaker_tail_file,'r').read()
+
+		# load vocaltract param name
+		param_name = np.load('lib/templates/speaker_param.npz')['name']
+		
+		pho = set(df['phonetic'])
+		
+		with open(file_path, 'w') as f:
+			f.write(speaker_head)
+
+			for p in pho:
+				df_temp = df[df['phonetic']==p].copy()
+				f.write('<shape name="{}">\n'.format(p))
+				for i in range(24):
+					f.write('<param name="{}" value="{:.2f}"/>\n'.format(param_name[i],df_temp[i].values[0]))
+				f.write('</shape>\n')
+
+			f.write(speaker_tail)
+
+	create_speaker_file_from_dataframe(df[df['position']=='1'] , join(output_path,'speaker_avg_1.speaker'))
+	create_speaker_file_from_dataframe(df[df['position']=='2'] , join(output_path,'speaker_avg_1.speaker'))

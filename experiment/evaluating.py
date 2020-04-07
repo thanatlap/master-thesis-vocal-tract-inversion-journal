@@ -91,7 +91,7 @@ def main(args):
 	# invert param back to predefined speaker scale
 	print('[INFO] transform label')
 
-	params = utils.detransform_label(cf.LABEL_MODE, y_pred, cf.DI_SYLLABLE)
+	params = utils.detransform_label(y_pred, cf.DI_SYLLABLE)
 
 	# convert label into a sound if the model is D-AAI, the label is merge into disyllabic vowel
 	# syllable name is not given because it already convert to disyllable since the prep_eval_set.py
@@ -107,17 +107,17 @@ def main(args):
 	estimated_sound = np.array([join(eval_dir, 'sound', file) for file in np.load(join(eval_dir, 'testset.npz'))['sound_sets'] ])
 
 	# log the result
+	if cf.DI_SYLLABLE: gen.average_parameter_vocaltract(params, labels, eval_dir)
 	print('[INFO] logging result')
 	res.log_result_eval(labels, y_pred, eval_result, r2, target_sound, estimated_sound,exp_num)
-	# get visalization of spectrogram and wave plot
+	print('[INFO] generate evaluation result')
+	evalresult.generate_eval_result(exp_num, cf.DI_SYLLABLE)
 	print('[INFO] generate spectrogram')
 	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(eval_dir,'spectrogram'), 'Greys')
-
 	print('[INFO] generate wav')
 	utils.generate_visualize_wav(target_sound, estimated_sound, join(eval_dir,'wave'))
 
-	print('[INFO] generate evaluation result')
-	evalresult.generate_eval_result(exp_num, cf.DI_SYLLABLE)
+	
 
 
 if __name__ == '__main__':

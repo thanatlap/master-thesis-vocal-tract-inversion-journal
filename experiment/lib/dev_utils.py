@@ -19,6 +19,7 @@ import argparse
 from joblib import dump, load
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from matplotlib.ticker import MaxNLocator
+from sklearn.decomposition import PCA
 
 param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
@@ -234,15 +235,11 @@ def label_imputation(params_descale):
 	params_descale[:,23] = -0.05
 	return params_descale
 
-def detransform_label(label_mode, y_pred, is_disyllable):
-	if label_mode == 1:
-		params = transform_VO(add_params(destandardized_label(y_pred, is_disyllable)))
-	elif label_mode == 2:
-		params = transform_VO(add_params(descale_labels(y_pred)))
-	elif label_mode == 3:
-		params = add_params(y_pred)
-		params = min_max_descale_labels(params, is_disyllable)
-		params = label_imputation(params)
+def detransform_label(y_pred, is_disyllable):
+
+	params = add_params(y_pred)
+	params = min_max_descale_labels(params, is_disyllable)
+	params = label_imputation(params)
 
 	return params
 
@@ -535,13 +532,67 @@ def get_log():
 
 	return log
 
-def get_experiment_number():
+def created_file_path_predict(exp_num):
+	output_path = join('result','predict_{}'.format(exp_num))
+	index = 2
+	while os.path.exists(output_path):
+		output_path = join('result','predict_{}_{}'.format(exp_num,index))
+		index += 1
+	os.makedirs(output_path)
+	return output_path
 
-	# Load checkpoint
-	with open(join('vars','exp_num.txt'), "r") as num:
-		return list(map(int, num.readlines()))[0]
+def read_syllable_from_txt(data_dir, is_disyllable):
+	# read syllable name from text file
+	with open(join(data_dir,'syllable_name.txt')) as f:
+		syllable_name = np.array([word.strip() for line in f for word in line.split(',')])
+		syllable_name = np.array([ '%s;%s'%(item,str(idx+1)) for pair in syllable_name for idx, item in enumerate(pair)]) if is_disyllable else syllable_name
+	return syllable_name
 
-def get_label_prep_mode(data_path):
 
-	with open(join(data_path,'label_mode.txt'), "r") as num:
-		return list(map(int, num.readlines()))[0]
+def pca_articulation_plot(pred_param, data_dir, output_path):
+
+	with open(join(data_dir,'syllable_name.txt')) as f:
+		phonetic = np.array([word.strip()[0] for line in f for word in line.split(',')])
+
+	pca = PCA(n_components=3)
+	pca.fit(pred_param[:,0,:])
+	labels_pca = pca.transform(pred_param[:,0,:])
+	pca_data_1 = pd.DataFrame({'phonetic': phonetic, 'PCA1': labels_pca[:,0], 'PCA2': labels_pca[:,1],'PCA3': labels_pca[:,2]})
+
+	with open(join(data_dir,'syllable_name.txt')) as f:
+		phonetic = np.array([word.strip()[1] for line in f for word in line.split(',')])
+
+	pca = PCA(n_components=3)
+	pca.fit(pred_param[:,1,:])
+	labels_pca = pca.transform(pred_param[:,1,:])
+	pca_data_2 = pd.DataFrame({'phonetic': phonetic, 'PCA1': labels_pca[:,0], 'PCA2': labels_pca[:,1],'PCA3': labels_pca[:,2]})
+
+	def plot_pca_chart(pca_data, syllable_position):
+
+		fig = plt.figure(figsize = (7,7))
+		ax = fig.add_subplot(1,1,1) 
+		ax.set_xlabel('Principal Component 1', fontsize = 15)
+		ax.set_ylabel('Principal Component 2', fontsize = 15)
+		ax.set_title('PCA plot of a {} syllable'.format(syllable_position), fontsize = 20)
+		color = ['#FF0000','#FF9200','#0018FF','#0084FF','#FFE900','#A849B3','#4DBD8B','#A7891E','#96044F','#007741']
+
+		targets = ['a', 'i', 'u','e','E','M','7','o','O']
+		ipa_targets = ["a:", "i:", "u:","e:",'ɛ:','ɯ:','ɤ:','o:','ɔ:']
+		for idx, target in enumerate(targets):
+			indicesToKeep = pca_data['phonetic'] == target
+			ax.scatter(pca_data.loc[indicesToKeep, 'PCA1']
+					   , pca_data.loc[indicesToKeep, 'PCA2']
+					   , s = 30,
+					  color=color[idx], 
+					  alpha=0.5,
+					  label=ipa_targets[idx])
+
+		ax.set_xticks(np.arange(-3, 3+0.1, 1))
+		ax.set_yticks(np.arange(-1.75, 1.75+0.1, 1))
+		ax.legend()
+		ax.legend(bbox_to_anchor=(1.05, 1), loc=0, borderaxespad=0.)
+		plt.savefig(join(output_path,'pca_{}.png'.format(syllable_position)))
+		plt.savefig(join(output_path,'pca_{}.pdf'.format(syllable_position)))
+
+	plot_pca_chart(pca_data_1, '1')
+	plot_pca_chart(pca_data_2, '2')

@@ -25,7 +25,7 @@ BATCH_SIZE = 64
 EPOCHS = 200
 MODEL_VERBOSE = 2
 CHECKPOINT_PEROID = None
-EARLY_STOP_PATIENCE = 10 # should increase earlystop since it seen can be improve
+EARLY_STOP_PATIENCE = 3 # should increase earlystop since it seen can be improve
 TENSORBOARD = False
 
 # --------------------------------
@@ -33,7 +33,7 @@ TENSORBOARD = False
 # --------------------------------
 PREP_EVAL_FOLDER = 'prep_data_13'
 
-EVALSET_DIR = '../data/m_eval'
+EVALSET_DIR = '../data/d_eval'
 MODEL_FILE = '39_senet.h5'
 
 LABEL_MODE = 3 #1:standardized 2:minmax

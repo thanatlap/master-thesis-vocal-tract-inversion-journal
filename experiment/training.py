@@ -164,8 +164,6 @@ def training_fn(model_fn, X_train, X_val, X_test, y_train, y_val, y_test, experi
 
 def main(args):
 	
-	rand_seed = np.random.randint(10, size=5)
-	print('[DEBUG] Check random seed code: {}'.format(rand_seed))
 	print('[DEBUG] Time: {}'.format(datetime.now()))
 	print('[DEBUG] Data: {}'.format(cf.DATASET_DIR))
 

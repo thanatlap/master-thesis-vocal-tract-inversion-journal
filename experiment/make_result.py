@@ -206,7 +206,6 @@ def log_experiment_csv_train(experiment_num, X_train, y_train, test_results, tra
 				'Epochs': cf.EPOCHS,
 				'Loss function': cf.LOSS_FN,
 				'Optimizer': cf.OPT,
-				'Label mode': str(utils.get_label_prep_mode(cf.DATASET_DIR)),
 				'Eval label mode':np.NaN,
 				'Train feature shape':str(X_train.shape),
 				'Label shape':str(y_train.shape),
@@ -234,7 +233,6 @@ def log_experiment_csv_eval(experiment_num, result, r2):
 		log_df = pd.read_csv(log_file)
 		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval RMSE']] = result[1]
 		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval R2']] = r2
-		log_df.loc[log_df['Experiment_no'] == experiment_num, ['Eval label mode']] = cf.LABEL_MODE
 		try:
 			log_df.to_csv(log_file, index=False)
 		except:
@@ -375,8 +373,8 @@ def log_result_eval(actual_label, y_pred, eval_result, r2, target_sound, estimat
 	log.write('--------------------------------------------------------\n')
 	log.write('Evaluate with Inverse-transform Label\n')
 
-	t_actual_label = utils.detransform_label(cf.LABEL_MODE, actual_label, cf.DI_SYLLABLE)
-	t_y_pred = utils.detransform_label(cf.LABEL_MODE, y_pred, cf.DI_SYLLABLE)
+	t_actual_label = utils.detransform_label(actual_label, cf.DI_SYLLABLE)
+	t_y_pred = utils.detransform_label(y_pred, cf.DI_SYLLABLE)
 
 	#RMSE of each vowel after descaling
 	log_rmse_distribution(log, 

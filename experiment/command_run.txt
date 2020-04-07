@@ -294,32 +294,67 @@ rem cd ..
 rem python preprocess.py training ..\data\d_dataset_3 di --output_path=prep_data_13_v2 --mfcc_coef=13
 rem python training.py 152
 
-rem python preprocess.py predict ..\data\d_records\d_record_aj di --output_path=prep_data_13_v7 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_aj prep_data_13_v7 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\selected di --output_path=prep_data_13_v2 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\selected prep_data_13_v2 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\selected di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\selected prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\selected di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=16000
+python predicting.py ..\data\d_records\selected prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_aj di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_aj prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_aj di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=32250
+python predicting.py ..\data\d_records\d_record_aj prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_mom di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_mom prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_mom di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=22050
+python predicting.py ..\data\d_records\d_record_mom prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_pat di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_pat prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_pat di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=16000
+python predicting.py ..\data\d_records\d_record_pat prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_kring di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_kring prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_kring di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=
+python predicting.py ..\data\d_records\d_record_kring prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_sorn di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_sorn prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_sorn di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=
+python predicting.py ..\data\d_records\d_record_sorn prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-rem python preprocess.py predict ..\data\d_records\d_record_in di --output_path=prep_data_13_1 --mfcc_coef=13
-rem python predicting.py ..\data\d_records\d_record_in prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+python preprocess.py predict ..\data\d_records\d_record_in di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=
+python predicting.py ..\data\d_records\d_record_in prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
 
-python preprocess.py predict ..\data\d_records\d_record_su di --output_path=prep_data_13_1 --mfcc_coef=13
+python preprocess.py predict ..\data\d_records\d_record_su di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=31250
 python predicting.py ..\data\d_records\d_record_su prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+
+python preprocess.py predict ..\data\d_records\d_record_sorn_sis di --output_path=prep_data_13_1 --mfcc_coef=13 --sample_rate=44100
+python predicting.py ..\data\d_records\d_record_sorn_sis prep_data_13_1 151_senet_v2.h5 di --label_normalize=3
+
+
+---------- RUN #2 ---------------
+rem python preprocess.py training ..\data\d_nospeaker_1 di prep_data_13 
+rem python preprocess.py eval ..\data\d_eval di prep_data_13_nss 
+
+rem python preprocess.py training ..\data\d_nospeaker_1 di prep_data_13_noaug --is_augment=False
+rem python preprocess.py eval ..\data\d_eval di prep_data_13_nss_na 
+
+rem python preprocess.py training ..\data\d_dataset_3 di prep_data_13_noaug --is_augment=False
+rem python preprocess.py eval ..\data\d_eval di prep_data_13_na
+
+rem python preprocess.py training ..\data\m_dataset_p2 mono prep_data_13 
+rem python preprocess.py eval ..\data\m_eval mono prep_data_13 
+
+rem python preprocess.py training ..\data\d_dataset_3 di prep_data_13 
+rem python preprocess.py eval ..\data\d_eval di prep_data_13 
+
+rem python training.py 0
+rem python training.py 1
+rem python training.py 2
+rem python training.py 3
+rem python training.py 4
+rem python training.py 5
+rem python training.py 6
+rem python training.py 7
+rem python training.py 8
+rem python training.py 9
+rem python training.py 10
+rem python training.py 11
+rem python training.py 12
+rem python training.py 13
+rem python training.py 14
+rem python training.py 15
+rem python training.py 16
+rem python training.py 17

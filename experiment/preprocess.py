@@ -86,7 +86,7 @@ def split_audio(audio_data, labels, phonetic, mode):
 	the label is being split
 	'''
 	# for others circumstance
-	split_point = 0.5
+	split_point = 0.4
 	cut_end = 1.0
 
 	# for aj record
@@ -106,7 +106,7 @@ def split_audio(audio_data, labels, phonetic, mode):
 	# cut_end = 0.9
 
 	# for general record
-	# split_point = 0.35
+	# split_point = 0.30
 	# cut_end = 0.8
 
 	# split audio
@@ -148,16 +148,14 @@ def zero_pad_mfcc(feature, is_train, is_disyllable):
 	def pad_data(vector, pad_width, iaxis, kwargs):
 		vector[:pad_width[0]] = kwargs.get('padder', 0)
 
-	print(max_length)
-
 	return np.array([item[:max_length] if item.shape[0] > max_length else np.pad(item, [(max(0, max_length-item.shape[0]),0),(0,0)], pad_data) for item in feature])
 
 
-def transform_audio_to_mfcc(audio_data, max_n_mfcc):
+def transform_audio_to_mfcc(audio_data, max_n_mfcc, sample_rate):
 
 	outputs = []
 	for data in audio_data:
-		mfcc = feature.mfcc(data, sr=16000, n_mfcc = max_n_mfcc)
+		mfcc = feature.mfcc(data, sr=sample_rate, n_mfcc = max_n_mfcc)
 		outputs.append(np.swapaxes(np.concatenate((mfcc,feature.delta(mfcc),feature.delta(mfcc, order=2)),axis=0),0,1))
 	return outputs
 
@@ -188,7 +186,7 @@ def augmentation(audio_data, labels, phonetic, augment_samples, func):
 
 	return audio_data, labels, phonetic
 
-def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_train, mfcc_n, X_shape=None): 
+def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_train, mfcc_n, sample_rate, X_shape=None): 
 
 	if is_disyllable:
 		print('[INFO] Spliting audio data for disyllabic')
@@ -199,7 +197,7 @@ def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_trai
 		labels = utils.min_max_scale_transform(labels, is_train, is_disyllable)
 
 	print('[INFO] Feature mode set to 4, transform axis, mfcc, d, dd')
-	mfcc_features = transform_audio_to_mfcc(features, max_n_mfcc = mfcc_n)
+	mfcc_features = transform_audio_to_mfcc(features, max_n_mfcc = mfcc_n, sample_rate=sample_rate)
 	print('[INFO] Normalization in each cepstral + self-normalized')
 	mfcc_features = utils.normalize_mfcc_by_mean_cepstral(mfcc_features, is_train, is_disyllable, mode, X_shape=X_shape)
 	print('[INFO] Padding MFCC length')
@@ -300,8 +298,8 @@ def main(args):
 		mode=args.mode, 
 		is_disyllable=disyllable, 
 		is_train=False,
-		data_path = args.data_path,
 		mfcc_n = args.mfcc_coef,
+		sample_rate = args.sample_rate,
 		X_shape=None)
 
 	# split data into train, test, validate subset if mode = TRAIN_MODE, else, evaluate and test
@@ -318,7 +316,7 @@ def main(args):
 			augment_samples = int(args.augment_samples*num_X_train)
 			p_augmentation = partial(augmentation, augment_samples=augment_samples)
 
-			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.init_change_pitch(args.sample_rate))
+			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.init_change_pitch(16000))
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.amplify_value)
 			X_train, y_train, z_train = p_augmentation(audio_data=X_train, labels=y_train, phonetic = z_train, func=dev_aug.add_white_noise)
 
