@@ -590,7 +590,7 @@ def pca_articulation_plot(pred_param, data_dir, output_path):
 		ax.set_xticks(np.arange(-3, 3+0.1, 1))
 		ax.set_yticks(np.arange(-1.75, 1.75+0.1, 1))
 		ax.legend()
-		ax.legend(bbox_to_anchor=(1.05, 1), loc=0, borderaxespad=0.)
+		ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 		plt.savefig(join(output_path,'pca_{}.png'.format(syllable_position)))
 		plt.savefig(join(output_path,'pca_{}.pdf'.format(syllable_position)))
 
