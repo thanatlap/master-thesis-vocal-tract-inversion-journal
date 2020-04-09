@@ -107,7 +107,7 @@ def main(args):
 	estimated_sound = np.array([join(eval_dir, 'sound', file) for file in np.load(join(eval_dir, 'testset.npz'))['sound_sets'] ])
 
 	# log the result
-	if cf.DI_SYLLABLE: gen.average_parameter_vocaltract(params, labels, eval_dir)
+	if cf.DI_SYLLABLE: gen.average_parameter_vocaltract(params, utils.read_syllable_from_txt(cf.EVALSET_DIR, cf.DI_SYLLABLE), eval_dir)
 	print('[INFO] logging result')
 	res.log_result_eval(labels, y_pred, eval_result, r2, target_sound, estimated_sound,exp_num)
 	print('[INFO] generate evaluation result')

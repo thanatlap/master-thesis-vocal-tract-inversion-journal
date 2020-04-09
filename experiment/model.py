@@ -73,7 +73,7 @@ def init_LTRCNN():
 		return model
 	return LTRCNN
 
-def init_senet(feature_layer=1, bilstm=3, se_enable=True, cnn_unit=128, bilstm_unit=128, dropout_rate=0.1,
+def init_senet(feature_layer=1, bilstm=4, se_enable=True, cnn_unit=64, bilstm_unit=128, dropout_rate=0.5,
 	first_kernel=7, res_kernel=3, reduction_ratio = 2, activation_fn='relu', embedded_path = None):
 
 	if embedded_path:
@@ -129,8 +129,7 @@ def init_senet(feature_layer=1, bilstm=3, se_enable=True, cnn_unit=128, bilstm_u
 			embedded = embedded_layers(input_x)
 			x = Concatenate()([x, embedded])
 		# add conv and concat
-		x = cnn_block(input_x, 39, 1)
-		x = Concatenate()([x, input_x])
+		# x = Concatenate()([x, input_x])
 		for i in range(bilstm-1):
 			x = Bidirectional(pLSTM(bilstm_unit))(x)
 			if dropout_rate: x = Dropout(rate=dropout_rate)(x)

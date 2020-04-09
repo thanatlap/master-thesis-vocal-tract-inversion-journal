@@ -112,34 +112,40 @@ def create_speaker_file(param_sets,output_dir,
 
 	return speaker_filenames
 
-def ges_template_gen(ges_file, duration, is_disyllable):
+def ges_template_gen(ges_file, duration, is_disyllable, split_point=None):
 
 	if is_disyllable:
-		duration = duration/2
+		duration_1 = split_point
+		duration_2 = duration - split_point
+	else:
+		duration_1 = duration
+
+	# duration_1 = duration/2
+	# duration_2 = duration - duration_1
 
 	f = open(ges_file, 'w')
 	f.write('<gestural_score>\n<gesture_sequence type="vowel-gestures" unit="">\n>')
-	f.write('<gesture value="aaa" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('<gesture value="aaa" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration_1)
 	if is_disyllable:
-		f.write('<gesture value="bbb" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+		f.write('<gesture value="bbb" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration_2)
 	f.write('</gesture_sequence>\n<gesture_sequence type="lip-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="tongue-tip-gestures" unit="">\n')
 	f.write('</gesture_sequence>\n<gesture_sequence type="tongue-body-gestures" unit="">\n</gesture_sequence>\n<gesture_sequence type="velic-gestures" unit="">\n')
 	f.write('</gesture_sequence>\n<gesture_sequence type="glottal-shape-gestures" unit="">\n')
-	f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+	f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration_1)
 	if is_disyllable:
-		f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration)
+		f.write('<gesture value="modal" slope="0.000000" duration_s="%.6f" time_constant_s="0.015000" neutral="0" />\n'%duration_2)
 	f.write('</gesture_sequence>\n')
 	f.write('<gesture_sequence type="f0-gestures" unit="st">\n')
 	f.write('<gesture value="83.00000" slope="0.000000" duration_s="0.01000" time_constant_s="0.030000" neutral="0"/>\n')
-	f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+	f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration_1)
 	if is_disyllable:
-		f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration)
+		f.write('<gesture value="84.00000" slope="0.000000" duration_s="%.5f" time_constant_s="0.030000" neutral="0"/>\n'%duration_2)
 	f.write('</gesture_sequence>\n')
 	f.write('<gesture_sequence type="lung-pressure-gestures" unit="dPa">\n')
 	f.write('<gesture value="0.000000" slope="0.000000" duration_s="0.010000" time_constant_s="0.005000" neutral="0" />\n')
-	f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+	f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration_1)
 	if is_disyllable:
-		f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration)
+		f.write('<gesture value="9000.000000" slope="0.000000" duration_s="%.6f" time_constant_s="0.005000" neutral="0" />\n'%duration_2)
 	f.write('</gesture_sequence> \n')
 	f.write('</gestural_score>\n')
 	f.close()
@@ -150,13 +156,13 @@ def create_ges_file(param_sets, output_dir, data_path = None, is_disyllable = Fa
 	os.makedirs(ges_dir, exist_ok=True)
 
 	if mode == 'predict':
-
+		split_point = pd.read_csv(join(data_path,'split_mark.csv'))['split'].values if is_disyllable else None
 		audio_duration = extract_duration(data_path)
 		ges_filenames = ["ges%s.speaker"%n for n, _ in enumerate(param_sets)]
 		
 		for idx, param in enumerate(param_sets):
 			file_path = join(ges_dir, ges_filenames[idx])
-			ges_template_gen(file_path, float(audio_duration[idx][1]), is_disyllable)
+			ges_template_gen(file_path, float(audio_duration[idx][1]), is_disyllable, split_point[idx])
 
 	else:
 		ges_file = 'gesture_disyllable_template.ges' if is_disyllable else 'gesture_monosyllable_template.ges'

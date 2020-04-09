@@ -13,7 +13,9 @@ The predict dataset does not have the label
 
 '''
 import numpy as np
+import pandas as pd
 import librosa, os, math, random, itertools, argparse, pickle
+from math import ceil, floor
 from librosa import feature
 import matplotlib.pyplot as plt
 from os.path import join
@@ -80,37 +82,17 @@ def scale_speaker_syllable(labels, data_path, mode):
 		speaker_sid = [0 for i in labels]
 	return np.array([ speaker_minmax_scale(label, data_path, speaker_sid[n], mode) for n, label in enumerate(labels) ])
 
-def split_audio(audio_data, labels, phonetic, mode):
+def split_audio(audio_data, labels, phonetic, mode, data_path, sample_rate):
 	'''
 	For disyllabic data, the audio is being splited by half
 	the label is being split
 	'''
-	# for others circumstance
-	split_point = 0.4
-	cut_end = 1.0
-
-	# for aj record
-	# split_point = 0.325
-	# cut_end = 0.75
-
-	# for mom record
-	# split_point = 0.45
-	# cut_end = 0.9
-
-	# for kring record
-	# split_point = 0.40
-	# cut_end = 0.7
-
-	# for sorn record
-	# split_point = 0.4
-	# cut_end = 0.9
-
-	# for general record
-	# split_point = 0.30
-	# cut_end = 0.8
-
-	# split audio
-	split_audio_data = np.array([data[:math.ceil(split_point*len(data))] if j == 0 else data[math.floor(split_point*len(data)):math.floor(cut_end*len(data))] for i, data in enumerate(audio_data) for j in range(2)])
+	if mode == PREDICT_MODE:
+		split_point = pd.read_csv(join(data_path,'split_mark.csv'))['split'].values
+		split_audio_data = np.array([data[:ceil(split_point[i]*sample_rate)] if j == 0 else data[floor(split_point[i]*sample_rate):floor(0.9*len(data))] for i, data in enumerate(audio_data) for j in range(2)])
+	else:
+		split_point = 0.5
+		split_audio_data = np.array([data[:ceil(split_point*len(data))] if j == 0 else data[floor(split_point*len(data)):] for i, data in enumerate(audio_data) for j in range(2)])
 	# split labels for training set and eval set, for predicting data, it return empty set []
 	split_labels = np.array([x for item in labels for x in item]) if mode in [TRAIN_MODE, EVAL_MODE] else []
 	split_phonetic = np.array([x for item in phonetic for x in item]) if mode in [TRAIN_MODE] else []
@@ -186,11 +168,11 @@ def augmentation(audio_data, labels, phonetic, augment_samples, func):
 
 	return audio_data, labels, phonetic
 
-def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_train, mfcc_n, sample_rate, X_shape=None): 
+def preprocess_pipeline(features, labels, phonetic, mode, is_disyllable, is_train, mfcc_n, sample_rate, data_path, X_shape=None): 
 
 	if is_disyllable:
 		print('[INFO] Spliting audio data for disyllabic')
-		features, labels, phonetic = split_audio(features, labels, phonetic, mode=mode)
+		features, labels, phonetic = split_audio(features, labels, phonetic, mode=mode, data_path=data_path, sample_rate=sample_rate)
 
 	if mode != 'predict':
 		print('[INFO] Min Max Scale using it own min max, not a predefined')
@@ -300,6 +282,7 @@ def main(args):
 		is_train=False,
 		mfcc_n = args.mfcc_coef,
 		sample_rate = args.sample_rate,
+		data_path = args.data_path,
 		X_shape=None)
 
 	# split data into train, test, validate subset if mode = TRAIN_MODE, else, evaluate and test

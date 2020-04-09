@@ -90,7 +90,7 @@ def training(features, labels, val_features, val_labels, model, model_name=None,
 		# Early stop
 		early = callbacks.EarlyStopping(monitor='val_R2', 
 			min_delta=0, patience=cf.EARLY_STOP_PATIENCE, 
-			verbose=1, mode='max', baseline=None, restore_best_weights=False)
+			verbose=1, mode='max', baseline=None, restore_best_weights=cf.SAVE_BEST_WEIGHT)
 		callback_list.extend([early])
 
 	if cf.CHECKPOINT_PEROID:
@@ -167,7 +167,7 @@ def main(args):
 	print('[DEBUG] Time: {}'.format(datetime.now()))
 	print('[DEBUG] Data: {}'.format(cf.DATASET_DIR))
 
-	if args.exp in range(0,6):
+	if args.exp in range(0,7):
 		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		ptraining_fn = partial(training_fn, 
@@ -185,9 +185,10 @@ def main(args):
 	if args.exp == 2: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
 	if args.exp == 3: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
 	if args.exp == 4: ptraining_fn(nn.init_senet(embedded_path = None),model_name='senet')
-	if args.exp == 5: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
+	if args.exp == 5: ptraining_fn(nn.init_senet(se_enable=False, embedded_path = None),model_name='resnet')
+	if args.exp == 6: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
 
-	if args.exp in range(6,12):
+	if args.exp in range(7,14):
 		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		ptraining_fn = partial(training_fn, 
@@ -200,41 +201,16 @@ def main(args):
 			experiment_num=args.exp, 
 			model_name='undefined')
 
-	if args.exp == 6: ptraining_fn(nn.init_baseline(), model_name='baseline')
-	if args.exp == 7: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
-	if args.exp == 8: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
-	if args.exp == 9: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
-	if args.exp == 10: ptraining_fn(nn.init_senet(embedded_path = None), model_name='senet')
-	if args.exp == 11: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
-
-	if args.exp == 12: 
-		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_senet(embedded_path = None),
-							X_train=X_train, 
-							X_val=X_val, 
-							X_test=X_test, 
-							y_train=y_train, 
-							y_val=y_val, 
-							y_test=y_test,
-							experiment_num=args.exp, 
-							model_name='senet')
-
-	if args.exp == 13: 
-		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_senet(embedded_path = None),
-							X_train=X_train, 
-							X_val=X_val, 
-							X_test=X_test, 
-							y_train=y_train, 
-							y_val=y_val, 
-							y_test=y_test,
-							experiment_num=args.exp, 
-							model_name='senet')
+	if args.exp == 7: ptraining_fn(nn.init_baseline(), model_name='baseline')
+	if args.exp == 8: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
+	if args.exp == 9: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	if args.exp == 10: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
+	if args.exp == 11: ptraining_fn(nn.init_senet(embedded_path = None), model_name='senet')
+	if args.exp == 12: ptraining_fn(nn.init_senet(se_enable=False, embedded_path = None),model_name='resnet')
+	if args.exp == 13: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
 
 	if args.exp == 14: 
-		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
+		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		training_fn(nn.init_senet(embedded_path = None),
 							X_train=X_train, 
@@ -247,6 +223,32 @@ def main(args):
 							model_name='senet')
 
 	if args.exp == 15: 
+		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+		training_fn(nn.init_senet(embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+
+	if args.exp == 16: 
+		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
+		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+		training_fn(nn.init_senet(embedded_path = None),
+							X_train=X_train, 
+							X_val=X_val, 
+							X_test=X_test, 
+							y_train=y_train, 
+							y_val=y_val, 
+							y_test=y_test,
+							experiment_num=args.exp, 
+							model_name='senet')
+
+	if args.exp == 17: 
 		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
@@ -259,7 +261,7 @@ def main(args):
 							experiment_num=args.exp, 
 							model_name='senet_em')
 
-	if args.exp == 16: 
+	if args.exp == 18: 
 		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
@@ -272,7 +274,7 @@ def main(args):
 							experiment_num=args.exp, 
 							model_name='senet_em')
 
-	if args.exp == 17: 
+	if args.exp == 19: 
 		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
