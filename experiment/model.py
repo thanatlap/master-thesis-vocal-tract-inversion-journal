@@ -74,7 +74,7 @@ def init_LTRCNN():
 	return LTRCNN
 
 def init_senet(feature_layer=1, bilstm=4, se_enable=True, cnn_unit=64, bilstm_unit=128, dropout_rate=0.5,
-	first_kernel=7, res_kernel=3, reduction_ratio = 2, activation_fn='relu', embedded_path = None):
+	first_kernel=3, res_kernel=3, reduction_ratio = 2, activation_fn='relu', embedded_path = None):
 
 	if embedded_path:
 		embedded = tf.keras.models.load_model(embedded_path)

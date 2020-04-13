@@ -20,6 +20,7 @@ from joblib import dump, load
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from matplotlib.ticker import MaxNLocator
 from sklearn.decomposition import PCA
+import umap
 
 param_high = np.array([1, -3.5, 0, 0, 1, 4, 1, 1, 1, 4, 1, 5.5, 2.5, 4, 5, 2, 0, 1.4, 1.4, 1.4, 1.4, 0.3, 0.3, 0.3])
 param_low = np.array([0,-6.0, -0.5, -7.0, -1.0, -2.0, 0, -0.1, 0, -3, -3, 1.5, -3.0, -3, -3, -4, -6, -1.4, -1.4, -1.4, -1.4, -0.05, -0.05, -0.05]) 
@@ -574,7 +575,7 @@ def pca_articulation_plot(pred_param, data_dir, output_path):
 		ax.set_xlabel('Principal Component 1', fontsize = 15)
 		ax.set_ylabel('Principal Component 2', fontsize = 15)
 		ax.set_title('PCA plot of a {} syllable'.format(syllable_position), fontsize = 20)
-		color = ['#FF0000','#FF9200','#0018FF','#0084FF','#FFE900','#A849B3','#4DBD8B','#A7891E','#96044F','#007741']
+		color = ['#11EB11','#991BDE','#FFFF13','#FF1313','#14C0D8','#EB118D','#4F602D','#FF8413','#304174']
 
 		targets = ['a', 'i', 'u','e','E','M','7','o','O']
 		ipa_targets = ["a:", "i:", "u:","e:",'ɛ:','ɯ:','ɤ:','o:','ɔ:']

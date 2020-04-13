@@ -383,3 +383,205 @@ rem python evaluating.py --model=16_senet.h5 --prep=prep_data_13_na --syllable=d
 rem python evaluating.py --model=17_senet_em.h5 --prep=prep_data_13_nss --syllable=di
 rem python evaluating.py --model=18_senet_em.h5 --prep=prep_data_13_nss_na --syllable=di
 rem python evaluating.py --model=19_senet_em.h5 --prep=prep_data_13_na --syllable=di
+
+rem python preprocess.py predict ..\data\d_records\selected di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_aj di prep_data_13 --sample_rate=32250
+rem python preprocess.py predict ..\data\d_records\d_record_mom di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_pat di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_kring di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_sorn di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_in di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_su di prep_data_13 --sample_rate=25000
+rem python preprocess.py predict ..\data\d_records\d_record_sorn_sis di prep_data_13 --sample_rate=44100
+rem python preprocess.py predict ..\data\d_records\d_record_gam di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_plooktan di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_blank di prep_data_13 --sample_rate=22050
+rem python preprocess.py predict ..\data\d_records\d_record_set_1 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_2 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_3 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_4 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_5 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_6 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_7 di prep_data_13 --sample_rate=16000
+rem python preprocess.py predict ..\data\d_records\d_record_set_8 di prep_data_13 --sample_rate=16000
+
+
+rem python training.py 20
+rem python evaluating.py --model=20_senet.h5 --prep=prep_data_13 --syllable=di
+rem python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 20_senet.h5 di 
+
+rem python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 12_resnet.h5 di 
+
+
+rem python training.py 20
+rem python evaluating.py --model=20_senet.h5 --prep=prep_data_13 --syllable=di
+rem python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 20_senet.h5 di 
+
+rem python training.py 21
+python evaluating.py --model=21_resnet.h5 --prep=prep_data_13 --syllable=di
+python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 21_resnet.h5 di 
+rem python predicting.py ..\data\d_records\selected prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_aj prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_mom prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_pat prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_kring prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_sorn prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_in prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_su prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_sorn_sis prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_gam prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_plooktan prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_blank prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_1 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_2 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_3 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_4 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_5 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_6 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_8 prep_data_13 9_bilstm.h5 di 
+
+rem python preprocess.py training ..\data\d_nospeaker_1 di prep_data_13_noaug --is_augment=False
+
+python predicting.py ..\data\d_records\d_record_m prep_data 11_senet.h5 di 
+python predicting.py ..\data\d_records\d_record_f prep_data 11_senet.h5 di 
+python predicting.py ..\data\d_records\d_record_all prep_data 11_senet.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_8 prep_data_13 11_bilstm.h5 di 
+
+
+rem python evaluating.py --model=21_resnet.h5 --prep=prep_data_13 --syllable=di
+rem python predicting.py ..\data\d_records\d_record_set_7 prep_data_13 21_resnet.h5 di 
+
+rem python prep_record.py
+rem python predicting.py ..\data\d_records\record_m prep_data 11_senet.h5 di 
+rem python predicting.py ..\data\d_records\record_f prep_data 11_senet.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 11_senet.h5 di 
+
+rem python predicting.py ..\data\d_records\record_m prep_data 13_senet_em.h5 di 
+rem python predicting.py ..\data\d_records\record_m prep_data 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\record_m prep_data 10_LTRCNN.h5 di 
+
+rem python training.py 27
+rem python predicting.py ..\data\d_records\record_m prep_data 27_cnn_bilstm.h5 di 
+rem python evaluating.py --model=27_cnn_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 24
+rem python predicting.py ..\data\d_records\record_m prep_data 24_resnet.h5 di 
+rem python evaluating.py --model=24_resnet.h5 --prep=prep_data_13 --syllable=di
+
+
+rem python training.py 25
+rem python predicting.py ..\data\d_records\record_m prep_data 25_senet.h5 di 
+rem python evaluating.py --model=25_senet.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 26
+rem python predicting.py ..\data\d_records\record_m prep_data 26_senet.h5 di 
+rem python evaluating.py --model=26_senet.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 24
+rem python predicting.py ..\data\d_records\record_m prep_data 24_resnet.h5 di 
+rem python evaluating.py --model=24_resnet.h5 --prep=prep_data_13 --syllable=di
+
+
+rem python predicting.py ..\data\d_records\record_f prep_data 26_senet.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 26_senet.h5 di 
+
+rem python predicting.py ..\data\d_records\record_f prep_data 9_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 9_bilstm.h5 di 
+
+rem python training.py 28
+rem python predicting.py ..\data\d_records\record_m prep_data 28_bilstm.h5 di 
+rem python evaluating.py --model=28_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 29
+rem python predicting.py ..\data\d_records\record_m prep_data 29_bilstm.h5 di 
+rem python evaluating.py --model=29_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 30
+rem python predicting.py ..\data\d_records\record_m prep_data 30_lstm.h5 di 
+rem python evaluating.py --model=30_lstm.h5 --prep=prep_data_13 --syllable=di
+
+python training.py 32
+python predicting.py ..\data\d_records\record_m prep_data 32_lstm.h5 di 
+python evaluating.py --model=32_lstm.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 31
+rem python predicting.py ..\data\d_records\record_m prep_data 31_bilstm.h5 di 
+rem python evaluating.py --model=31_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+rem python training.py 33
+rem python evaluating.py --model=33_lstm.h5 --prep=prep_data_13 --syllable=mono
+
+rem python training.py 34
+rem python evaluating.py --model=34_cnn_bilstm.h5 --prep=prep_data_13 --syllable=mono
+
+python training.py 35
+python evaluating.py --model=35_bilstm.h5 --prep=prep_data_13 --syllable=mono
+
+python training.py 36
+python evaluating.py --model=36_lstm.h5 --prep=prep_data_13 --syllable=mono
+
+python predicting.py ..\data\d_records\record_all prep_data 11_senet.h5 di 
+python predicting.py ..\data\d_records\record_all prep_data 12_resnet.h5 di 
+python predicting.py ..\data\d_records\record_all prep_data 7_baseline.h5 di 
+python predicting.py ..\data\d_records\record_all prep_data 8_FCNN.h5 di 
+python predicting.py ..\data\d_records\record_all prep_data 10_LTRCNN.h5 di 
+
+python training.py 39
+python predicting.py ..\data\d_records\record_m prep_data 39_cnn_bilstm.h5 di 
+python evaluating.py --model=39_cnn_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+python training.py 40
+python predicting.py ..\data\d_records\record_m prep_data 40_resnet.h5 di 
+python evaluating.py --model=40_resnet.h5 --prep=prep_data_13 --syllable=di
+
+
+rem python training_arx.py 57
+python training_arx.py 58
+python training_arx.py 59
+rem python training_arx.py 60
+rem python training_arx.py 61
+rem python training_arx.py 62
+python training_arx.py 63
+
+python evaluating.py --model=57_baseline.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=58_FCNN.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=59_bilstm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=60_LTRCNN.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=61_conv_bilistm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=62_conv_bilistm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=63_lstm.h5 --prep=prep_data_13 --syllable=di
+
+python training_arx.py 73
+python training_arx.py 74
+python training_arx.py 75
+python training_arx.py 76
+python training_arx.py 77
+rem python training_arx.py 72
+
+python training_arx.py 64
+python training_arx.py 78
+
+python evaluating.py --model=27_cnn_bilstm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=34_cnn_bilstm.h5 --prep=prep_data_13 --syllable=mono
+
+python evaluating.py --model=64_conv_bilistm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=78_conv_bilistm.h5 --prep=prep_data_13 --syllable=mono
+
+python evaluating.py --model=73_baseline.h5 --prep=prep_data_13 --syllable=mono
+python evaluating.py --model=74_FCNN.h5 --prep=prep_data_13 --syllable=mono
+python evaluating.py --model=75_bilstm.h5 --prep=prep_data_13 --syllable=mono
+python evaluating.py --model=76_LTRCNN.h5 --prep=prep_data_13 --syllable=mono
+python evaluating.py --model=72_conv_bilistm.h5 --prep=prep_data_13 --syllable=mono
+python evaluating.py --model=77_lstm.h5 --prep=prep_data_13 --syllable=mono
+
+python training_arx.py 80
+
+python evaluating.py --model=27_cnn_bilstm.h5 --prep=prep_data_13 --syllable=di
+python evaluating.py --model=34_cnn_bilstm.h5 --prep=prep_data_13 --syllable=mono
+
+python training_arx.py 81
+python training_arx.py 82
+python training_arx.py 83
+python training_arx.py 84
+python training_arx.py 85

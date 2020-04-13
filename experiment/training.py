@@ -19,7 +19,7 @@ from functools import partial
 import pickle
 
 import lib.dev_utils as utils
-import model as nn
+import model_2 as nn
 import config as cf
 import make_result as res
 
@@ -167,7 +167,7 @@ def main(args):
 	print('[DEBUG] Time: {}'.format(datetime.now()))
 	print('[DEBUG] Data: {}'.format(cf.DATASET_DIR))
 
-	if args.exp in range(0,7):
+	if args.exp in range(0,7) or args.exp in range(33,39) or args.exp in range(70,80):
 		cf.DATASET_DIR = '../data/m_dataset_p2/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		ptraining_fn = partial(training_fn, 
@@ -187,8 +187,19 @@ def main(args):
 	if args.exp == 4: ptraining_fn(nn.init_senet(embedded_path = None),model_name='senet')
 	if args.exp == 5: ptraining_fn(nn.init_senet(se_enable=False, embedded_path = None),model_name='resnet')
 	if args.exp == 6: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
+	if args.exp == 33: ptraining_fn(nn.init_lstm(), model_name='lstm')
+	if args.exp == 34: ptraining_fn(nn.init_cnn_bilstm(embedded_path = None), model_name='cnn_bilstm')
+	if args.exp == 35: ptraining_fn(nn.init_bilstm(bi_layer_num=4), model_name='bilstm')
+	if args.exp == 36: ptraining_fn(nn.init_lstm(unit=256), model_name='lstm')
+	if args.exp == 37: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	if args.exp == 38: ptraining_fn(nn.init_lstm(), model_name='lstm')
+	if args.exp==71: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64), model_name='conv_bilistm' )
+	if args.exp==72: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
 
-	if args.exp in range(7,14):
+	if args.exp in [52, 53]:
+		cf.EARLY_STOP_PATIENCE = 7
+
+	if args.exp in range(7,14) or args.exp in range(20,33) or args.exp in range(39,70):
 		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
 		ptraining_fn = partial(training_fn, 
@@ -205,9 +216,38 @@ def main(args):
 	if args.exp == 8: ptraining_fn(nn.init_FCNN(), model_name='FCNN')
 	if args.exp == 9: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
 	if args.exp == 10: ptraining_fn(nn.init_LTRCNN(), model_name='LTRCNN')
-	if args.exp == 11: ptraining_fn(nn.init_senet(embedded_path = None), model_name='senet')
-	if args.exp == 12: ptraining_fn(nn.init_senet(se_enable=False, embedded_path = None),model_name='resnet')
+	if args.exp == 23: ptraining_fn(nn.init_senet(embedded_path = None), model_name='senet')
+	if args.exp == 24: ptraining_fn(nn.init_senet(se_enable=False, embedded_path = None),model_name='resnet')
 	if args.exp == 13: ptraining_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'), model_name='senet_em')
+	if args.exp == 25: ptraining_fn(nn.init_senet(bilstm=3, bilstm_unit=256, embedded_path = None), model_name='senet')
+
+	if args.exp==26: ptraining_fn(nn.init_senet(xx=False), model_name='senet' )
+	if args.exp == 27: ptraining_fn(nn.init_cnn_bilstm(embedded_path = None), model_name='cnn_bilstm')
+	if args.exp == 28: ptraining_fn(nn.init_bilstm(output_act='tanh'), model_name='bilstm')
+	if args.exp == 29: ptraining_fn(nn.init_bilstm(bi_layer_num=4), model_name='bilstm')
+	if args.exp == 30: ptraining_fn(nn.init_lstm(), model_name='lstm')
+	if args.exp == 31: ptraining_fn(nn.init_bilstm(), model_name='bilstm')
+	if args.exp == 32: ptraining_fn(nn.init_lstm(unit=256), model_name='lstm')
+	if args.exp == 39: ptraining_fn(nn.init_cnn_bilstm(output_act='tanh', embedded_path = None), model_name='cnn_bilstm')
+	if args.exp==40: ptraining_fn(nn.init_senet(se_enable=False, output_act='tanh'), model_name='resnet' )
+	if args.exp==41: ptraining_fn(nn.init_conv_bilistm(), model_name='conv_bilistm' )
+	if args.exp==43: ptraining_fn(nn.init_conv_bilistm_2(), model_name='conv_bilistm' )
+
+	# try different model
+	if args.exp==44: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64), model_name='conv_bilistm' )
+	if args.exp==45: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, reg=0.0005), model_name='conv_bilistm' )
+	if args.exp==46: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
+	if args.exp==47: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=128, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
+	if args.exp==48: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, bilstm=4), model_name='conv_bilistm' )
+	if args.exp==49: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, bilstm=4, reg=0.0005), model_name='conv_bilistm' )
+	if args.exp==50: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, bilstm=4, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
+	if args.exp==51: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=128, bilstm=4, reg=0.0005, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
+	if args.exp==52: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64), model_name='conv_bilistm' )
+	if args.exp==53: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64, reg=0.0005), model_name='conv_bilistm' )
+	if args.exp==54: ptraining_fn(nn.init_conv_bilistm(cnn_unit=64), model_name='conv_bilistm' )
+	if args.exp == 55: ptraining_fn(nn.init_senet(feature_layer=2, bilstm=5, embedded_path = None), model_name='senet')
+	if args.exp==56: ptraining_fn(nn.init_conv_bilistm_2(cnn_unit=64), model_name='conv_bilistm' )
+	if args.exp == 27: ptraining_fn(nn.init_cnn_bilstm(embedded_path = None), model_name='cnn_bilstm')
 
 	if args.exp == 14: 
 		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
