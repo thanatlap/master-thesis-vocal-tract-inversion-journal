@@ -664,3 +664,10 @@ rem python predicting.py ..\data\d_records\d_record_set_8 prep_data 31_bilstm.h5
 
 rem python preprocess.py predict ..\data\d_records\all di prep_data
 rem python predicting.py ..\data\d_records\all prep_data 31_bilstm.h5 di 
+
+python preprocess.py predict ..\data\inversion_perception\selected di prep_data --sample_rate=16000
+python preprocess.py predict ..\data\inversion_perception\set_3 di prep_data --sample_rate=16000
+python preprocess.py predict ..\data\inversion_perception\set_4 di prep_data --sample_rate=16000
+python preprocess.py predict ..\data\inversion_perception\set_5 di prep_data --sample_rate=16000
+python preprocess.py predict ..\data\inversion_perception\set_6 di prep_data --sample_rate=16000
+python preprocess.py predict ..\data\inversion_perception\set_8 di prep_data --sample_rate=16000
