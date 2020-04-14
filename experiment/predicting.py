@@ -78,8 +78,8 @@ def main(args):
 	res.log_result_predict(y_pred, model_file, args.data_dir,output_path, target_sound, estimated_sound, syllable_name)	
 	evalresult.generate_eval_result(exp_num, is_disyllable, mode='predict', label_set=2, output_path=join(output_path,'formant'))
 	utils.pca_articulation_plot(y_pred.reshape(y_pred.shape[0]//2,2,y_pred.shape[1]), args.data_dir, output_path)
-	utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
-	utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
+	# utils.generate_visualize_spectrogram(target_sound, estimated_sound, join(output_path,'spectrogram'), 'Greys')
+	# utils.generate_visualize_wav(target_sound, estimated_sound, join(output_path,'wave'))
 
 	# export 
 	np.save(arr=params, file=join(output_path,'predict_params.npy'))

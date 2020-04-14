@@ -220,12 +220,92 @@ def main(args):
 	if args.exp==62: ptraining_fn(nn.init_conv_bilistm_3(cnn_unit=64, embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
 	if args.exp == 63: ptraining_fn(nn.init_lstm(embedded_path = 'model/between_embedded_32.hdf5'), model_name='lstm')
 	if args.exp==64: ptraining_fn(nn.init_cnn_bilstm(embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilistm' )
+	if args.exp==65: ptraining_fn(nn.init_cnn_bilstm(), model_name='conv_bilstm' )
+	if args.exp==66: ptraining_fn(nn.init_cnn_bilstm(embedded_path = 'model/between_embedded_32.hdf5'), model_name='conv_bilstm' )
 	
 
-	if args.exp == 80: 
+	# if args.exp == 80: 
+	# 	cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_cnn_bilstm(embedded_path = None),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	# if args.exp == 81: 
+	# 	cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_cnn_bilstm(embedded_path = None),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	# if args.exp == 82: 
+	# 	cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_cnn_bilstm(embedded_path = None),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	# if args.exp == 83: 
+	# 	cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	# if args.exp == 84: 
+	# 	cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	# if args.exp == 85: 
+	# 	cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
+	# 	X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
+	# 	training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
+	# 						X_train=X_train, 
+	# 						X_val=X_val, 
+	# 						X_test=X_test, 
+	# 						y_train=y_train, 
+	# 						y_val=y_val, 
+	# 						y_test=y_test,
+	# 						experiment_num=args.exp, 
+	# 						model_name='conv_bilistm')
+
+	if args.exp == 86: 
 		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_cnn_bilstm(embedded_path = None),
+		training_fn(nn.init_bilstm(embedded_path = None),
 							X_train=X_train, 
 							X_val=X_val, 
 							X_test=X_test, 
@@ -233,12 +313,12 @@ def main(args):
 							y_val=y_val, 
 							y_test=y_test,
 							experiment_num=args.exp, 
-							model_name='conv_bilistm')
+							model_name='bilstm')
 
-	if args.exp == 81: 
+	if args.exp == 87: 
 		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_cnn_bilstm(embedded_path = None),
+		training_fn(nn.init_bilstm(embedded_path = None),
 							X_train=X_train, 
 							X_val=X_val, 
 							X_test=X_test, 
@@ -246,12 +326,12 @@ def main(args):
 							y_val=y_val, 
 							y_test=y_test,
 							experiment_num=args.exp, 
-							model_name='conv_bilistm')
+							model_name='bilstm')
 
-	if args.exp == 82: 
+	if args.exp == 88: 
 		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
 		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_cnn_bilstm(embedded_path = None),
+		training_fn(nn.init_bilstm(embedded_path = None),
 							X_train=X_train, 
 							X_val=X_val, 
 							X_test=X_test, 
@@ -259,46 +339,7 @@ def main(args):
 							y_val=y_val, 
 							y_test=y_test,
 							experiment_num=args.exp, 
-							model_name='conv_bilistm')
-
-	if args.exp == 83: 
-		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13'
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
-							X_train=X_train, 
-							X_val=X_val, 
-							X_test=X_test, 
-							y_train=y_train, 
-							y_val=y_val, 
-							y_test=y_test,
-							experiment_num=args.exp, 
-							model_name='conv_bilistm')
-
-	if args.exp == 84: 
-		cf.DATASET_DIR = '../data/d_nospeaker_1/prep_data_13_noaug'
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
-							X_train=X_train, 
-							X_val=X_val, 
-							X_test=X_test, 
-							y_train=y_train, 
-							y_val=y_val, 
-							y_test=y_test,
-							experiment_num=args.exp, 
-							model_name='conv_bilistm')
-
-	if args.exp == 85: 
-		cf.DATASET_DIR = '../data/d_dataset_3/prep_data_13_noaug'
-		X_train, X_val, X_test, y_train, y_val, y_test = prep_data()
-		training_fn(nn.init_senet(embedded_path = 'model/between_embedded_32.hdf5'),
-							X_train=X_train, 
-							X_val=X_val, 
-							X_test=X_test, 
-							y_train=y_train, 
-							y_val=y_val, 
-							y_test=y_test,
-							experiment_num=args.exp, 
-							model_name='conv_bilistm')
+							model_name='bilstm')
 	
 
 if __name__ == '__main__':

@@ -585,3 +585,82 @@ python training_arx.py 82
 python training_arx.py 83
 python training_arx.py 84
 python training_arx.py 85
+
+rem python predicting.py ..\data\d_records\record_all_ns prep_data 80_conv_bilistm.h5 di 
+python predicting.py ..\data\d_records\record_all_ns prep_data 81_conv_bilistm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 82_conv_bilistm.h5 di 
+python predicting.py ..\data\d_records\record_all_ns prep_data 83_conv_bilistm.h5 di 
+python predicting.py ..\data\d_records\record_all_ns prep_data 84_conv_bilistm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 85_conv_bilistm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 27_cnn_bilstm.h5 di 
+python predicting.py ..\data\d_records\record_m prep_data 27_cnn_bilstm.h5 di 
+python predicting.py ..\data\d_records\record_f prep_data 27_cnn_bilstm.h5 di 
+
+rem python preprocess.py predict ..\data\d_records\d_record_set_1 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_2 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_3 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_4 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_5 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_6 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_7 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_8 di prep_data
+rem python preprocess.py predict ..\data\d_records\selected di prep_data
+python preprocess.py predict ..\data\d_records\all di prep_data
+
+python predicting.py ..\data\d_records\all prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_3 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_4 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_5 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_6 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_8 prep_data 27_cnn_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\selected prep_data 27_cnn_bilstm.h5 di 
+
+python evaluating.py --model=27_cnn_bilstm.h5 --prep=prep_data_13 --syllable=di
+
+python preprocess.py predict ..\data\inversion_81 di prep_data --sample_rate=35000
+
+rem python predicting.py ..\data\d_records\record_all prep_data 30_lstm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 8_FCNN.h5 di 
+
+rem python training_arx.py 65
+rem python evaluating.py --model=66_conv_bilstm.h5 --prep=prep_data_13 --syllable=di
+rem python evaluating.py --model=65_conv_bilstm.h5 --prep=prep_data_13 --syllable=di
+rem python predicting.py ..\data\d_records\record_all prep_data 65_conv_bilstm.h5 di
+
+rem python training_arx.py 66
+
+rem python predicting.py ..\data\d_records\record_all prep_data 66_conv_bilstm.h5 di
+
+rem python preprocess.py predict ..\data\inversion\inversion_30 di prep_data --sample_rate=35000
+rem python preprocess.py predict ..\data\inversion\inversion_8 di prep_data --sample_rate=35000
+
+python training_arx.py 86
+python training_arx.py 87
+python training_arx.py 88
+
+
+rem python training_arx.py 88
+rem python predicting.py ..\data\d_records\record_all_ns prep_data 86_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\record_all_ns prep_data 87_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\record_all prep_data 88_bilstm.h5 di 
+
+rem python preprocess.py predict ..\data\d_records\d_record_set_1 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_2 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_3 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_4 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_5 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_6 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_7 di prep_data
+rem python preprocess.py predict ..\data\d_records\d_record_set_8 di prep_data
+
+rem python predicting.py ..\data\d_records\all prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_2 prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_3 prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_4 prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_5 prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_6 prep_data 31_bilstm.h5 di 
+rem python predicting.py ..\data\d_records\d_record_set_8 prep_data 31_bilstm.h5 di 
+
+rem python preprocess.py predict ..\data\d_records\all di prep_data
+rem python predicting.py ..\data\d_records\all prep_data 31_bilstm.h5 di 
